@@ -31,19 +31,22 @@
 // INTERNAL HELPER FUNCTIONS
 
 // Enables motor control
-void Revolve::start(){
+void Revolve::start() const
+{
 	digitalWrite(_start_pin,HIGH);
 }
 
 // Stops motor - usually to stop energisation at 0Hz. Will cause EM stop if activated at speed.
-void Revolve::stop(){
+void Revolve::stop() const
+{
 	digitalWrite(_start_pin,LOW);
   waitForStop(); // wait for full stop if stopping from high speed (uses _em_stop_time)
 }
 
 // Waits for motor to fully stop using _em_stop_time
-void Revolve::waitForStop(){
-  unsigned long int startTime=millis(); // Don't use delay so encoders catch final position
+void Revolve::waitForStop() const
+{
+	auto startTime=millis(); // Don't use delay so encoders catch final position
   while(millis()<(startTime+_em_stop_time)){
     // Break out if pause button released (revolve won't come to full stop if button briefly released)
     if(digitalRead(PAUSE)==LOW){
@@ -55,12 +58,14 @@ void Revolve::waitForStop(){
 // GETTERS AND SETTERS
 
 // Getter for _cur_speed
-int Revolve::getSpeed(){
+int Revolve::getSpeed() const
+{
   return _cur_speed;
 }
 
 // Getter for _dir
-int Revolve::getDir(){
+int Revolve::getDir() const
+{
   return _dir;
 }
 
@@ -81,7 +86,7 @@ void Revolve::setSpeed(float speed){
   }
   
   // Convert from % to duty cycle
-  int req_duty_cycle = (int) (speed*255)/100;
+	auto req_duty_cycle = static_cast<int>(speed * 255)/100;
 
   // Limit max
   if(req_duty_cycle>255)
@@ -120,7 +125,7 @@ void Revolve::setDir(int dir){
 
 // Returns relative position between 0 and 360 degrees
 int Revolve::displayPos(){
-  long pos=getPos();
+	auto pos=getPos();
   int realPos=pos%360;
 
   // No negatives
@@ -132,7 +137,8 @@ int Revolve::displayPos(){
 }
 
 // Reset position to 0
-void Revolve::resetPos(){
+void Revolve::resetPos() const
+{
   _enc.write(0);
 }
 

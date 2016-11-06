@@ -56,21 +56,22 @@ void Cuestack::resetCuestack(){
   saveCuestack();
 }
 void Cuestack::loadCuestack(){
-  for(int i=0;i<100;i++){
+  for(auto i=0;i<100;i++){
     EEPROM.get(EECUESTACK_START+i*20,stack[i]);
   }
   currentCue=0;
   totalCues=activeCues();
 }
 
-void Cuestack::saveCuestack(){
-  for(int i=0;i<100;i++){
+void Cuestack::saveCuestack() const
+{
+  for(auto i=0;i<100;i++){
     EEPROM.put(EECUESTACK_START+i*20,stack[i]);
   }
 }
 
 void Cuestack::getMovements(int (&outputValues)[10]){
-  Cue cue=stack[currentCue];
+	auto cue=stack[currentCue];
   outputValues[0]=cue.pos_i;
   outputValues[1]=cue.speed_i;
   outputValues[2]=cue.acc_i;
@@ -83,12 +84,13 @@ void Cuestack::getMovements(int (&outputValues)[10]){
   outputValues[9]=cue.revs_o;
 }
 
-void Cuestack::getNumber(float& outputNumber){
+void Cuestack::getNumber(float& outputNumber) const
+{
   outputNumber=stack[currentCue].num;
 }
 
 void Cuestack::getParams(int (&outputParams)[3]){
-  Cue cue=stack[currentCue];
+  auto cue = stack[currentCue];
   outputParams[0]=cue.auto_follow;
   outputParams[1]=cue.en_i;
   outputParams[2]=cue.en_o;
@@ -117,8 +119,9 @@ void Cuestack::setParams(int inputParams[3]){
   stack[currentCue].en_o=inputParams[2];
 }
 
-int Cuestack::getCueIndex(float number){
-  for(int i=0;i<100;i++){
+int Cuestack::getCueIndex(float number) const
+{
+  for(auto i=0;i<100;i++){
     if(isEqual(number,stack[i].num)){
       return i;
     }
@@ -126,9 +129,10 @@ int Cuestack::getCueIndex(float number){
 }
 
 // Checks to see if number already exists in stack
-bool Cuestack::validCueNumber(float number){
-  int valid=1;
-  for(int i=0;i<100;i++){
+bool Cuestack::validCueNumber(float number) const
+{
+	auto valid=1;
+  for(auto i=0;i<100;i++){
     if(isEqual(stack[i].num,number)){
       valid=0;
     }
@@ -140,9 +144,10 @@ bool Cuestack::validCueNumber(float number){
 }
 
 // Counts total active cues
-int Cuestack::activeCues(){
-  int active=0;
-  for(int i=0;i<100;i++){
+int Cuestack::activeCues() const
+{
+	auto active=0;
+  for(auto i=0;i<100;i++){
     if(stack[i].active)
       active++;
   }
@@ -152,7 +157,7 @@ int Cuestack::activeCues(){
 // Sorts cuestack (e.g. after changing number, deleting cues etc.
 // Simple bubblesort unofortunately, but only performed quite rarely
 void Cuestack::sortCues(){
-  int sorted=0;
+	auto sorted=0;
   Cue scratch1;
   Cue scratch2;
   
@@ -161,7 +166,7 @@ void Cuestack::sortCues(){
     sorted=1;
 
     // Try every cue
-    for(int i=0;i<99;i++){ // Don't run over end of array - each pass checks i and i+1!! (Causes issues....)
+    for(auto i=0;i<99;i++){ // Don't run over end of array - each pass checks i and i+1!! (Causes issues....)
       
       // Move non active cues up (only if one above isn't active also, otherwise waste of time!)
       if(!stack[i].active && stack[i+1].active){
@@ -188,13 +193,13 @@ void Cuestack::sortCues(){
 }
 
 boolean Cuestack::isEqual(float f1, float f2){
- return ( (int)(f1 *100)) == ((int)(f2 * 100) );
+ return static_cast<int>(f1 * 100) == static_cast<int>(f2 * 100);
 }
 
 void Cuestack::loadExampleCues(){
-  for(int i=0;i<25;i++){
+  for(auto i=0;i<25;i++){
     stack[i].active=1;
-    stack[i].num=i+((float)(i%10))/10.0;
+    stack[i].num=i+static_cast<float>(i % 10)/10.0;
     initialiseCue(i);
     stack[i].pos_i=random(0,359);
     stack[i].pos_o=random(0,359);

@@ -28,32 +28,33 @@ void Displays::setMode(int newMode){
 }
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text){
-  const char* string = (const char*)text;
+	auto string = reinterpret_cast<const char*>(text);
   int width = lcd.getStrWidth(string);
-  int x = (128-width)/2;
+	auto x = (128-width)/2;
   lcd.setPrintPos(x,y);
   lcd.print(text);
 } 
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text){
   int width = lcd.getStrWidth(text);
-  int x = (128-width)/2;
+	auto x = (128-width)/2;
   lcd.setPrintPos(x,y);
   lcd.print(text);
 } 
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text){
-  const char* string = "a";
+	auto string = "a";
   int width = lcd.getStrWidth(string);
-  int x = (128-width)/2;
+	auto x = (128-width)/2;
   lcd.setPrintPos(x,y);
   lcd.print(text);
 } 
 
-void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10],int cursorEnable){
+void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10],int cursorEnable) const
+{
   lcd.setFont(font);
-  
-  int menu_pos_shift=_interface.menu_pos;
+
+	auto menu_pos_shift=_interface.menu_pos;
   if(mode!=MAN &&_interface.cueParams[1]==0){ // Shift menu_pos by 5 if inner disabled
     menu_pos_shift+=5;
   }
@@ -201,7 +202,8 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10],int cu
   }
 }
 
-void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable){
+void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const
+{
   _menu.setFont(font);
   _menu.drawStr(4,10,"Cue Number:");
   _menu.setPrintPos(90,10);
@@ -247,7 +249,8 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable){
   _menu.setDefaultForegroundColor();
 }
 
-void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable){
+void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const
+{
   // Set font and row height
   lcd.setFont(small_font);
 
@@ -268,9 +271,9 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
   lcd.setDefaultForegroundColor();
 
   // Draw correct page of cues
-  for(int i=(cueListPage*7);i<(cueListPage+1)*7;i++){
+  for(auto i=(cueListPage*7);i<(cueListPage+1)*7;i++){
     if(_cuestack.stack[i].active){
-      int iPos=(i-(cueListPage*7)); // Offset page number from i used to position elements on page
+	    auto iPos=(i-(cueListPage*7)); // Offset page number from i used to position elements on page
       
       // Draw currentCue box
       if(_cuestack.currentCue==i){
@@ -323,7 +326,8 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
   lcd.setFont(font);
 }
 
-void Displays::drawCue(){
+void Displays::drawCue() const
+{
   _cue.setFont(font);
 
   switch (mode){
@@ -376,7 +380,8 @@ void Displays::drawCue(){
   }
 }
 
-void Displays::drawMenu(){
+void Displays::drawMenu() const
+{
   _menu.setFont(font);
 
   switch (mode){
@@ -558,7 +563,8 @@ void Displays::drawMenu(){
   }
 }
 
-void Displays::drawInfo(){
+void Displays::drawInfo() const
+{
   _info.setFont(font);
 
   switch (mode){

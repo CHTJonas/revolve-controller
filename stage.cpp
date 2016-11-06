@@ -6,13 +6,15 @@ Stage::Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& inte
 }
 
 // Updates revolve enc_ratios from EEPROM
-void Stage::updateEncRatios() {
+void Stage::updateEncRatios() const
+{
   EEPROM.get(EEINNER_ENC_RATIO, _inner._enc_ratio);
   EEPROM.get(EEOUTER_ENC_RATIO, _outer._enc_ratio);
 }
 
 // Updates kp values from EEPROM
-void Stage::updateKpSettings() {
+void Stage::updateKpSettings() const
+{
   double kpSettings[6];
   EEPROM.get(EEKP_SETTINGS, kpSettings);
 
@@ -174,8 +176,9 @@ bool Stage::eStopsEngaged() {
     return true;
 }
 
-void Stage::deadMansRestart(int restartSpeed) {
-  int restart = 0;
+void Stage::deadMansRestart(int restartSpeed) const
+{
+	auto restart = 0;
 
   // Update LEDs
   _interface.updatePauseLeds();
@@ -205,7 +208,8 @@ void Stage::deadMansRestart(int restartSpeed) {
   }
 }
 
-void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) {
+void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) const
+{
   // PID setup variables
   double kp_inner, curPos_inner, setPos_inner, curSpeed_inner;
   double kp_outer, curPos_outer, setPos_outer, curSpeed_outer;
@@ -276,8 +280,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
   accel_outer = max(1, accel_outer);
 
   // Convert accel from increase/second to increase/(1/10) second
-  float tenths_accel_inner = (float)accel_inner / 10.0;
-  float tenths_accel_outer = (float)accel_outer / 10.0;
+  float tenths_accel_inner = static_cast<float>(accel_inner) / 10.0;
+  float tenths_accel_outer = static_cast<float>(accel_outer) / 10.0;
 
   // Calculate kp for this move using constants from inital constructor and required speed, acceleration
   kp_inner = _inner._kp_0 + ((100 - maxSpeed_inner) * _inner._kp_smin) / 100 + ((accel_inner) * _inner._kp_amax) / (MAXACCEL);

@@ -1,3 +1,4 @@
+#pragma once
 #include <Arduino.h>
 #include "constants.h"
 #include <EEPROM.h>
@@ -37,22 +38,22 @@ class Cuestack {
 
   // EEPROM saving and retrieving
   void loadCuestack();
-  void saveCuestack();
+  void saveCuestack() const;
 
   // Getters for current cue data
   void getMovements(int (&outputValues)[10]);
-  void getNumber(float& outputNumber);
+  void getNumber(float& outputNumber) const;
   void getParams(int (&outputParams)[3]);
   void setMovements(int inputValues[10]);
   void setNumber(float inputNumber);
   void setParams(int inputParams[3]);
-  int getCueIndex(float number);
+  int getCueIndex(float number) const;
 
   // Cue number validation and sorting
-  bool validCueNumber(float number);
-  int activeCues();
+  bool validCueNumber(float number) const;
+  int activeCues() const;
   void sortCues();
-  boolean isEqual(float f1, float f2);
+	static boolean isEqual(float f1, float f2);
 
   // Testing function for example cue data
   void loadExampleCues();
@@ -65,7 +66,5 @@ class Cuestack {
   
   // Master array to hold up to 100 written cues
   Cue stack[100];
-
-  private:
 };
 

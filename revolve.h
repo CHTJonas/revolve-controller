@@ -1,3 +1,4 @@
+#pragma once
 #include <PID_v1.h>
 #include <Encoder.h>
 #include <Arduino.h>
@@ -13,17 +14,17 @@ class Revolve {
 	Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc);
 
   // Internal helper functions
-	void start();
-	void stop();
-  void waitForStop();
+	void start() const;
+	void stop() const;
+  void waitForStop() const;
 
   // Getters and setters
-  int getSpeed();
-  int getDir();
+  int getSpeed() const;
+  int getDir() const;
   long getPos();
   void setSpeed(float speed);
   void setDir(int dir);
-  void resetPos();
+  void resetPos() const;
   int displayPos();
   void setDebug(int debug);
 

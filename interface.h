@@ -1,3 +1,4 @@
+#pragma once
 #include <Encoder.h>
 #include <Keypad.h>
 #include <Adafruit_NeoPixel.h>
@@ -13,10 +14,10 @@ class Interface {
   // Navigation and editing
   bool updateMenu(int menuMax);
   bool editVars(int mode);
-  void limitVariable(int& variable, int varMin, int varMax);
-  void limitVariable(float& variable, float varMin, float varMax);
-  void limitVariable(double& variable, double varMin, double varMax);
-  void limitMovements(int (&movements)[10]);
+	static void limitVariable(int& variable, int varMin, int varMax);
+	static void limitVariable(float& variable, float varMin, float varMax);
+	static void limitVariable(double& variable, double varMin, double varMax);
+  void limitMovements(int (&movements)[10]) const;
   void limitLedSettings();
   void limitEncSettings();
   void limitKpSettings();
@@ -26,19 +27,19 @@ class Interface {
   
   // LEDs
   void flashLed(int led, int interval);
-  void updatePauseLeds();
-  void ringLedsColor(int r, int g, int b);
-  void pauseLedsColor(int r, int g, int b);
-  void keypadLedsColor(int r, int g, int b);
-  void encRed();
-  void encGreen();
-  void encBlue();
-  void encOff();
-  void allLedsOn();
-  void allLedsOff();
+  void updatePauseLeds() const;
+  void ringLedsColor(int r, int g, int b) const;
+  void pauseLedsColor(int r, int g, int b) const;
+  void keypadLedsColor(int r, int g, int b) const;
+	static void encRed();
+	static void encGreen();
+	static void encBlue();
+	static void encOff();
+  void allLedsOn() const;
+  void allLedsOff() const;
 
   // Input helpers
-  int getInputEnc();
+  int getInputEnc() const;
   void updateKeypad();
   void resetKeypad();
   char getKey();

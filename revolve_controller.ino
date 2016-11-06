@@ -613,7 +613,7 @@ void loop(){
         interface.getInputEnc();
         
         interface.waitSelectRelease();
-        while(1){
+        while(true){
           interface.select.update();
 
           // If select presed again, exit jogging mode
@@ -676,7 +676,7 @@ void loop(){
             // Homing Mode
             displays.setMode(STARTUP);
 
-            while(1){
+            while(true){
 
               // Flash GO led, update pause led
               interface.flashLed(GOLED,500);
@@ -735,7 +735,7 @@ void loop(){
             interface.pauseLedsColor(0,255,0);
             digitalWrite(GOLED,HIGH);
             
-            while(1){
+            while(true){
               
               // Exit if back pressed
               interface.back.update();
@@ -1099,14 +1099,13 @@ void updateFlags(){
 }
 
 char * encodeCue(Cue cue){
-    char *cue_bytes = (char *) &cue;
-    char *encoded = new char[(sizeof cue) * 2 + 1];
-    for (int i = 0; i < sizeof cue; i++) {
+	auto cue_bytes = reinterpret_cast<char *>(&cue);
+	auto encoded = new char[(sizeof cue) * 2 + 1];
+    for (auto i = 0; i < sizeof cue; i++) {
       encoded[2*i] = cue_bytes[i] | 0x0f;
       encoded[2*i+1] = cue_bytes[i] | 0xf0;
     }
 
     encoded[(sizeof cue) * 2] = '\0';
-
     return encoded;
 }
