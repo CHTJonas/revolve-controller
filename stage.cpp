@@ -26,142 +26,75 @@ void Stage::updateKpSettings() const
 	_outer._kp_amax = kpSettings[5];
 }
 
-// Initial homing sequence
-void Stage::gotoHome() const
+void Stage::home_wheel(Revolve& wheel, int wheelPin) const
 {
-	_displays.setMode(HOMING);
-
 	// Spin until home switch pressed
-	_inner.setDir(FORWARDS);
-	_inner.setSpeed(HOMESPEED);
+	wheel.setDir(FORWARDS);
+	wheel.setSpeed(HOMESPEED);
 
 	// Wait for inner home switch
-	while (digitalRead(INNERHOME)) {
+	while (digitalRead(wheelPin)) {
 
 		// Check Dead Mans Switch
 		if (digitalRead(PAUSE)) {
-
-			// Update LEDs
+			emergencyStop();
 			_interface.pauseLedsColor(255, 0, 0);
 			digitalWrite(GOLED, HIGH);
-
-			// EM stop
-			emergencyStop();
 
 			// Wait for repress
 			while (digitalRead(PAUSE) || digitalRead(GO)) {
 			}
 
-			// Green button
+			// Restart
 			_interface.pauseLedsColor(0, 255, 0);
 			digitalWrite(GOLED, LOW);
-
-			// Restart
-			_inner.setSpeed(HOMESPEED);
+			wheel.setSpeed(HOMESPEED);
 		}
 
 		// Check Estops
 		if (eStopsEngaged()) {
-
-			// Update LEDs
+			emergencyStop();
+			_displays.setMode(ESTOP);
 			_interface.pauseLedsColor(0, 0, 0);
 			digitalWrite(GOLED, LOW);
-
-			// Go into ESTOP mode
-			_displays.setMode(ESTOP);
-
-			// EM stop
-			emergencyStop();
 
 			// Wait for reset
 			while (eStopsEngaged()) {
 			}
 
-			// Reset Mode
+			// Restart
 			_displays.setMode(HOMING);
-
-			// Update LEDs
 			_interface.pauseLedsColor(255, 0, 0);
 			digitalWrite(GOLED, HIGH);
-
-			// Restart
 			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
-				_inner.setSpeed(HOMESPEED);
+				wheel.setSpeed(HOMESPEED);
 			}
 		}
 	}
 	// Reset at home pin
-	_inner.resetPos();
+	wheel.resetPos();
 
 	// Stop
-	_inner.setSpeed(0);
+	wheel.setSpeed(0);
+}
 
+// Initial homing sequence
+void Stage::gotoHome() const
+{
+	_displays.setMode(HOMING);
+
+	home_wheel(_inner, INNERHOME);
 	// Set inner ring green
 	for (int i = 12; i < 24; i++) {
 		_ringLeds.setPixelColor(i, 0, 255, 0);
 	}
 	_ringLeds.show();
 
-	// Spin until home switch pressed
-	_outer.setDir(FORWARDS);
-	_outer.setSpeed(HOMESPEED);
-
-	// Wait for outer home switch
-	while (digitalRead(OUTERHOME)) {
-		if (digitalRead(PAUSE)) {
-
-			// Update LEDs
-			_interface.pauseLedsColor(255, 0, 0);
-			digitalWrite(GOLED, HIGH);
-
-			// EM stop
-			emergencyStop();
-
-			// Wait for repress
-			while (digitalRead(PAUSE) || digitalRead(GO)) {
-			}
-
-			// Green button
-			_interface.pauseLedsColor(0, 255, 0);
-			digitalWrite(GOLED, LOW);
-
-			// Restart
-			_outer.setSpeed(HOMESPEED);
-		}
-
-		// Check Estops
-		if (eStopsEngaged()) {
-			// Update LEDs
-			_interface.pauseLedsColor(0, 0, 0);
-			digitalWrite(GOLED, LOW);
-
-			// EM stop
-			emergencyStop();
-
-			// Wait for reset
-			while (eStopsEngaged()) {
-			}
-
-			// Update LEDs
-			_interface.pauseLedsColor(255, 0, 0);
-			digitalWrite(GOLED, HIGH);
-
-			// Restart
-			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
-				_inner.setSpeed(HOMESPEED);
-			}
-		}
-	}
-	// Reset at home pin
-	_outer.resetPos();
-
-	// Stop
-	_outer.setSpeed(0);
-
+	home_wheel(_outer, OUTERHOME);
 	// Set outer ring green
-	_interface.ringLedsColor(0, 255, 0);
-	_displays.setMode(HOMED);
+		_interface.ringLedsColor(0, 255, 0);
 
+	_displays.setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
 	gotoPos(0, 0, MINSPEED, MINSPEED, 1, 1, BACKWARDS, BACKWARDS, 0, 0);
 

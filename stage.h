@@ -15,6 +15,7 @@ public:
 	void updateKpSettings() const;
 
 	// Control
+	void home_wheel(Revolve& wheel, int wheelPin) const;
 	void gotoHome() const;
 	void emergencyStop() const;
 	static bool eStopsEngaged();
