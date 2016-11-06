@@ -58,7 +58,7 @@ void Stage::gotoHome() {
     }
 
     // Check Estops
-    if (checkEstops()) {
+    if (eStopsEngaged()) {
 
       // Update LEDs
       _interface.pauseLedsColor(0, 0, 0);
@@ -71,7 +71,7 @@ void Stage::gotoHome() {
       _inner.setSpeed(0);
 
       // Wait for reset
-      while (checkEstops()) {
+      while (eStopsEngaged()) {
       }
 
       // Reset Mode
@@ -127,7 +127,7 @@ void Stage::gotoHome() {
     }
 
     // Check Estops
-    if (checkEstops()) {
+    if (eStopsEngaged()) {
       // Update LEDs
       _interface.pauseLedsColor(0, 0, 0);
       digitalWrite(GOLED, LOW);
@@ -136,7 +136,7 @@ void Stage::gotoHome() {
       _inner.setSpeed(0);
 
       // Wait for reset
-      while (checkEstops()) {
+      while (eStopsEngaged()) {
       }
 
       // Update LEDs
@@ -165,7 +165,7 @@ void Stage::gotoHome() {
   _displays.setMode(NORMAL);
 }
 
-bool Stage::checkEstops() {
+bool Stage::eStopsEngaged() {
   // Commented out line for non-conencted external esstop testing
   //if(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW && digitalRead(ESTOPNO)==HIGH){
   if (digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH)
@@ -303,7 +303,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
     // Update Select debounce
     _interface.select.update();
     // Check Estops
-    if (checkEstops()) {
+    if (eStopsEngaged()) {
 
       // Store curent mode - could be man or show (or program_gotocue)!
       int curMode = _displays.mode;
@@ -321,7 +321,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
       _outer.setSpeed(0);
 
       // Wait for reset
-      while (checkEstops()) {
+      while (eStopsEngaged()) {
         _displays.updateDisplays(1, 1, 1, 1);
       }
 
