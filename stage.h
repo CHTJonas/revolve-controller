@@ -5,29 +5,29 @@
 #define OUTER 1
 
 class Stage {
-  public:
+public:
 
-  // Constructor
-  Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& interface, Adafruit_NeoPixel& ringLeds);
+	// Constructor
+	Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& interface, Adafruit_NeoPixel& ringLeds);
 
-  // Settings updating
-  void updateEncRatios() const;
-  void updateKpSettings() const;
+	// Settings updating
+	void updateEncRatios() const;
+	void updateKpSettings() const;
 
-  // Control
-  void gotoHome() const;
+	// Control
+	void gotoHome() const;
 	static bool eStopsEngaged();
-  void deadMansRestart(int restartSpeed) const;
-  void gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) const;
-  void runCurrentCue() const;
-  
-  Revolve& _inner;
-  Revolve& _outer;
-  
-  private:
+	void deadMansRestart(int restartSpeed) const;
+	void gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) const;
+	void runCurrentCue() const;
 
-  Displays& _displays;
-  Interface& _interface;
-  Adafruit_NeoPixel& _ringLeds;
-  
+	Revolve& _inner;
+	Revolve& _outer;
+
+private:
+
+	Displays& _displays;
+	Interface& _interface;
+	Adafruit_NeoPixel& _ringLeds;
+
 };

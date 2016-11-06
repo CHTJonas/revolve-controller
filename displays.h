@@ -4,63 +4,63 @@
 #include "interface.h"
 
 class Displays {
-  public:
+public:
 
-  // Constructor
-  Displays(U8GLIB_ST7920_128X64& cue, U8GLIB_ST7920_128X64& menu, U8GLIB_ST7920_128X64& info, Adafruit_NeoPixel& ringLeds, Revolve& inner, Revolve& outer, Keypad& keypad, Interface& interface, Cuestack& cuestack);
+	// Constructor
+	Displays(U8GLIB_ST7920_128X64& cue, U8GLIB_ST7920_128X64& menu, U8GLIB_ST7920_128X64& info, Adafruit_NeoPixel& ringLeds, Revolve& inner, Revolve& outer, Keypad& keypad, Interface& interface, Cuestack& cuestack);
 
-  // Initialisation
-  void begin();
-  void setMode(int newMode);
+	// Initialisation
+	void begin();
+	void setMode(int newMode);
 
-  // Screen Drawing
+	// Screen Drawing
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text);
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text);
-  void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const;
-  void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
-  void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
-  void drawCue() const;
-  void drawMenu() const;
-  void drawInfo() const;
-  void updateRingLeds();
-  void updateDisplays(int cue1, int menu, int info, int ringLeds);
-  void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
+	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(&values)[10], int cursorEnable) const;
+	void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
+	void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
+	void drawCue() const;
+	void drawMenu() const;
+	void drawInfo() const;
+	void updateRingLeds();
+	void updateDisplays(int cue1, int menu, int info, int ringLeds);
+	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
 
-  int _update;
-  int mode;
-  int ledOuter;
-  int ledInner;
+	int _update;
+	int mode;
+	int ledOuter;
+	int ledInner;
 
-  private:
+private:
 
-  char *menu_strings[4] = {"Manual Operation", "Program Cues", "Show Mode", "Settings"};
-  char *settings_strings[8] = {"Home Revolve", "PID Constants", "Default Cue Values", "Backup Cuestack","Reset Cuestack","Encoder Settings","LED Settings","Hardware Test"};
-  char *enc_settings_strings[4] = {"Inner Dir:","Outer Dir:","Inner RO:","Outer RO:"};
-  char *led_settings_strings[4] = {"Brightness:","LEDs Red:","LEDs Green:","LEDs Blue"};
-  char *kp_settings_strings[6]= {"Inner kp_0:","Inner kp_smin:","Inner kp_amax:","Outer kp_0:","Outer kp_smin:","Outer kp_amax:"};
-  char *program_strings[4]={"Next Cue","Previous Cue","Add Cue","Delete Cue"};
-  char *param_strings[3]={"Auto Follow:","Inner EN:","Outer EN:"};
+	char *menu_strings[4] = { "Manual Operation", "Program Cues", "Show Mode", "Settings" };
+	char *settings_strings[8] = { "Home Revolve", "PID Constants", "Default Cue Values", "Backup Cuestack","Reset Cuestack","Encoder Settings","LED Settings","Hardware Test" };
+	char *enc_settings_strings[4] = { "Inner Dir:","Outer Dir:","Inner RO:","Outer RO:" };
+	char *led_settings_strings[4] = { "Brightness:","LEDs Red:","LEDs Green:","LEDs Blue" };
+	char *kp_settings_strings[6] = { "Inner kp_0:","Inner kp_smin:","Inner kp_amax:","Outer kp_0:","Outer kp_smin:","Outer kp_amax:" };
+	char *program_strings[4] = { "Next Cue","Previous Cue","Add Cue","Delete Cue" };
+	char *param_strings[3] = { "Auto Follow:","Inner EN:","Outer EN:" };
 
-  const u8g_fntpgm_uint8_t *font=u8g_font_profont11; // 8px high row
-  const u8g_fntpgm_uint8_t *xlarge_font=u8g_font_profont22; // 16px high row
-  const u8g_fntpgm_uint8_t *large_font=u8g_font_profont15; // 10px high row
-  const u8g_fntpgm_uint8_t *small_font=u8g_font_5x7; // 7px high row
-  
-  U8GLIB_ST7920_128X64& _cue;
-  U8GLIB_ST7920_128X64& _menu;
-  U8GLIB_ST7920_128X64& _info;
+	const u8g_fntpgm_uint8_t *font = u8g_font_profont11; // 8px high row
+	const u8g_fntpgm_uint8_t *xlarge_font = u8g_font_profont22; // 16px high row
+	const u8g_fntpgm_uint8_t *large_font = u8g_font_profont15; // 10px high row
+	const u8g_fntpgm_uint8_t *small_font = u8g_font_5x7; // 7px high row
 
-  Adafruit_NeoPixel& _ringLeds;
+	U8GLIB_ST7920_128X64& _cue;
+	U8GLIB_ST7920_128X64& _menu;
+	U8GLIB_ST7920_128X64& _info;
 
-  Revolve& _inner;
-  Revolve& _outer;
+	Adafruit_NeoPixel& _ringLeds;
 
-  Keypad& _keypad;
+	Revolve& _inner;
+	Revolve& _outer;
 
-  Interface& _interface;
+	Keypad& _keypad;
 
-  Cuestack& _cuestack;
+	Interface& _interface;
+
+	Cuestack& _cuestack;
 
 };
 
