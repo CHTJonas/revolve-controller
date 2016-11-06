@@ -18,6 +18,7 @@ typedef struct {
 	byte revs_o;
 
 	int num = 0;
+	int byteWaster = 0; // num used to be a float = 4 bytes, so this is a placeholder until we can rearchitect the struct
 	byte auto_follow = 0;
 	byte en_i = 1;
 	byte en_o = 1;
