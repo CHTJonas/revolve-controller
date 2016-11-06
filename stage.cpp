@@ -259,44 +259,21 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
   // Sanitise speed input
   maxSpeed_inner = abs(maxSpeed_inner);
-  if (maxSpeed_inner > 100) {
-    maxSpeed_inner = 100;
-  }
-  if (maxSpeed_inner < MINSPEED) {
-    maxSpeed_inner = MINSPEED;
-  }
-  if (maxSpeed_inner == MINSPEED) {
-    maxSpeed_inner++;
-  }
+  maxSpeed_inner = min(100, maxSpeed_inner);
+  maxSpeed_inner = max(MINSPEED + 1, maxSpeed_inner);
 
   maxSpeed_outer = abs(maxSpeed_outer);
-  if (maxSpeed_outer > 100) {
-    maxSpeed_outer = 100;
-  }
-  if (maxSpeed_outer < MINSPEED) {
-    maxSpeed_outer = MINSPEED;
-  }
-  if (maxSpeed_outer == MINSPEED) {
-    maxSpeed_outer++;
-  }
+  maxSpeed_outer = min(100, maxSpeed_outer);
+  maxSpeed_outer = max(MINSPEED + 1, maxSpeed_outer);
 
   // Sanitise max acceleration input
   accel_inner = abs(accel_inner);
-  if (accel_inner > MAXACCEL) {
-    accel_inner = MAXACCEL;
-  }
-  // Cannot be 0
-  if (accel_inner < 1) {
-    accel_inner = 1;
-  }
+  accel_inner = min(MAXACCEL, accel_inner);
+  accel_inner = max(1, accel_inner);
+
   accel_outer = abs(accel_outer);
-  if (accel_outer > MAXACCEL) {
-    accel_outer = MAXACCEL;
-  }
-  // Cannot be 0
-  if (accel_outer < 1) {
-    accel_outer = 1;
-  }
+  accel_outer = min(MAXACCEL, accel_outer);
+  accel_outer = max(1, accel_outer);
 
   // Convert accel from increase/second to increase/(1/10) second
   float tenths_accel_inner = (float)accel_inner / 10.0;
