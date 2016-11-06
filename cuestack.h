@@ -54,7 +54,6 @@ public:
 	bool validCueNumber(float number) const;
 	int activeCues() const;
 	void sortCues();
-	static boolean isEqual(float f1, float f2);
 
 	// Testing function for example cue data
 	static void loadExampleCues();

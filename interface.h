@@ -72,7 +72,7 @@ public:
 
 	// Cue display values
 	int cueMovements[10];
-	float cueNumber;
+	int cueNumber;
 	int cueParams[3];
 
 	// Settings parameters

@@ -84,7 +84,7 @@ bool Interface::editVars(int mode) {
 				}
 				break;
 			case PROGRAM_PARAMS:
-				cueNumber = static_cast<float>(keypadValue) / 10;
+				cueNumber = keypadValue;
 				break;
 			}
 			return true;
