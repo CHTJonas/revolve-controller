@@ -46,7 +46,7 @@ void Stage::gotoHome() const
 			digitalWrite(GOLED, HIGH);
 
 			// EM stop
-			_inner.setSpeed(0);
+			emergencyStop();
 
 			// Wait for repress
 			while (digitalRead(PAUSE) || digitalRead(GO)) {
@@ -71,7 +71,7 @@ void Stage::gotoHome() const
 			_displays.setMode(ESTOP);
 
 			// EM stop
-			_inner.setSpeed(0);
+			emergencyStop();
 
 			// Wait for reset
 			while (eStopsEngaged()) {
@@ -115,7 +115,7 @@ void Stage::gotoHome() const
 			digitalWrite(GOLED, HIGH);
 
 			// EM stop
-			_outer.setSpeed(0);
+			emergencyStop();
 
 			// Wait for repress
 			while (digitalRead(PAUSE) || digitalRead(GO)) {
@@ -136,7 +136,7 @@ void Stage::gotoHome() const
 			digitalWrite(GOLED, LOW);
 
 			// EM stop
-			_inner.setSpeed(0);
+			emergencyStop();
 
 			// Wait for reset
 			while (eStopsEngaged()) {
@@ -166,6 +166,12 @@ void Stage::gotoHome() const
 	gotoPos(0, 0, MINSPEED, MINSPEED, 1, 1, BACKWARDS, BACKWARDS, 0, 0);
 
 	_displays.setMode(NORMAL);
+}
+
+void Stage::emergencyStop() const
+{
+	_inner.setSpeed(0);
+	_outer.setSpeed(0);
 }
 
 bool Stage::eStopsEngaged() {
@@ -322,8 +328,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 			_displays.forceUpdateDisplays(1, 1, 1, 1);
 
 			// EM stop
-			_inner.setSpeed(0);
-			_outer.setSpeed(0);
+			emergencyStop();
 
 			// Wait for reset
 			while (eStopsEngaged()) {
@@ -342,8 +347,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 		if (digitalRead(PAUSE)) {
 
 			// EM stop
-			_inner.setSpeed(0);
-			_outer.setSpeed(0);
+			emergencyStop();
 
 			// Restart
 			deadMansRestart(MINSPEED);

@@ -16,6 +16,7 @@ public:
 
 	// Control
 	void gotoHome() const;
+	void emergencyStop() const;
 	static bool eStopsEngaged();
 	void deadMansRestart(int restartSpeed) const;
 	void gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) const;
