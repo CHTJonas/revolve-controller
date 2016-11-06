@@ -145,30 +145,18 @@ bool Interface::editVars(int mode) {
 }
 
 void Interface::limitVariable(int& variable, int varMin, int varMax) {
-	if (variable > varMax) {
-		variable = varMax;
-	}
-	if (variable < varMin) {
-		variable = varMin;
-	}
+	variable = min(varMax, variable);
+	variable = max(varMin, variable);
 }
 
 void Interface::limitVariable(float& variable, float varMin, float varMax) {
-	if (variable > varMax) {
-		variable = varMax;
-	}
-	if (variable < varMin) {
-		variable = varMin;
-	}
+	variable = min(varMax, variable);
+	variable = max(varMin, variable);
 }
 
 void Interface::limitVariable(double& variable, double varMin, double varMax) {
-	if (variable > varMax) {
-		variable = varMax;
-	}
-	if (variable < varMin) {
-		variable = varMin;
-	}
+	variable = min(varMax, variable);
+	variable = max(varMin, variable);
 }
 
 void Interface::limitMovements(int(&movements)[10]) const
@@ -229,35 +217,21 @@ bool Interface::updateMenu(int menuMax) {
 	auto oldMenuPos = menu_pos;
 
 	if (encValue > 0 && menu_pos < menuMax) {
-		if ((menu_pos + encValue) > menuMax) {
-			menu_pos = menuMax;
-		}
-		else {
-			menu_pos += encValue;
-		}
+		menu_pos = min(menuMax, menu_pos + encValue);
 	}
 	else if (encValue < 0 && menu_pos>0) {
-		if ((menu_pos + encValue) < 0) {
-			menu_pos = 0;
-		}
-		else {
-			menu_pos += encValue;
-		}
+		menu_pos = max(0, menu_pos + encValue);
 	}
-	if (menu_pos != oldMenuPos) {
-		return true;
-	}
-	else {
-		return false;
-	}
+
+	return !(menu_pos == oldMenuPos);
 }
 
 void Interface::flashLed(int led, int interval) {
+	auto currentState = digitalRead(led);
 
-	int currentState = digitalRead(led);
-
-	if (flashCounter == 0)
+	if (flashCounter == 0) {
 		flashCounter = millis();
+	}
 
 	if (millis() > (flashCounter + interval)) {
 		digitalWrite(led, !currentState);

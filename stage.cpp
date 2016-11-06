@@ -299,8 +299,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	pid_outer.SetSampleTime(75);
 	pid_outer.SetMode(AUTOMATIC);
 
-	int inner_done = 0;
-	int outer_done = 0;
+	auto inner_done = 0;
+	auto outer_done = 0;
 
 	_interface.select.update();
 
@@ -311,7 +311,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 		if (eStopsEngaged()) {
 
 			// Store curent mode - could be man or show (or program_gotocue)!
-			int curMode = _displays.mode;
+			auto curMode = _displays.mode;
 
 			// Turn off GO and Pause LEDs
 			_interface.pauseLedsColor(0, 0, 0);

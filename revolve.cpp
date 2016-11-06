@@ -71,7 +71,7 @@ int Revolve::getDir() const
 
 // Getter for current absolute position from encoder - updates _cur_pos
 long Revolve::getPos() {
-	long pos = (_enc.read() / 4L); // Encoder has 4 steps per degree
+	auto pos = (_enc.read() / 4L); // Encoder has 4 steps per degree
 	pos = pos / _enc_ratio;             // Divide by encoder degrees per revolve degree
 	_cur_pos = pos;
 	return pos;
