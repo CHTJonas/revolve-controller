@@ -27,7 +27,8 @@ void Stage::updateKpSettings() const
 }
 
 // Initial homing sequence
-void Stage::gotoHome() {
+void Stage::gotoHome() const
+{
   _displays.setMode(HOMING);
 
   // Spin until home switch pressed
@@ -500,7 +501,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
   _interface.waitSelectRelease();
 }
 
-void Stage::runCurrentCue() {
+void Stage::runCurrentCue() const
+{
   // Turn off switch leds
   _interface.encOff();
   digitalWrite(SELECTLED, LOW);
