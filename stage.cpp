@@ -35,40 +35,29 @@ void Stage::home_wheel(Revolve& wheel, int wheelPin) const
 	// Wait for inner home switch
 	while (digitalRead(wheelPin)) {
 
-		// Check Dead Mans Switch
-		if (digitalRead(PAUSE)) {
+		// Check for emergency stop
+		if (digitalRead(PAUSE) || eStopsEngaged()) {
 			emergencyStop();
-			_interface.pauseLedsColor(255, 0, 0);
-			digitalWrite(GOLED, HIGH);
-
-			// Wait for repress
-			while (digitalRead(PAUSE) || digitalRead(GO)) {
-			}
 
 			// Restart
 			_interface.pauseLedsColor(0, 255, 0);
 			digitalWrite(GOLED, LOW);
 			wheel.setSpeed(HOMESPEED);
-		}
 
-		// Check Estops
-		if (eStopsEngaged()) {
-			emergencyStop();
-			_displays.setMode(ESTOP);
-			_interface.pauseLedsColor(0, 0, 0);
-			digitalWrite(GOLED, LOW);
-
-			// Wait for reset
-			while (eStopsEngaged()) {
-			}
-
-			// Restart
-			_displays.setMode(HOMING);
-			_interface.pauseLedsColor(255, 0, 0);
-			digitalWrite(GOLED, HIGH);
+			// TODO check this
+			// below code was origianlly only in E-Stops
 			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
 				wheel.setSpeed(HOMESPEED);
 			}
+
+
+			/** TODO check LED status
+			 * This is the code resuming from E-Stops
+			 
+			  _displays.setMode(HOMING);
+			  _interface.pauseLedsColor(255, 0, 0);
+			  digitalWrite(GOLED, HIGH);
+			 */
 		}
 	}
 	// Reset at home pin
@@ -92,7 +81,7 @@ void Stage::gotoHome() const
 
 	home_wheel(_outer, OUTERHOME);
 	// Set outer ring green
-		_interface.ringLedsColor(0, 255, 0);
+	_interface.ringLedsColor(0, 255, 0);
 
 	_displays.setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
@@ -105,6 +94,23 @@ void Stage::emergencyStop() const
 {
 	_inner.setSpeed(0);
 	_outer.setSpeed(0);
+
+	if (eStopsEngaged())
+	{
+		_displays.setMode(ESTOP);
+		_interface.pauseLedsColor(0, 0, 0);
+		digitalWrite(GOLED, LOW);
+	}
+	else
+	{
+		_interface.pauseLedsColor(255, 0, 0);
+		digitalWrite(GOLED, HIGH);
+	}
+
+	// hold until we're ready to go again
+	while (digitalRead(PAUSE) || digitalRead(GO) || eStopsEngaged()) {
+	}
+
 }
 
 bool Stage::eStopsEngaged() {
