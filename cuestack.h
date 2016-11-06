@@ -17,7 +17,7 @@ typedef struct {
 	byte dir_o;
 	byte revs_o;
 
-	float num = 0;
+	int num = 0;
 	byte auto_follow = 0;
 	byte en_i = 1;
 	byte en_o = 1;
@@ -42,12 +42,12 @@ public:
 
 	// Getters for current cue data
 	void getMovements(int(&outputValues)[10]);
-	void getNumber(float& outputNumber) const;
+	void getNumber(int& outputNumber) const;
 	void getParams(int(&outputParams)[3]);
 	void setMovements(int inputValues[10]);
-	void setNumber(float inputNumber);
+	void setNumber(int inputNumber);
 	void setParams(int inputParams[3]);
-	int getCueIndex(float number) const;
+	int getCueIndex(int number) const;
 
 	// Cue number validation and sorting
 	bool validCueNumber(float number) const;
@@ -56,7 +56,7 @@ public:
 	static boolean isEqual(float f1, float f2);
 
 	// Testing function for example cue data
-	void loadExampleCues();
+	static void loadExampleCues();
 
 	int currentCue = 0;
 	int totalCues = 0;

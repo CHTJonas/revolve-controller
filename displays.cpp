@@ -287,12 +287,16 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 				lcd.setDefaultBackgroundColor();
 			}
 
-			// Number - remove all .0
+			// Number
 			lcd.setPrintPos(2, (8 * (iPos + 2)) - 1);
-			if (_cuestack.stack[i].num - floor(_cuestack.stack[i].num) == 0)
-				lcd.print(_cuestack.stack[i].num, 0);
-			else
-				lcd.print(_cuestack.stack[i].num, 1);
+			lcd.print(_cuestack.stack[i].num / 10);
+
+			// Print decimal part if any
+			if(_cuestack.stack[i].num % 10 != 0)
+			{
+				lcd.print(".");
+				lcd.print(_cuestack.stack[i].num % 10);
+			} 
 
 			if (_cuestack.stack[i].en_i) {
 				lcd.setPrintPos(30, (8 * (iPos + 2)) - 1);

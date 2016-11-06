@@ -457,7 +457,7 @@ void loop() {
 			if (interface.menu_pos == 4) {
 				// Find largest current cue number (stack is sorted by number)
 				int activeCues = cuestack.activeCues();
-				float cueNum = cuestack.stack[activeCues - 1].num;
+				int cueNum = cuestack.stack[activeCues - 1].num;
 
 				// Round down and add 1 to get next cue number
 				cueNum = floor(cueNum) + 1;

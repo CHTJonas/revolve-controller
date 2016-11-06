@@ -42,13 +42,13 @@ void Cuestack::resetCue(int number) {
 }
 
 void Cuestack::resetCuestack() {
-	for (int i = 0; i < 100; i++) {
+	for (auto i = 0; i < 100; i++) {
 		stack[i].num = 0;
 		initialiseCue(i);
 		stack[i].active = 0;
 	}
 	stack[0].active = 1;
-	stack[0].num = 1;
+	stack[0].num = 10;
 	currentCue = 0;
 	totalCues = 1;
 
@@ -84,7 +84,7 @@ void Cuestack::getMovements(int(&outputValues)[10]) {
 	outputValues[9] = cue.revs_o;
 }
 
-void Cuestack::getNumber(float& outputNumber) const
+void Cuestack::getNumber(int& outputNumber) const
 {
 	outputNumber = stack[currentCue].num;
 }
@@ -109,7 +109,7 @@ void Cuestack::setMovements(int inputValues[10]) {
 	stack[currentCue].revs_o = inputValues[9];
 }
 
-void Cuestack::setNumber(float inputNumber) {
+void Cuestack::setNumber(int inputNumber) {
 	stack[currentCue].num = inputNumber;
 }
 
@@ -119,10 +119,11 @@ void Cuestack::setParams(int inputParams[3]) {
 	stack[currentCue].en_o = inputParams[2];
 }
 
-int Cuestack::getCueIndex(float number) const
+int Cuestack::getCueIndex(int number) const
 {
 	for (auto i = 0; i < 100; i++) {
-		if (isEqual(number, stack[i].num)) {
+		if (number == stack[i].num)
+		{
 			return i;
 		}
 	}
@@ -131,16 +132,13 @@ int Cuestack::getCueIndex(float number) const
 // Checks to see if number already exists in stack
 bool Cuestack::validCueNumber(float number) const
 {
-	auto valid = 1;
 	for (auto i = 0; i < 100; i++) {
-		if (isEqual(stack[i].num, number)) {
-			valid = 0;
+		if (number == stack[i].num) {
+			return true;
 		}
 	}
-	if (valid)
-		return true;
-	else
-		return false;
+
+	return false;
 }
 
 // Counts total active cues
@@ -192,24 +190,6 @@ void Cuestack::sortCues() {
 	}
 }
 
-boolean Cuestack::isEqual(float f1, float f2) {
-	return static_cast<int>(f1 * 100) == static_cast<int>(f2 * 100);
-}
-
 void Cuestack::loadExampleCues() {
-	for (auto i = 0; i < 25; i++) {
-		stack[i].active = 1;
-		stack[i].num = i + static_cast<float>(i % 10) / 10.0;
-		initialiseCue(i);
-		stack[i].pos_i = random(0, 359);
-		stack[i].pos_o = random(0, 359);
-		if (i % 2 == 0)
-			stack[i].auto_follow = 1;
-		else
-			stack[i].revs_i = i;
-		if (i % 3 == 0)
-			stack[i].revs_o = i * 2;
-	}
-	totalCues = 25;
 }
 
