@@ -285,18 +285,16 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	pid_outer.SetSampleTime(75);
 	pid_outer.SetMode(AUTOMATIC);
 
-	auto inner_done = 0;
-	auto outer_done = 0;
+	auto inner_done = false;
+	auto outer_done = false;
 
 	_interface.select.update();
-
-	while ((inner_done == 0 || outer_done == 0) && _interface.select.read() == HIGH) { // Stop cue if select pressed mid way
-		// Update Select debounce and displays
-		_interface.select.update();
-		_displays.updateDisplays(0, 0, 1, 1);
+	while (!inner_done || !outer_done) { 
+		inner_done = !(inner_sign && curPos_inner < setPos_inner) || (!inner_sign && curPos_inner > setPos_inner);
+		outer_done = !(outer_sign && curPos_outer < setPos_outer) || (!outer_sign && curPos_outer > setPos_outer);
 
 		// Inner revolve
-		if ((inner_sign && curPos_inner < setPos_inner) || (!inner_sign && curPos_inner > setPos_inner)) {
+		if (!inner_done) {
 			// Update position and compute PID
 			curPos_inner = _inner.getPos();
 			pid_inner.Compute();
@@ -308,15 +306,12 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 				_inner._tenths = 0;
 			}
 		}
-		// Otherwise done, set done flag
-		else if (inner_done == 0) {
-			inner_done = 1;
-			// Stop once position reached
+		else {
 			_inner.setSpeed(0);
 		}
 
 		// Outer
-		if ((outer_sign && curPos_outer < setPos_outer) || (!outer_sign && curPos_outer > setPos_outer)) {
+		if (!outer_done) {
 			// Update position and compute PID
 			curPos_outer = _outer.getPos();
 			pid_outer.Compute();
@@ -328,22 +323,10 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 				_outer._tenths = 0;
 			}
 		}
-		// Otherwise done, set done flag
-		else if (outer_done == 0) {
-			outer_done = 1;
-			// Stop once position reached
+		else {
 			_outer.setSpeed(0);
 		}
 	}
-
-
-	// Stop revolves if Select has been pressed
-	if (outer_done == 0)
-		_outer.setSpeed(0);
-	if (inner_done == 0)
-		_inner.setSpeed(0);
-	_displays.forceUpdateDisplays(0, 0, 1, 1);
-	_interface.waitSelectRelease();
 }
 
 void Stage::runCurrentCue()
