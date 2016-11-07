@@ -303,46 +303,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	while ((inner_done == 0 || outer_done == 0) && _interface.select.read() == HIGH) { // Stop cue if select pressed mid way
 	  // Update Select debounce
 		_interface.select.update();
-		// Check Estops
-		if (eStopsEngaged()) {
-
-			// Store curent mode - could be man or show (or program_gotocue)!
-			auto curMode = _displays.mode;
-
-			// Turn off GO and Pause LEDs
-			_interface.pauseLedsColor(0, 0, 0);
-			digitalWrite(GOLED, LOW);
-
-			// Go into ESTOP mode
-			_displays.mode = ESTOP;
-			_displays.forceUpdateDisplays(1, 1, 1, 1);
-
-			// EM stop
-			emergencyStop();
-
-			// Wait for reset
-			while (eStopsEngaged()) {
-				_displays.updateDisplays(1, 1, 1, 1);
-			}
-
-			// Reset to last mode
-			_displays.mode = curMode;
-			_displays.forceUpdateDisplays(1, 1, 1, 1);
-
-			// Restart
-			deadMansRestart(MINSPEED);
-		}
-
-		// Check Dead Mans Switch
-		if (digitalRead(PAUSE)) {
-
-			// EM stop
-			emergencyStop();
-
-			// Restart
-			deadMansRestart(MINSPEED);
-		}
-
+		
 		// Update displays
 		_displays.updateDisplays(0, 0, 1, 1);
 
