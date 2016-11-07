@@ -259,8 +259,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
 
 	// Sanitise speed input
-	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, maxSpeed_inner);
-	maxSpeed_outer = clamp(abs(maxSpeed_outer), MINSPEED + 1, maxSpeed_outer);
+	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, 100);
+	maxSpeed_outer = clamp(abs(maxSpeed_outer), MINSPEED + 1, 100);
 
 	// Sanitise max acceleration input
 	accel_inner = clamp(abs(accel_inner), 1, MAXACCEL);
@@ -303,7 +303,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 			// Limit acceleration
 			if (_inner._tenths >= 1) {
-				const auto allowedSpeed = clamp(curSpeed_inner, _inner._cur_speed - tenths_accel_inner, _inner.cur_speed + tenths_accel_inner);
+				const auto allowedSpeed = clamp(curSpeed_inner, _inner._cur_speed - tenths_accel_inner, _inner._cur_speed + tenths_accel_inner);
 				_inner.setSpeed(allowedSpeed);
 				_inner._tenths = 0;
 			}
@@ -323,7 +323,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 			// Limit acceleration
 			if (_outer._tenths >= 1) {
-				const auto allowedSpeed = clamp(curSpeed_outer, _outer._cur_speed - tenths_accel_outer, _outer.cur_speed + tenths_accel_outer);
+				const auto allowedSpeed = clamp(curSpeed_outer, _outer._cur_speed - tenths_accel_outer, _outer._cur_speed + tenths_accel_outer);
 				_outer.setSpeed(allowedSpeed);
 				_outer._tenths = 0;
 			}
