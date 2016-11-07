@@ -103,16 +103,16 @@ void Stage::setStateReady()
 	_state.data.ready = {};
 }
 
-void Stage::setStateDrive()
+void Stage::setStateDrive(long unsigned inner_target_speed, long unsigned outer_target_speed, long unsigned inner_target_position, long unsigned outer_target_position)
 {
 	_state.state = REVOLVE_DRIVE;
-	_state.data.drive = {};
+	_state.data.drive = { millis(), _inner.getSpeed(), _outer.getSpeed(), inner_target_speed, outer_target_speed, inner_target_position, outer_target_position, false, false };
 }
 
-void Stage::setStateBrake(unsigned long start_time, long inner_start_position, long outer_start_position)
+void Stage::setStateBrake()
 {
 	_state.state = REVOLVE_BRAKE;
-	_state.data.brake = { start_time, inner_start_position, outer_start_position };
+	_state.data.brake = { millis(), _inner.getSpeed(), _outer.getSpeed(), false, false };
 }
 
 void Stage::runStage()
@@ -126,21 +126,14 @@ void Stage::runStage()
 		switch (_state.state) {
 
 		case REVOLVE_READY:
-			if (dmhEngaged() && goEngaged()) {
-				setStateDrive();
-			}
+			ready();
 			break;
 
 		case REVOLVE_DRIVE:
-			if (!dmhEngaged()) {
-				setStateBrake(millis(), _inner.getPos(), _outer.getPos());
-			}
+			drive();
 			break;
 
 		case REVOLVE_BRAKE:
-			if (dmhEngaged() && goEngaged()) {
-				setStateDrive();
-			}
 			brake();
 			break;
 
@@ -150,18 +143,57 @@ void Stage::runStage()
 	}
 }
 
+void Stage::ready() {
+	if (dmhEngaged() && goEngaged()) {
+		setStateDrive(0, 0, 0, 0);
+	}
+}
+
 void Stage::brake()
 {
-	int inner_speed = (_inner.getPos() - _state.data.brake.inner_start_position) / (millis() - _state.data.brake.start_time);
-	int outer_speed = (_outer.getPos() - _state.data.brake.outer_start_position) / (millis() - _state.data.brake.start_time);
-
-	if (checkEstops())
-	{
-		return;
+	if (dmhEngaged() && goEngaged()) {
+		setStateDrive(0, 0, 0, 0);
 	}
-	_inner.setSpeed(max(0, inner_speed - _pause_max_speed));
-	_outer.setSpeed(max(0, outer_speed - _pause_max_speed));
+
+	const unsigned long inner_speed = [&] () {
+		if (_state.data.brake.inner_at_speed)
+			return 0UL;
+		else 
+			return _state.data.brake.inner_start_speed - (millis() - _state.data.brake.start_time) * _acceleration;
+	}();
+	const unsigned long outer_speed = [&] () {
+		if (_state.data.brake.outer_at_speed)
+			return 0UL;
+		else 
+			return _state.data.brake.outer_start_speed - (millis() - _state.data.brake.start_time) * _acceleration;
+	}();
+
+	if (inner_speed == 0) {
+		_state.data.brake.inner_at_speed = true;
+	}
+
+	if (outer_speed == 0) {
+		_state.data.brake.outer_at_speed = true;
+	}
+
+	if (_state.data.brake.inner_at_speed && _state.data.brake.outer_at_speed) {
+		setStateReady();
+	}
+
+	_inner.setSpeed(inner_speed);
+	_outer.setSpeed(outer_speed);
 }
+
+void Stage::drive()
+{
+	if (!dmhEngaged()) {
+		setStateBrake();
+	}
+
+	_inner.setSpeed(0);
+	_outer.setSpeed(0);
+}
+
 
 bool Stage::dmhEngaged()
 {
@@ -191,43 +223,6 @@ bool Stage::eStopsEngaged()
 	// Commented out line for non-conencted external esstop testing
 	//if !(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW && digitalRead(ESTOPNO)==HIGH){
 	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
-}
-
-void Stage::resumeDrive(int restartSpeed) const
-{
-
-}
-
-void Stage::deadMansRestart(int restartSpeed) const
-{
-	auto restart = 0;
-
-	// Update LEDs
-	_interface.updatePauseLeds();
-	digitalWrite(GOLED, HIGH);
-
-	// Update Displays
-	_displays.forceUpdateDisplays(1, 1, 1, 1);
-	_interface.select.update();
-
-	// Wait for repress
-	while (_interface.select.read() && !restart) {
-		_interface.updatePauseLeds();
-		_interface.select.update();
-
-		// Restart if pause and go pressed
-		if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
-			_inner.setSpeed(restartSpeed);
-			_outer.setSpeed(restartSpeed);
-
-			// Update LEDs
-			_interface.updatePauseLeds();
-			digitalWrite(GOLED, LOW);
-
-			// Re enter main loop
-			restart = 1;
-		}
-	}
 }
 
 void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)

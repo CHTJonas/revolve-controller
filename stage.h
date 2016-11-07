@@ -16,12 +16,24 @@ typedef struct RevolveState {
 	RevolveStateEnum state;
 	union {
 		struct {} ready;
-		struct {} drive;
+		struct {
+			unsigned long start_time;
+			long inner_start_speed;
+			long outer_start_speed;
+			long inner_target_speed;
+			long outer_target_speed;
+			long inner_target_position;
+			long outer_target_position;
+			bool inner_at_speed;
+			bool outer_at_speed;
+		} drive;
 		struct
 		{
 			unsigned long start_time;
-			long inner_start_position;
-			long outer_start_position;
+			long inner_start_speed;
+			long outer_start_speed;
+			bool inner_at_speed;
+			bool outer_at_speed;
 		} brake;
 		struct {} estop;
 	} data;
@@ -42,20 +54,21 @@ public:
 	void gotoHome();
 	void emergencyStop();
 	void runStage();
+	void ready();
 	void brake();
+	void drive();
 	static bool dmhEngaged();
 	static bool goEngaged();
 	bool checkEstops();
 	static bool eStopsEngaged();
 	void resumeDrive(int restartSpeed) const;
-	void deadMansRestart(int restartSpeed) const;
 	void gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer);
 	void runCurrentCue();
 
 	Revolve& _inner;
 	Revolve& _outer;
 	RevolveState _state;
-	int _pause_max_speed = 10; // TODO check for sanity
+	int _acceleration = 10; // TODO check for sanity
 
 private:
 
@@ -64,7 +77,6 @@ private:
 	Adafruit_NeoPixel& _ringLeds;
 
 	void setStateReady();
-	void setStateDrive();
-	void setStateBrake(unsigned long start_time, long inner_start_position, long outer_start_position);
-
+	void setStateDrive(unsigned long inner_target_speed, unsigned long outer_target_speed, unsigned long inner_target_position, unsigned long outer_target_position);
+	void setStateBrake();
 };
