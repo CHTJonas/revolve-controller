@@ -105,7 +105,7 @@ void Cuestack::setMovements(int inputValues[10]) {
 	stack[currentCue].pos_o = inputValues[5];
 	stack[currentCue].speed_o = inputValues[6];
 	stack[currentCue].acc_o = inputValues[7];
-	stack[currentCue].dir_o = inputValues[8];;
+	stack[currentCue].dir_o = inputValues[8];
 	stack[currentCue].revs_o = inputValues[9];
 }
 
