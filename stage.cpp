@@ -288,7 +288,6 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	auto inner_done = false;
 	auto outer_done = false;
 
-	_interface.select.update();
 	while (!inner_done || !outer_done) { 
 		inner_done = !(inner_sign && curPos_inner < setPos_inner) || (!inner_sign && curPos_inner > setPos_inner);
 		outer_done = !(outer_sign && curPos_outer < setPos_outer) || (!outer_sign && curPos_outer > setPos_outer);
