@@ -301,109 +301,52 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	_interface.select.update();
 
 	while ((inner_done == 0 || outer_done == 0) && _interface.select.read() == HIGH) { // Stop cue if select pressed mid way
-	  // Update Select debounce
+		// Update Select debounce and displays
 		_interface.select.update();
-
-		// Update displays
 		_displays.updateDisplays(0, 0, 1, 1);
 
 		// Inner revolve
-		// Backwards
-		if (dir_inner == BACKWARDS) {
-			if (curPos_inner > setPos_inner) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
+		if ((inner_sign && curPos_inner < setPos_inner) || (!inner_sign && curPos_inner > setPos_inner)) {
+			// Update position and compute PID
+			curPos_inner = _inner.getPos();
+			pid_inner.Compute();
 
-			  // Update position and compute PID
-				curPos_inner = _inner.getPos();
-				pid_inner.Compute();
-
-				// Limit acceleration
-				if (_inner._tenths >= 1) {
-					auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
-					allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
-					_inner.setSpeed(allowedSpeed);
-					_inner._tenths = 0;
-				}
-			}
-			// Otherwise done, set done flag
-			else if (inner_done == 0) {
-				inner_done = 1;
-				// Stop once position reached
-				_inner.setSpeed(0);
+			// Limit acceleration
+			if (_inner._tenths >= 1) {
+				auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
+				allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
+				_inner.setSpeed(allowedSpeed);
+				_inner._tenths = 0;
 			}
 		}
-
-		// Forwards
-		else {
-			if (curPos_inner < setPos_inner) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
-
-			  // Update position and compute PID
-				curPos_inner = _inner.getPos();
-				pid_inner.Compute();
-
-				// Limit acceleration
-				if (_inner._tenths >= 1) {
-					auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
-					allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
-					_inner.setSpeed(allowedSpeed);
-					_inner._tenths = 0;
-				}
-			}
-			// Otherwise done, set done flag
-			else if (inner_done == 0) {
-				inner_done = 1;
-				// Stop once position reached
-				_inner.setSpeed(0);
-			}
+		// Otherwise done, set done flag
+		else if (inner_done == 0) {
+			inner_done = 1;
+			// Stop once position reached
+			_inner.setSpeed(0);
 		}
 
 		// Outer
-		// Backwards
-		if (dir_outer == BACKWARDS) {
-			if (curPos_outer > setPos_outer) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
+		if ((outer_sign && curPos_outer < setPos_outer) || (!outer_sign && curPos_outer > setPos_outer)) {
+			// Update position and compute PID
+			curPos_outer = _outer.getPos();
+			pid_outer.Compute();
 
-			  // Update position and compute PID
-				curPos_outer = _outer.getPos();
-				pid_outer.Compute();
-
-				// Limit acceleration
-				if (_outer._tenths >= 1) {
-					auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
-					allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
-					_outer.setSpeed(allowedSpeed);
-					_outer._tenths = 0;
-				}
-			}
-			// Otherwise done, set done flag
-			else if (outer_done == 0) {
-				outer_done = 1;
-				// Stop once position reached
-				_outer.setSpeed(0);
+			// Limit acceleration
+			if (_outer._tenths >= 1) {
+				auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
+				allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
+				_outer.setSpeed(allowedSpeed);
+				_outer._tenths = 0;
 			}
 		}
-
-		// Forwards
-		else {
-			if (curPos_outer < setPos_outer) { // Stop as soon as we reach position - minimise overshoot, no osciallation allowed
-
-			  // Update position and comput PID
-				curPos_outer = _outer.getPos();
-				pid_outer.Compute();
-
-				// Limit acceleration
-				if (_outer._tenths >= 1) {
-					auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
-					allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
-					_outer.setSpeed(allowedSpeed);
-					_outer._tenths = 0;
-				}
-			}
-			// Otherwise done, set done flag
-			else if (outer_done == 0) {
-				outer_done = 1;
-				// Stop once position reached
-				_outer.setSpeed(0);
-			}
+		// Otherwise done, set done flag
+		else if (outer_done == 0) {
+			outer_done = 1;
+			// Stop once position reached
+			_outer.setSpeed(0);
 		}
+
 	}
 
 
