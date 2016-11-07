@@ -68,6 +68,7 @@
 #define CUESTACK_BACKUP 21
 #define CUESTACK_LOAD 22
 
+
 // EEPROM addresses
 #define EELED_SETTINGS 0
 #define EEINNER_ENC_RATIO 8 // 4 byte float

@@ -26,7 +26,7 @@ void Stage::updateKpSettings() const
 	_outer._kp_amax = kpSettings[5];
 }
 
-void Stage::home_wheel(Revolve& wheel, int wheelPin) const
+void Stage::home_wheel(Revolve& wheel, int wheelPin)
 {
 	// Spin until home switch pressed
 	wheel.setDir(FORWARDS);
@@ -49,15 +49,6 @@ void Stage::home_wheel(Revolve& wheel, int wheelPin) const
 			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
 				wheel.setSpeed(HOMESPEED);
 			}
-
-
-			/** TODO check LED status
-			 * This is the code resuming from E-Stops
-			 
-			  _displays.setMode(HOMING);
-			  _interface.pauseLedsColor(255, 0, 0);
-			  digitalWrite(GOLED, HIGH);
-			 */
 		}
 	}
 	// Reset at home pin
@@ -68,7 +59,7 @@ void Stage::home_wheel(Revolve& wheel, int wheelPin) const
 }
 
 // Initial homing sequence
-void Stage::gotoHome() const
+void Stage::gotoHome()
 {
 	_displays.setMode(HOMING);
 
@@ -90,36 +81,120 @@ void Stage::gotoHome() const
 	_displays.setMode(NORMAL);
 }
 
-void Stage::emergencyStop() const
+void Stage::emergencyStop()
 {
 	_inner.setSpeed(0);
 	_outer.setSpeed(0);
 
-	if (eStopsEngaged())
-	{
-		_displays.setMode(ESTOP);
-		_interface.pauseLedsColor(0, 0, 0);
-		digitalWrite(GOLED, LOW);
-	}
-	else
-	{
-		_interface.pauseLedsColor(255, 0, 0);
-		digitalWrite(GOLED, HIGH);
-	}
+	_state.state = REVOLVE_ESTOP;
+	_state.data.estop = {};
+	_displays.setMode(ESTOP); // TODO
 
 	// hold until we're ready to go again
-	while (digitalRead(PAUSE) || digitalRead(GO) || eStopsEngaged()) {
+	while (eStopsEngaged()) {
 	}
 
+	_state.state = REVOLVE_READY;
 }
 
-bool Stage::eStopsEngaged() {
-	// Commented out line for non-conencted external esstop testing
-	//if(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW && digitalRead(ESTOPNO)==HIGH){
-	if (digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH)
-		return false;
-	else
+void Stage::setStateReady()
+{
+	_state.state = REVOLVE_READY;
+	_state.data.ready = {};
+}
+
+void Stage::setStateDrive()
+{
+	_state.state = REVOLVE_DRIVE;
+	_state.data.drive = {};
+}
+
+void Stage::setStateBrake(unsigned long start_time, long inner_start_position, long outer_start_position)
+{
+	_state.state = REVOLVE_BRAKE;
+	_state.data.brake = { start_time, inner_start_position, outer_start_position };
+}
+
+void Stage::runStage()
+{
+	_state.state = REVOLVE_READY;
+	_state.data.ready = {};
+
+	while (true) {
+		checkEstops();
+
+		switch (_state.state) {
+
+		case REVOLVE_READY:
+			if (dmhEngaged() && goEngaged()) {
+				setStateDrive();
+			}
+			break;
+
+		case REVOLVE_DRIVE:
+			if (!dmhEngaged()) {
+				setStateBrake(millis(), _inner.getPos(), _outer.getPos());
+			}
+			break;
+
+		case REVOLVE_BRAKE:
+			if (dmhEngaged() && goEngaged()) {
+				setStateDrive();
+			}
+			brake();
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+void Stage::brake()
+{
+	int inner_speed = (_inner.getPos() - _state.data.brake.inner_start_position) / (millis() - _state.data.brake.start_time);
+	int outer_speed = (_outer.getPos() - _state.data.brake.outer_start_position) / (millis() - _state.data.brake.start_time);
+
+	if(checkEstops())
+	{
+		return;
+	}
+	_inner.setSpeed(max(0, inner_speed - _pause_max_speed));
+	_outer.setSpeed(max(0, outer_speed - _pause_max_speed));
+}
+
+bool Stage::dmhEngaged()
+{
+	return !digitalRead(PAUSE);
+}
+
+bool Stage::goEngaged()
+{
+	return !digitalRead(GO);
+}
+
+bool Stage::checkEstops()
+{
+	if (eStopsEngaged())
+	{
+		emergencyStop();
 		return true;
+	} else {
+		return false;
+	}
+}
+
+
+bool Stage::eStopsEngaged()
+{
+	// Commented out line for non-conencted external esstop testing
+	//if !(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW && digitalRead(ESTOPNO)==HIGH){
+	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
+}
+
+void Stage::resumeDrive(int restartSpeed) const
+{
+	
 }
 
 void Stage::deadMansRestart(int restartSpeed) const
@@ -154,7 +229,7 @@ void Stage::deadMansRestart(int restartSpeed) const
 	}
 }
 
-void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer) const
+void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
 {
 	// PID setup variables
 	double kp_inner, curPos_inner, setPos_inner, curSpeed_inner;
@@ -444,7 +519,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	_interface.waitSelectRelease();
 }
 
-void Stage::runCurrentCue() const
+void Stage::runCurrentCue()
 {
 	// Turn off switch leds
 	_interface.encOff();
