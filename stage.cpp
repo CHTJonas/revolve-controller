@@ -225,6 +225,11 @@ bool Stage::eStopsEngaged()
 	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
 }
 
+template <class T>
+constexpr const T& clamp( const T& v, const T& lo, const T& hi ) {
+	return max(min(v, hi), lo);
+}
+
 void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
 {
 	// PID setup variables
@@ -254,22 +259,12 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
 
 	// Sanitise speed input
-	maxSpeed_inner = abs(maxSpeed_inner);
-	maxSpeed_inner = min(100, maxSpeed_inner);
-	maxSpeed_inner = max(MINSPEED + 1, maxSpeed_inner);
-
-	maxSpeed_outer = abs(maxSpeed_outer);
-	maxSpeed_outer = min(100, maxSpeed_outer);
-	maxSpeed_outer = max(MINSPEED + 1, maxSpeed_outer);
+	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, maxSpeed_inner);
+	maxSpeed_outer = clamp(abs(maxSpeed_outer), MINSPEED + 1, maxSpeed_outer);
 
 	// Sanitise max acceleration input
-	accel_inner = abs(accel_inner);
-	accel_inner = min(MAXACCEL, accel_inner);
-	accel_inner = max(1, accel_inner);
-
-	accel_outer = abs(accel_outer);
-	accel_outer = min(MAXACCEL, accel_outer);
-	accel_outer = max(1, accel_outer);
+	accel_inner = clamp(abs(accel_inner), 1, MAXACCEL);
+	accel_outer = clamp(abs(accel_outer), 1, MAXACCEL);
 
 	// Convert accel from increase/second to increase/(1/10) second
 	float tenths_accel_inner = static_cast<float>(accel_inner) / 10.0;
@@ -308,8 +303,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 			// Limit acceleration
 			if (_inner._tenths >= 1) {
-				auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
-				allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
+				const auto allowedSpeed = clamp(curSpeed_inner, _inner._cur_speed - tenths_accel_inner, _inner.cur_speed + tenths_accel_inner);
 				_inner.setSpeed(allowedSpeed);
 				_inner._tenths = 0;
 			}
@@ -329,8 +323,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 			// Limit acceleration
 			if (_outer._tenths >= 1) {
-				auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
-				allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
+				const auto allowedSpeed = clamp(curSpeed_outer, _outer._cur_speed - tenths_accel_outer, _outer.cur_speed + tenths_accel_outer);
 				_outer.setSpeed(allowedSpeed);
 				_outer._tenths = 0;
 			}
@@ -341,7 +334,6 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 			// Stop once position reached
 			_outer.setSpeed(0);
 		}
-
 	}
 
 
