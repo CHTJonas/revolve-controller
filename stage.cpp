@@ -267,8 +267,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	accel_outer = clamp(abs(accel_outer), 1, MAXACCEL);
 
 	// Convert accel from increase/second to increase/(1/10) second
-	float tenths_accel_inner = static_cast<float>(accel_inner) / 10.0;
-	float tenths_accel_outer = static_cast<float>(accel_outer) / 10.0;
+	double tenths_accel_inner = static_cast<double>(accel_inner) / 10.0;
+	double tenths_accel_outer = static_cast<double>(accel_outer) / 10.0;
 
 	// Calculate kp for this move using constants from inital constructor and required speed, acceleration
 	kp_inner = _inner._kp_0 + ((100 - maxSpeed_inner) * _inner._kp_smin) / 100 + ((accel_inner)* _inner._kp_amax) / (MAXACCEL);
