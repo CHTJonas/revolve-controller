@@ -155,16 +155,16 @@ void Stage::brake()
 		setStateDrive(0, 0, 0, 0);
 	}
 
-	const unsigned long inner_speed = [&] () {
+	const unsigned long inner_speed = [&]() {
 		if (_state.data.brake.inner_at_speed)
 			return 0UL;
-		else 
+		else
 			return _state.data.brake.inner_start_speed - (millis() - _state.data.brake.start_time) * _acceleration;
 	}();
-	const unsigned long outer_speed = [&] () {
+	const unsigned long outer_speed = [&]() {
 		if (_state.data.brake.outer_at_speed)
 			return 0UL;
-		else 
+		else
 			return _state.data.brake.outer_start_speed - (millis() - _state.data.brake.start_time) * _acceleration;
 	}();
 
@@ -226,7 +226,7 @@ bool Stage::eStopsEngaged()
 }
 
 template <class T>
-constexpr const T& clamp( const T& v, const T& lo, const T& hi ) {
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 	return max(min(v, hi), lo);
 }
 
@@ -247,16 +247,14 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	// Set final absolute position using revs input
 
 	// Inner Wheel
-	auto revolutionDegrees = 360 * revs_inner;
-	auto inner_sign = _inner.getDir() == FORWARDS ? 1 : -1;
-	revolutionDegrees += (inner_sign ^ (pos_inner < _inner.displayPos())) ? 0 : 360;
-	setPos_inner = curPos_inner + pos_inner - _inner.displayPos() + inner_sign * revolutionDegrees;
+	auto inner_sign = _inner.getDir() == FORWARDS;
+	revs_inner += (inner_sign == (pos_inner < _inner.displayPos()));
+	setPos_inner = curPos_inner + pos_inner - _inner.displayPos() + (inner_sign ? 1 : -1) * 360 * revs_inner;
 
 	// Outer Wheel
-	revolutionDegrees = 360 * revs_outer;
-	auto outer_sign = _outer.getDir() == FORWARDS ? 1 : -1;
-	revolutionDegrees += (outer_sign ^ (pos_outer < _outer.displayPos())) ? 0 : 360;
-	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
+	auto outer_sign = _outer.getDir() == FORWARDS;
+	revs_outer += (outer_sign == (pos_outer < _outer.displayPos()));
+	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + (outer_sign ? 1 : -1) * 360 * revs_outer;
 
 	// Sanitise speed input
 	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, 100);
@@ -288,7 +286,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	auto inner_done = false;
 	auto outer_done = false;
 
-	while (!inner_done || !outer_done) { 
+	while (!inner_done || !outer_done) {
 		inner_done = !(inner_sign && curPos_inner < setPos_inner) || (!inner_sign && curPos_inner > setPos_inner);
 		outer_done = !(outer_sign && curPos_outer < setPos_outer) || (!outer_sign && curPos_outer > setPos_outer);
 
