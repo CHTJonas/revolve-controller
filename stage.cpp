@@ -155,7 +155,7 @@ void Stage::brake()
 	int inner_speed = (_inner.getPos() - _state.data.brake.inner_start_position) / (millis() - _state.data.brake.start_time);
 	int outer_speed = (_outer.getPos() - _state.data.brake.outer_start_position) / (millis() - _state.data.brake.start_time);
 
-	if(checkEstops())
+	if (checkEstops())
 	{
 		return;
 	}
@@ -179,7 +179,8 @@ bool Stage::checkEstops()
 	{
 		emergencyStop();
 		return true;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
@@ -194,7 +195,7 @@ bool Stage::eStopsEngaged()
 
 void Stage::resumeDrive(int restartSpeed) const
 {
-	
+
 }
 
 void Stage::deadMansRestart(int restartSpeed) const
@@ -244,43 +245,18 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	_outer.setDir(dir_outer);
 
 	// Set final absolute position using revs input
-	// Backwards
-	if (_inner.getDir() == BACKWARDS) {
-		if (pos_inner > _inner.displayPos()) {
-			setPos_inner = curPos_inner - ((_inner.displayPos() - pos_inner) + (360 * (revs_inner + 1))); // Subtract required position + 360 * complete revolutions plus 1 extra from current position
-		}
-		else {
-			setPos_inner = curPos_inner - ((_inner.displayPos() - pos_inner) + (360 * revs_inner)); // Subtract required position + 360 * complete revolutions from current position
-		}
-	}
-	// Forwards
-	else {
-		if (pos_inner < _inner.displayPos()) {
-			setPos_inner = curPos_inner + (pos_inner - _inner.displayPos()) + (360 * (revs_inner + 1)); // Add required position + 360 * complete revolutions plus 1 extra from current position
-		}
-		else {
-			setPos_inner = curPos_inner + (pos_inner - _inner.displayPos()) + (360 * revs_inner); // Add required position + 360 * complete revolutions from current position
-		}
-	}
 
-	// Backwards
-	if (_outer.getDir() == BACKWARDS) {
-		if (pos_outer > _outer.displayPos()) {
-			setPos_outer = curPos_outer - ((_outer.displayPos() - pos_outer) + (360 * (revs_outer + 1))); // Subtract required position + 360 * complete revolutions plus 1 extra from current position
-		}
-		else {
-			setPos_outer = curPos_outer - ((_outer.displayPos() - pos_outer) + (360 * revs_outer)); // Subtract required position + 360 * complete revolutions from current position
-		}
-	}
-	// Forwards
-	else {
-		if (pos_outer < _outer.displayPos()) {
-			setPos_outer = curPos_outer + (pos_outer - _outer.displayPos()) + (360 * (revs_outer + 1)); // Add required position + 360 * complete revolutions plus 1 extra from current position
-		}
-		else {
-			setPos_outer = curPos_outer + (pos_outer - _outer.displayPos()) + (360 * revs_outer); // Add required position + 360 * complete revolutions from current position
-		}
-	}
+	// Inner Wheel
+	auto revolutionDegrees = 360 * revs_inner;
+	auto inner_sign = _inner.getDir() == FORWARDS ? 1 : -1;
+	revolutionDegrees += (inner_sign ^ (pos_inner < _inner.displayPos())) ? 0 : 360;
+	setPos_inner = curPos_inner + pos_inner - _inner.displayPos() + inner_sign * revolutionDegrees;
+
+	// Outer Wheel
+	revolutionDegrees = 360 * revs_outer;
+	auto outer_sign = _outer.getDir() == FORWARDS ? 1 : -1;
+	revolutionDegrees += (outer_sign ^ (pos_outer < _outer.displayPos())) ? 0 : 360;
+	setPos_inner = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
 
 	// Sanitise speed input
 	maxSpeed_inner = abs(maxSpeed_inner);
