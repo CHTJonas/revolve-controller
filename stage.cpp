@@ -256,7 +256,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	revolutionDegrees = 360 * revs_outer;
 	auto outer_sign = _outer.getDir() == FORWARDS ? 1 : -1;
 	revolutionDegrees += (outer_sign ^ (pos_outer < _outer.displayPos())) ? 0 : 360;
-	setPos_inner = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
+	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + outer_sign * revolutionDegrees;
 
 	// Sanitise speed input
 	maxSpeed_inner = abs(maxSpeed_inner);
@@ -303,7 +303,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	while ((inner_done == 0 || outer_done == 0) && _interface.select.read() == HIGH) { // Stop cue if select pressed mid way
 	  // Update Select debounce
 		_interface.select.update();
-		
+
 		// Update displays
 		_displays.updateDisplays(0, 0, 1, 1);
 
@@ -312,25 +312,15 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 		if (dir_inner == BACKWARDS) {
 			if (curPos_inner > setPos_inner) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
 
-			  // Update position and comput PID
+			  // Update position and compute PID
 				curPos_inner = _inner.getPos();
 				pid_inner.Compute();
 
 				// Limit acceleration
-				if (curSpeed_inner > (_inner._cur_speed + tenths_accel_inner) && _inner._tenths >= 1) {
-					_inner.setSpeed(_inner._cur_speed + tenths_accel_inner); // Set to max allowed if requested speed increase too large
-					_inner._tenths = 0;
-				}
-
-				// Limit decceleration
-				else if (curSpeed_inner < (_inner._cur_speed - tenths_accel_inner) && _inner._tenths >= 1) {
-					_inner.setSpeed(_inner._cur_speed - tenths_accel_inner); // Set to min allowed if requested speed decrease too large
-					_inner._tenths = 0;
-				}
-
-				// If requested change within limits, set to requested speed
-				else if (_inner._tenths >= 1 && curSpeed_inner <= (_inner._cur_speed + tenths_accel_inner) && curSpeed_inner >= (_inner._cur_speed - tenths_accel_inner)) {
-					_inner.setSpeed(curSpeed_inner);
+				if (_inner._tenths >= 1) {
+					auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
+					allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
+					_inner.setSpeed(allowedSpeed);
 					_inner._tenths = 0;
 				}
 			}
@@ -346,25 +336,15 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 		else {
 			if (curPos_inner < setPos_inner) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
 
-			  // Update position and comput PID
+			  // Update position and compute PID
 				curPos_inner = _inner.getPos();
 				pid_inner.Compute();
 
 				// Limit acceleration
-				if (curSpeed_inner > (_inner._cur_speed + tenths_accel_inner) && _inner._tenths >= 1) {
-					_inner.setSpeed(_inner._cur_speed + tenths_accel_inner); // Set to max allowed if requested speed increase too large
-					_inner._tenths = 0;
-				}
-
-				// Limit deceleration
-				else if (curSpeed_inner < (_inner._cur_speed - tenths_accel_inner) && _inner._tenths >= 1) {
-					_inner.setSpeed(_inner._cur_speed - tenths_accel_inner); // Set to min allowed if requested speed decrease too large
-					_inner._tenths = 0;
-				}
-
-				// If requested change within limits, set to requested speed
-				else if (_inner._tenths >= 1 && curSpeed_inner <= (_inner._cur_speed + tenths_accel_inner) && curSpeed_inner >= (_inner._cur_speed - tenths_accel_inner)) {
-					_inner.setSpeed(curSpeed_inner);
+				if (_inner._tenths >= 1) {
+					auto allowedSpeed = min(curSpeed_inner, _inner._cur_speed + tenths_accel_inner);
+					allowedSpeed = max(allowedSpeed, _inner._cur_speed - tenths_accel_inner);
+					_inner.setSpeed(allowedSpeed);
 					_inner._tenths = 0;
 				}
 			}
@@ -381,25 +361,15 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 		if (dir_outer == BACKWARDS) {
 			if (curPos_outer > setPos_outer) { // Stop as soon as we reach position - minimise overshoot, no oscillation allowed
 
-			  // Update position and comput PID
+			  // Update position and compute PID
 				curPos_outer = _outer.getPos();
 				pid_outer.Compute();
 
 				// Limit acceleration
-				if (curSpeed_outer > (_outer._cur_speed + tenths_accel_outer) && _outer._tenths >= 1) {
-					_outer.setSpeed(_outer._cur_speed + tenths_accel_outer); // Set to max allowed if requested speed increase too large
-					_outer._tenths = 0;
-				}
-
-				// Limit decceleration
-				else if (curSpeed_outer < (_outer._cur_speed - tenths_accel_outer) && _outer._tenths >= 1) {
-					_outer.setSpeed(_outer._cur_speed - tenths_accel_outer); // Set to min allowed if requested speed decrease too large
-					_outer._tenths = 0;
-				}
-
-				// If requested change within limits, set to requested speed
-				else if (_outer._tenths >= 1 && curSpeed_outer <= (_outer._cur_speed + tenths_accel_outer) && curSpeed_outer >= (_outer._cur_speed - tenths_accel_outer)) {
-					_outer.setSpeed(curSpeed_outer);
+				if (_outer._tenths >= 1) {
+					auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
+					allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
+					_outer.setSpeed(allowedSpeed);
 					_outer._tenths = 0;
 				}
 			}
@@ -420,20 +390,10 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 				pid_outer.Compute();
 
 				// Limit acceleration
-				if (curSpeed_outer > (_outer._cur_speed + tenths_accel_outer) && _outer._tenths >= 1) {
-					_outer.setSpeed(_outer._cur_speed + tenths_accel_outer); // Set to max allowed if requested speed increase too large
-					_outer._tenths = 0;
-				}
-
-				// Limit deceleration
-				else if (curSpeed_outer < (_outer._cur_speed - tenths_accel_outer) && _outer._tenths >= 1) {
-					_outer.setSpeed(_outer._cur_speed - tenths_accel_outer); // Set to min allowed if requested speed decrease too large
-					_outer._tenths = 0;
-				}
-
-				// If requested change within limits, set to requested speed
-				else if (_outer._tenths >= 1 && curSpeed_outer <= (_outer._cur_speed + tenths_accel_outer) && curSpeed_outer >= (_outer._cur_speed - tenths_accel_outer)) {
-					_outer.setSpeed(curSpeed_outer);
+				if (_outer._tenths >= 1) {
+					auto allowedSpeed = min(curSpeed_outer, _outer._cur_speed + tenths_accel_inner);
+					allowedSpeed = max(allowedSpeed, _outer._cur_speed - tenths_accel_inner);
+					_outer.setSpeed(allowedSpeed);
 					_outer._tenths = 0;
 				}
 			}
