@@ -1,4 +1,5 @@
 #include "stage.h"
+#include <iostream>
 
 Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
 	updateEncRatios();
@@ -108,11 +109,11 @@ void Stage::setDriveGoal(int position, int speed, int acceleration, int directio
 	auto driveData = setupDrive(position, speed, acceleration, direction, revolutions, wheel);
 	if (wheel == _inner)
 	{
-		_state.data.drive.innerData = driveData;
+		_state.data.drive.innerData = *driveData;
 	}
 	else if (wheel == _outer)
 	{
-		_state.data.drive.outerData = driveData;
+		_state.data.drive.outerData = *driveData;
 	}
 }
 
@@ -234,7 +235,7 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 	return max(min(v, hi), lo);
 }
 
-DriveData Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
+DriveData* Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
 {
 	double kp, currentPosition, setPosition, currentSpeed;
 	currentPosition = wheel->getPos();
@@ -250,14 +251,15 @@ DriveData Stage::setupDrive(int position, int speed, int acceleration, int direc
 
 	kp = wheel->_kp_0 + ((100 - speed) * wheel->_kp_smin) / 100 + ((acceleration)* wheel->_kp_amax) / (MAXACCEL);
 
-	auto pid = setupPid(speed, kp, &currentPosition, &setPosition, &currentSpeed, wheel);
+	DriveData data = { &currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, nullptr };
+	setupPid(speed, kp, &data, wheel);
 
-	return{ &currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, &pid };
+	return &data;
 }
 
 void Stage::drive()
 {
-	if(!dmhEngaged())
+	if (!dmhEngaged())
 	{
 		setStateBrake();
 		return;
@@ -290,15 +292,15 @@ void Stage::drive()
 	}
 }
 
-PID Stage::setupPid(int maxSpeed, double kp, double* currentPosition, double* setPosition, double* currentSpeed, Revolve* wheel)
+void Stage::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel)
 {
-	auto mode = setPosition < currentPosition ? REVERSE : DIRECT;
-	auto pid = PID(currentPosition, currentSpeed, setPosition, kp, wheel->_ki, wheel->_kd, mode);
+	auto mode = data->setPosition < data->currentPosition ? REVERSE : DIRECT;
+	auto pid = PID(data->currentPosition, data->currentSpeed, data->setPosition, kp, wheel->_ki, wheel->_kd, mode);
 	pid.SetOutputLimits(MINSPEED, maxSpeed);
 	pid.SetSampleTime(75);
 	pid.SetMode(AUTOMATIC);
 
-	return pid;
+	data->pid = &pid;
 }
 
 void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel)
