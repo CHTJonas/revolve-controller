@@ -148,6 +148,7 @@ void Stage::runStage()
 		case REVOLVE_BRAKE:
 			brake();
 			break;
+			// but not break the brake. cause that'd be bad. probably.
 
 		default:
 			break;
@@ -158,6 +159,7 @@ void Stage::runStage()
 void Stage::ready() {
 	if (dmhEngaged() && goEngaged()) {
 		setStateDrive();
+		return;
 	}
 }
 
@@ -165,6 +167,7 @@ void Stage::brake()
 {
 	if (dmhEngaged() && goEngaged()) {
 		setStateDrive();
+		return;
 	}
 
 	const unsigned long inner_speed = [&]() {
@@ -254,6 +257,12 @@ DriveData Stage::setupDrive(int position, int speed, int acceleration, int direc
 
 void Stage::drive()
 {
+	if(!dmhEngaged())
+	{
+		setStateBrake();
+		return;
+	}
+
 	auto innerDriveData = _state.data.drive.innerData;
 	auto outerDriveData = _state.data.drive.outerData;
 
