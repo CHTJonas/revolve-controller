@@ -231,6 +231,8 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 }
 
 
+
+
 void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
 {
 	// PID setup variables
@@ -274,15 +276,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	kp_outer = _outer._kp_0 + ((100 - maxSpeed_outer) * _outer._kp_smin) / 100 + ((accel_outer)* _outer._kp_amax) / (MAXACCEL);
 
 	// Setup PID object (flip to reverse mode if negative)
-	PID pid_inner = setPos_inner < curPos_inner ? pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner._ki, _inner._kd, REVERSE) : pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner._ki, _inner._kd, DIRECT);
-	pid_inner.SetOutputLimits(MINSPEED, maxSpeed_inner);
-	pid_inner.SetSampleTime(75);
-	pid_inner.SetMode(AUTOMATIC);
-
-	PID pid_outer = setPos_outer < curPos_outer ? pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer._ki, _outer._kd, REVERSE) : pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer._ki, _outer._kd, DIRECT);
-	pid_outer.SetOutputLimits(MINSPEED, maxSpeed_outer);
-	pid_outer.SetSampleTime(75);
-	pid_outer.SetMode(AUTOMATIC);
+	PID pid_inner = setupPid(maxSpeed_inner, kp_inner, &curPos_inner, &setPos_inner, &curSpeed_inner, &_inner);
+	PID pid_outer = setupPid(maxSpeed_outer, kp_outer, &curPos_outer, &setPos_outer, &curSpeed_outer, &_outer);
 
 	auto inner_done = false;
 	auto outer_done = false;
@@ -307,6 +302,17 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 			_outer.setSpeed(0);
 		}
 	}
+}
+
+PID Stage::setupPid(int maxSpeed, double kp, double* currentPosition, double* setPosition, double* currentSpeed, Revolve* wheel)
+{
+	auto mode = setPosition < currentPosition ? REVERSE : DIRECT;
+	auto pid = PID(currentPosition, currentSpeed, setPosition, kp, wheel->_ki, wheel->_kd, mode);
+	pid.SetOutputLimits(MINSPEED, maxSpeed);
+	pid.SetSampleTime(75);
+	pid.SetMode(AUTOMATIC);
+
+	return pid;
 }
 
 void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel)
