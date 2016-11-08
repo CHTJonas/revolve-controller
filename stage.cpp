@@ -276,8 +276,8 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	kp_outer = _outer->_kp_0 + ((100 - maxSpeed_outer) * _outer->_kp_smin) / 100 + ((accel_outer)* _outer->_kp_amax) / (MAXACCEL);
 
 	// Setup PID object (flip to reverse mode if negative)
-	PID pid_inner = setupPid(maxSpeed_inner, kp_inner, &curPos_inner, &setPos_inner, &curSpeed_inner, &_inner);
-	PID pid_outer = setupPid(maxSpeed_outer, kp_outer, &curPos_outer, &setPos_outer, &curSpeed_outer, &_outer);
+	PID pid_inner = setupPid(maxSpeed_inner, kp_inner, curPos_inner, setPos_inner, curSpeed_inner, _inner);
+	PID pid_outer = setupPid(maxSpeed_outer, kp_outer, curPos_outer, setPos_outer, curSpeed_outer, _outer);
 
 	auto inner_done = false;
 	auto outer_done = false;
