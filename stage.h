@@ -61,8 +61,10 @@ public:
 	static bool goEngaged();
 	bool checkEstops();
 	static bool eStopsEngaged();
+
 	void resumeDrive(int restartSpeed) const;
 	void gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer);
+	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID pid, Revolve wheel);
 	void runCurrentCue();
 
 	Revolve& _inner;
