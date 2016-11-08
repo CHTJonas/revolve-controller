@@ -289,7 +289,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	while (!inner_done || !outer_done) {
 		inner_done = inner_sign != (curPos_inner < setPos_inner);
 		outer_done = outer_sign != (curPos_outer < setPos_outer);
-		
+
 		// Inner revolve
 		if (!inner_done) {
 			// Update position and compute PID
