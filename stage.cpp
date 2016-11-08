@@ -293,7 +293,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 		// Inner revolve
 		if (!inner_done) {
-			spin_revolve(&curPos_inner, &curSpeed_inner, tenths_accel_inner, pid_inner, _inner);
+			spin_revolve(&curPos_inner, &curSpeed_inner, tenths_accel_inner, &pid_inner, &_inner);
 		}
 		else {
 			_inner.setSpeed(0);
@@ -301,7 +301,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 		// Outer
 		if (!outer_done) {
-			spin_revolve(&curPos_outer, &curSpeed_outer, tenths_accel_outer, pid_outer, _outer);
+			spin_revolve(&curPos_outer, &curSpeed_outer, tenths_accel_outer, &pid_outer, &_outer);
 		}
 		else {
 			_outer.setSpeed(0);
@@ -309,17 +309,17 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	}
 }
 
-void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID pid, Revolve wheel)
+void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel)
 {
 	// Update position and compute PID
 	*currentPosition = _inner.getPos();
-	pid.Compute();
+	pid->Compute();
 
 	// Limit acceleration
-	if (wheel._tenths >= 1) {
-		const auto allowedSpeed = clamp(*currentSpeed, wheel._cur_speed - tenths_accel, wheel._cur_speed + tenths_accel);
-		wheel.setSpeed(allowedSpeed);
-		wheel._tenths = 0;
+	if (wheel->_tenths >= 1) {
+		const auto allowedSpeed = clamp(*currentSpeed, wheel->_cur_speed - tenths_accel, wheel->_cur_speed + tenths_accel);
+		wheel->setSpeed(allowedSpeed);
+		wheel->_tenths = 0;
 	}
 }
 
