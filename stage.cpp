@@ -230,7 +230,7 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 	return max(min(v, hi), lo);
 }
 
-void Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
+DriveData Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
 {
 	double kp, currentPosition, setPosition, currentSpeed;
 	currentPosition = wheel->getPos();
@@ -246,32 +246,32 @@ void Stage::setupDrive(int position, int speed, int acceleration, int direction,
 
 	kp = wheel->_kp_0 + ((100 - speed) * wheel->_kp_smin) / 100 + ((acceleration)* wheel->_kp_amax) / (MAXACCEL);
 
-	PID pid = setupPid(speed, kp, &currentPosition, &setPosition, &currentSpeed, wheel);
+	auto pid = setupPid(speed, kp, &currentPosition, &setPosition, &currentSpeed, wheel);
+	
+	return {&currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, &pid};
 }
 
 void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
 {
-	setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
-	setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
+	auto innerDriveData = setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
+	auto outerDriveData = setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
 
 	auto inner_done = false;
 	auto outer_done = false;
 
 	while (!inner_done || !outer_done) {
-		inner_done = inner_sign != (curPos_inner < setPos_inner);
-		outer_done = outer_sign != (curPos_outer < setPos_outer);
+		inner_done = innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
+		outer_done = outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
-		// Inner revolve
 		if (!inner_done) {
-			spin_revolve(&curPos_inner, &curSpeed_inner, tenths_accel_inner, &pid_inner, _inner);
+			spin_revolve(innerDriveData.currentPosition, innerDriveData.currentSpeed, innerDriveData.tenths_accel, innerDriveData.pid, _inner);
 		}
 		else {
 			_inner->setSpeed(0);
 		}
 
-		// Outer
 		if (!outer_done) {
-			spin_revolve(&curPos_outer, &curSpeed_outer, tenths_accel_outer, &pid_outer, _outer);
+			spin_revolve(outerDriveData.currentPosition, outerDriveData.currentSpeed, outerDriveData.tenths_accel, outerDriveData.pid, _outer);
 		}
 		else {
 			_outer->setSpeed(0);
