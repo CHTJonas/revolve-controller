@@ -43,14 +43,14 @@ class Stage {
 public:
 
 	// Constructor
-	Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& interface, Adafruit_NeoPixel& ringLeds);
+	Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds);
 
 	// Settings updating
 	void updateEncRatios() const;
 	void updateKpSettings() const;
 
 	// Control
-	void home_wheel(Revolve& wheel, int wheelPin);
+	void home_wheel(Revolve* wheel, int wheelPin);
 	void gotoHome();
 	void emergencyStop();
 	void runStage();
@@ -67,16 +67,16 @@ public:
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID pid, Revolve wheel);
 	void runCurrentCue();
 
-	Revolve& _inner;
-	Revolve& _outer;
+	Revolve* _outer;
+	Revolve* _inner;
 	RevolveState _state;
 	int _acceleration = 10; // TODO check for sanity
 
 private:
 
-	Displays& _displays;
-	Interface& _interface;
-	Adafruit_NeoPixel& _ringLeds;
+	Displays* _displays;
+	Interface* _interface;
+	Adafruit_NeoPixel* _ringLeds;
 
 	void setStateReady();
 	void setStateDrive(unsigned long inner_target_speed, unsigned long outer_target_speed, unsigned long inner_target_position, unsigned long outer_target_position);

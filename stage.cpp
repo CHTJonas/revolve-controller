@@ -1,6 +1,6 @@
 #include "stage.h"
 
-Stage::Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& interface, Adafruit_NeoPixel& ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
+Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
@@ -8,8 +8,8 @@ Stage::Stage(Revolve& inner, Revolve& outer, Displays& displays, Interface& inte
 // Updates revolve enc_ratios from EEPROM
 void Stage::updateEncRatios() const
 {
-	EEPROM.get(EEINNER_ENC_RATIO, _inner._enc_ratio);
-	EEPROM.get(EEOUTER_ENC_RATIO, _outer._enc_ratio);
+	EEPROM.get(EEINNER_ENC_RATIO, _inner->_enc_ratio);
+	EEPROM.get(EEOUTER_ENC_RATIO, _outer->_enc_ratio);
 }
 
 // Updates kp values from EEPROM
@@ -18,19 +18,19 @@ void Stage::updateKpSettings() const
 	double kpSettings[6];
 	EEPROM.get(EEKP_SETTINGS, kpSettings);
 
-	_inner._kp_0 = kpSettings[0];
-	_inner._kp_smin = kpSettings[1];
-	_inner._kp_amax = kpSettings[2];
-	_outer._kp_0 = kpSettings[3];
-	_outer._kp_smin = kpSettings[4];
-	_outer._kp_amax = kpSettings[5];
+	_inner->_kp_0 = kpSettings[0];
+	_inner->_kp_smin = kpSettings[1];
+	_inner->_kp_amax = kpSettings[2];
+	_outer->_kp_0 = kpSettings[3];
+	_outer->_kp_smin = kpSettings[4];
+	_outer->_kp_amax = kpSettings[5];
 }
 
-void Stage::home_wheel(Revolve& wheel, int wheelPin)
+void Stage::home_wheel(Revolve* wheel, int wheelPin)
 {
 	// Spin until home switch pressed
-	wheel.setDir(FORWARDS);
-	wheel.setSpeed(HOMESPEED);
+	wheel->setDir(FORWARDS);
+	wheel->setSpeed(HOMESPEED);
 
 	// Wait for inner home switch
 	while (digitalRead(wheelPin)) {
@@ -40,55 +40,55 @@ void Stage::home_wheel(Revolve& wheel, int wheelPin)
 			emergencyStop();
 
 			// Restart
-			_interface.pauseLedsColor(0, 255, 0);
+			_interface->pauseLedsColor(0, 255, 0);
 			digitalWrite(GOLED, LOW);
-			wheel.setSpeed(HOMESPEED);
+			wheel->setSpeed(HOMESPEED);
 
 			// TODO check this
 			// below code was origianlly only in E-Stops
 			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
-				wheel.setSpeed(HOMESPEED);
+				wheel->setSpeed(HOMESPEED);
 			}
 		}
 	}
 	// Reset at home pin
-	wheel.resetPos();
+	wheel->resetPos();
 
 	// Stop
-	wheel.setSpeed(0);
+	wheel->setSpeed(0);
 }
 
 // Initial homing sequence
 void Stage::gotoHome()
 {
-	_displays.setMode(HOMING);
+	_displays->setMode(HOMING);
 
 	home_wheel(_inner, INNERHOME);
 	// Set inner ring green
 	for (int i = 12; i < 24; i++) {
-		_ringLeds.setPixelColor(i, 0, 255, 0);
+		_ringLeds->setPixelColor(i, 0, 255, 0);
 	}
-	_ringLeds.show();
+	_ringLeds->show();
 
 	home_wheel(_outer, OUTERHOME);
 	// Set outer ring green
-	_interface.ringLedsColor(0, 255, 0);
+	_interface->ringLedsColor(0, 255, 0);
 
-	_displays.setMode(HOMED);
+	_displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
 	gotoPos(0, 0, MINSPEED, MINSPEED, 1, 1, BACKWARDS, BACKWARDS, 0, 0);
 
-	_displays.setMode(NORMAL);
+	_displays->setMode(NORMAL);
 }
 
 void Stage::emergencyStop()
 {
-	_inner.setSpeed(0);
-	_outer.setSpeed(0);
+	_inner->setSpeed(0);
+	_outer->setSpeed(0);
 
 	_state.state = REVOLVE_ESTOP;
 	_state.data.estop = {};
-	_displays.setMode(ESTOP); // TODO
+	_displays->setMode(ESTOP); // TODO
 
 	// hold until we're ready to go again
 	while (eStopsEngaged()) {
@@ -106,13 +106,13 @@ void Stage::setStateReady()
 void Stage::setStateDrive(long unsigned inner_target_speed, long unsigned outer_target_speed, long unsigned inner_target_position, long unsigned outer_target_position)
 {
 	_state.state = REVOLVE_DRIVE;
-	_state.data.drive = { millis(), _inner.getSpeed(), _outer.getSpeed(), inner_target_speed, outer_target_speed, inner_target_position, outer_target_position, false, false };
+	_state.data.drive = { millis(), _inner->getSpeed(), _outer->getSpeed(), inner_target_speed, outer_target_speed, inner_target_position, outer_target_position, false, false };
 }
 
 void Stage::setStateBrake()
 {
 	_state.state = REVOLVE_BRAKE;
-	_state.data.brake = { millis(), _inner.getSpeed(), _outer.getSpeed(), false, false };
+	_state.data.brake = { millis(), _inner->getSpeed(), _outer->getSpeed(), false, false };
 }
 
 void Stage::runStage()
@@ -180,8 +180,8 @@ void Stage::brake()
 		setStateReady();
 	}
 
-	_inner.setSpeed(inner_speed);
-	_outer.setSpeed(outer_speed);
+	_inner->setSpeed(inner_speed);
+	_outer->setSpeed(outer_speed);
 }
 
 void Stage::drive()
@@ -190,8 +190,8 @@ void Stage::drive()
 		setStateBrake();
 	}
 
-	_inner.setSpeed(0);
-	_outer.setSpeed(0);
+	_inner->setSpeed(0);
+	_outer->setSpeed(0);
 }
 
 
@@ -238,24 +238,24 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	double kp_outer, curPos_outer, setPos_outer, curSpeed_outer;
 
 	// Update current absolute position
-	curPos_inner = _inner.getPos();
-	curPos_outer = _outer.getPos();
+	curPos_inner = _inner->getPos();
+	curPos_outer = _outer->getPos();
 
 	// Set direction
-	_inner.setDir(dir_inner);
-	_outer.setDir(dir_outer);
+	_inner->setDir(dir_inner);
+	_outer->setDir(dir_outer);
 
 	// Set final absolute position using revs input
 
 	// Inner Wheel
-	auto inner_sign = _inner.getDir() == FORWARDS;
-	revs_inner += (inner_sign == (pos_inner < _inner.displayPos()));
-	setPos_inner = curPos_inner + pos_inner - _inner.displayPos() + (inner_sign ? 1 : -1) * 360 * revs_inner;
+	auto inner_sign = _inner->getDir() == FORWARDS;
+	revs_inner += (inner_sign == (pos_inner < _inner->displayPos()));
+	setPos_inner = curPos_inner + pos_inner - _inner->displayPos() + (inner_sign ? 1 : -1) * 360 * revs_inner;
 
 	// Outer Wheel
-	auto outer_sign = _outer.getDir() == FORWARDS;
-	revs_outer += (outer_sign == (pos_outer < _outer.displayPos()));
-	setPos_outer = curPos_outer + pos_outer - _outer.displayPos() + (outer_sign ? 1 : -1) * 360 * revs_outer;
+	auto outer_sign = _outer->getDir() == FORWARDS;
+	revs_outer += (outer_sign == (pos_outer < _outer->displayPos()));
+	setPos_outer = curPos_outer + pos_outer - _outer->displayPos() + (outer_sign ? 1 : -1) * 360 * revs_outer;
 
 	// Sanitise speed input
 	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, 100);
@@ -270,16 +270,16 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 	auto tenths_accel_outer = static_cast<double>(accel_outer) / 10.0;
 
 	// Calculate kp for this move using constants from inital constructor and required speed, acceleration
-	kp_inner = _inner._kp_0 + ((100 - maxSpeed_inner) * _inner._kp_smin) / 100 + ((accel_inner)* _inner._kp_amax) / (MAXACCEL);
-	kp_outer = _outer._kp_0 + ((100 - maxSpeed_outer) * _outer._kp_smin) / 100 + ((accel_outer)* _outer._kp_amax) / (MAXACCEL);
+	kp_inner = _inner->_kp_0 + ((100 - maxSpeed_inner) * _inner->_kp_smin) / 100 + ((accel_inner)* _inner->_kp_amax) / (MAXACCEL);
+	kp_outer = _outer->_kp_0 + ((100 - maxSpeed_outer) * _outer->_kp_smin) / 100 + ((accel_outer)* _outer->_kp_amax) / (MAXACCEL);
 
 	// Setup PID object (flip to reverse mode if negative)
-	PID pid_inner = setPos_inner < curPos_inner ? pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner._ki, _inner._kd, REVERSE) : pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner._ki, _inner._kd, DIRECT);
+	PID pid_inner = setPos_inner < curPos_inner ? pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner->_ki, _inner->_kd, REVERSE) : pid_inner = PID(&curPos_inner, &curSpeed_inner, &setPos_inner, kp_inner, _inner->_ki, _inner->_kd, DIRECT);
 	pid_inner.SetOutputLimits(MINSPEED, maxSpeed_inner);
 	pid_inner.SetSampleTime(75);
 	pid_inner.SetMode(AUTOMATIC);
 
-	PID pid_outer = setPos_outer < curPos_outer ? pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer._ki, _outer._kd, REVERSE) : pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer._ki, _outer._kd, DIRECT);
+	PID pid_outer = setPos_outer < curPos_outer ? pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer->_ki, _outer->_kd, REVERSE) : pid_outer = PID(&curPos_outer, &curSpeed_outer, &setPos_outer, kp_outer, _outer->_ki, _outer->_kd, DIRECT);
 	pid_outer.SetOutputLimits(MINSPEED, maxSpeed_outer);
 	pid_outer.SetSampleTime(75);
 	pid_outer.SetMode(AUTOMATIC);
@@ -293,18 +293,18 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 
 		// Inner revolve
 		if (!inner_done) {
-			spin_revolve(&curPos_inner, &curSpeed_inner, tenths_accel_inner, pid_inner, _inner);
+			spin_revolve(&curPos_inner, &curSpeed_inner, tenths_accel_inner, pid_inner, *_inner);
 		}
 		else {
-			_inner.setSpeed(0);
+			_inner->setSpeed(0);
 		}
 
 		// Outer
 		if (!outer_done) {
-			spin_revolve(&curPos_outer, &curSpeed_outer, tenths_accel_outer, pid_outer, _outer);
+			spin_revolve(&curPos_outer, &curSpeed_outer, tenths_accel_outer, pid_outer, *_outer);
 		}
 		else {
-			_outer.setSpeed(0);
+			_outer->setSpeed(0);
 		}
 	}
 }
@@ -312,7 +312,7 @@ void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpe
 void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID pid, Revolve wheel)
 {
 	// Update position and compute PID
-	*currentPosition = _inner.getPos();
+	*currentPosition = _inner->getPos();
 	pid.Compute();
 
 	// Limit acceleration
@@ -327,40 +327,40 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 void Stage::runCurrentCue()
 {
 	// Turn off switch leds
-	_interface.encOff();
+	_interface->encOff();
 	digitalWrite(SELECTLED, LOW);
 	digitalWrite(GOLED, LOW);
 
 	// Flag to recursively call function if required
-	int auto_follow = _interface.cueParams[0];
+	int auto_follow = _interface->cueParams[0];
 
 	// Move - both enabled
-	if (_interface.cueParams[1] && _interface.cueParams[2]) {
-		gotoPos(_interface.cueMovements[0], _interface.cueMovements[5], _interface.cueMovements[1], _interface.cueMovements[6], _interface.cueMovements[2], _interface.cueMovements[7], _interface.cueMovements[3], _interface.cueMovements[8], _interface.cueMovements[4], _interface.cueMovements[9]);
+	if (_interface->cueParams[1] && _interface->cueParams[2]) {
+		gotoPos(_interface->cueMovements[0], _interface->cueMovements[5], _interface->cueMovements[1], _interface->cueMovements[6], _interface->cueMovements[2], _interface->cueMovements[7], _interface->cueMovements[3], _interface->cueMovements[8], _interface->cueMovements[4], _interface->cueMovements[9]);
 	}
 	// Move - inner disabled
-	else if (_interface.cueParams[1] == 0 && _interface.cueParams[2]) {
-		gotoPos(_inner.displayPos(), _interface.cueMovements[5], MINSPEED, _interface.cueMovements[6], 1, _interface.cueMovements[7], 0, _interface.cueMovements[8], 0, _interface.cueMovements[9]);
+	else if (_interface->cueParams[1] == 0 && _interface->cueParams[2]) {
+		gotoPos(_inner->displayPos(), _interface->cueMovements[5], MINSPEED, _interface->cueMovements[6], 1, _interface->cueMovements[7], 0, _interface->cueMovements[8], 0, _interface->cueMovements[9]);
 	}
 	// Move - outer disabled
-	else if (_interface.cueParams[1] && _interface.cueParams[2] == 0) {
-		gotoPos(_interface.cueMovements[0], _outer.displayPos(), _interface.cueMovements[1], MINSPEED, _interface.cueMovements[2], 1, _interface.cueMovements[3], 0, _interface.cueMovements[4], 0);
+	else if (_interface->cueParams[1] && _interface->cueParams[2] == 0) {
+		gotoPos(_interface->cueMovements[0], _outer->displayPos(), _interface->cueMovements[1], MINSPEED, _interface->cueMovements[2], 1, _interface->cueMovements[3], 0, _interface->cueMovements[4], 0);
 	}
 
 
 	// Increment cue to currently selected cue with menu_pos, and increase menu_pos to automatically select next one
-	_interface._cuestack.currentCue = _interface.menu_pos;
-	if (_interface.menu_pos < (_interface._cuestack.totalCues - 1))
-		_interface.menu_pos++;
+	_interface->_cuestack.currentCue = _interface->menu_pos;
+	if (_interface->menu_pos < (_interface->_cuestack.totalCues - 1))
+		_interface->menu_pos++;
 
 	// Load next cue data
-	_interface.loadCue(_interface.menu_pos);
+	_interface->loadCue(_interface->menu_pos);
 
 	// Update _displays
-	_displays.forceUpdateDisplays(1, 1, 1, 1);
+	_displays->forceUpdateDisplays(1, 1, 1, 1);
 
 	// Recursively call runCurrentCue whilst previous cue had autofollow enabled, unless we are at last cue (where menu_pos = currentCue as it won't have been incremented)
-	if (auto_follow && _interface._cuestack.currentCue != _interface.menu_pos)
+	if (auto_follow && _interface->_cuestack.currentCue != _interface->menu_pos)
 		runCurrentCue();
 
 	// Turn on switch leds
