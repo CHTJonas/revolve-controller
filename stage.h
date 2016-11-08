@@ -66,10 +66,8 @@ public:
 	bool checkEstops();
 	static bool eStopsEngaged();
 
-	void resumeDrive(int restartSpeed) const;
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
 	DriveData* setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
-	void gotoPos();
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 

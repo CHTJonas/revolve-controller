@@ -76,7 +76,7 @@ void Stage::gotoHome()
 
 	_displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
-	gotoPos(); // TODO get parameters from git history
+	// gotoPos(); // TODO get parameters from git history
 
 	_displays->setMode(NORMAL);
 }
@@ -329,15 +329,15 @@ void Stage::runCurrentCue()
 
 	// Move - both enabled
 	if (_interface->cueParams[1] && _interface->cueParams[2]) {
-		gotoPos();
+		//gotoPos();
 	}
 	// Move - inner disabled
 	else if (_interface->cueParams[1] == 0 && _interface->cueParams[2]) {
-		gotoPos(); // TODO pull parameters from git history
+		// gotoPos(); // TODO pull parameters from git history
 	}
 	// Move - outer disabled
 	else if (_interface->cueParams[1] && _interface->cueParams[2] == 0) {
-		gotoPos();
+		//gotoPos();
 	}
 
 
