@@ -147,8 +147,7 @@ void Stage::runStage()
 
 		case REVOLVE_BRAKE:
 			brake();
-			break;
-			// but not break the brake. cause that'd be bad. probably.
+			break; // but not break the brake. cause that'd be bad. probably.
 
 		default:
 			break;
