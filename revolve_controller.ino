@@ -259,11 +259,11 @@ void loop() {
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 
 			// Turn on switch leds
@@ -359,11 +359,11 @@ void loop() {
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 
 			// Turn on switch leds
@@ -547,11 +547,11 @@ void loop() {
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(,);
+				stage.gotoPos();
 			}
 
 			// Turn on switch leds
