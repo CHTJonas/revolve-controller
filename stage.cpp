@@ -103,11 +103,22 @@ void Stage::setStateReady()
 	_state.data.ready = {};
 }
 
+void Stage::setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
+{
+	auto driveData = setupDrive(position, speed, acceleration, direction, revolutions, wheel);
+	if (wheel == _inner)
+	{
+		_state.data.drive.innerData = driveData;
+	}
+	else if (wheel == _outer)
+	{
+		_state.data.drive.outerData = driveData;
+	}
+}
+
 void Stage::setStateDrive()
 {
 	_state.state = REVOLVE_DRIVE;
-	// auto innerDriveData = setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
-	// auto outerDriveData = setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
 }
 
 void Stage::setStateBrake()
