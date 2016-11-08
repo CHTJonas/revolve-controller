@@ -230,54 +230,29 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 	return max(min(v, hi), lo);
 }
 
+void Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
+{
+	double kp, currentPosition, setPosition, currentSpeed;
+	currentPosition = wheel->getPos();
+	wheel->setDir(direction);
 
+	auto directionBoolean = wheel->getDir() == FORWARDS;
+	revolutions += (directionBoolean == (position < _inner->displayPos()));
+	setPosition = currentPosition + position - _inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
 
+	speed = clamp(abs(speed), MINSPEED + 1, 100);
+	acceleration = clamp(abs(acceleration), 1, MAXACCEL);
+	auto tenths_accel = (acceleration) / 10.0;
+
+	kp = wheel->_kp_0 + ((100 - speed) * wheel->_kp_smin) / 100 + ((acceleration)* wheel->_kp_amax) / (MAXACCEL);
+
+	PID pid = setupPid(speed, kp, &currentPosition, &setPosition, &currentSpeed, wheel);
+}
 
 void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
 {
-	// PID setup variables
-	double kp_inner, curPos_inner, setPos_inner, curSpeed_inner;
-	double kp_outer, curPos_outer, setPos_outer, curSpeed_outer;
-
-	// Update current absolute position
-	curPos_inner = _inner->getPos();
-	curPos_outer = _outer->getPos();
-
-	// Set direction
-	_inner->setDir(dir_inner);
-	_outer->setDir(dir_outer);
-
-	// Set final absolute position using revs input
-
-	// Inner Wheel
-	auto inner_sign = _inner->getDir() == FORWARDS;
-	revs_inner += (inner_sign == (pos_inner < _inner->displayPos()));
-	setPos_inner = curPos_inner + pos_inner - _inner->displayPos() + (inner_sign ? 1 : -1) * 360 * revs_inner;
-
-	// Outer Wheel
-	auto outer_sign = _outer->getDir() == FORWARDS;
-	revs_outer += (outer_sign == (pos_outer < _outer->displayPos()));
-	setPos_outer = curPos_outer + pos_outer - _outer->displayPos() + (outer_sign ? 1 : -1) * 360 * revs_outer;
-
-	// Sanitise speed input
-	maxSpeed_inner = clamp(abs(maxSpeed_inner), MINSPEED + 1, 100);
-	maxSpeed_outer = clamp(abs(maxSpeed_outer), MINSPEED + 1, 100);
-
-	// Sanitise max acceleration input
-	accel_inner = clamp(abs(accel_inner), 1, MAXACCEL);
-	accel_outer = clamp(abs(accel_outer), 1, MAXACCEL);
-
-	// Convert accel from increase/second to increase/(1/10) second
-	auto tenths_accel_inner = static_cast<double>(accel_inner) / 10.0;
-	auto tenths_accel_outer = static_cast<double>(accel_outer) / 10.0;
-
-	// Calculate kp for this move using constants from inital constructor and required speed, acceleration
-	kp_inner = _inner->_kp_0 + ((100 - maxSpeed_inner) * _inner->_kp_smin) / 100 + ((accel_inner)* _inner->_kp_amax) / (MAXACCEL);
-	kp_outer = _outer->_kp_0 + ((100 - maxSpeed_outer) * _outer->_kp_smin) / 100 + ((accel_outer)* _outer->_kp_amax) / (MAXACCEL);
-
-	// Setup PID object
-	PID pid_inner = setupPid(maxSpeed_inner, kp_inner, &curPos_inner, &setPos_inner, &curSpeed_inner, _inner);
-	PID pid_outer = setupPid(maxSpeed_outer, kp_outer, &curPos_outer, &setPos_outer, &curSpeed_outer, _outer);
+	setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
+	setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
 
 	auto inner_done = false;
 	auto outer_done = false;
