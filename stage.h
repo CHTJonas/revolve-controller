@@ -12,20 +12,24 @@ enum RevolveStateEnum
 	REVOLVE_ESTOP
 };
 
+typedef struct DriveData {
+	double* currentPosition;
+	double* currentSpeed;
+	double* setPosition;
+
+	bool directionBoolean;
+	double tenths_accel;
+
+	PID* pid;
+} DriveData;
+
 typedef struct RevolveState {
 	RevolveStateEnum state;
 	union {
 		struct {} ready;
 		struct {
-			unsigned long start_time;
-			long inner_start_speed;
-			long outer_start_speed;
-			long inner_target_speed;
-			long outer_target_speed;
-			long inner_target_position;
-			long outer_target_position;
-			bool inner_at_speed;
-			bool outer_at_speed;
+			DriveData innerData;
+			DriveData outerData;
 		} drive;
 		struct
 		{
@@ -38,18 +42,6 @@ typedef struct RevolveState {
 		struct {} estop;
 	} data;
 } RevolveState;
-
-typedef struct DriveData {
-	double* currentPosition;
-	double* currentSpeed;
-	double* setPosition;
-
-	bool directionBoolean;
-	double tenths_accel;
-
-	PID* pid;
-
-} DriveData;
 
 class Stage {
 public:
@@ -93,6 +85,6 @@ private:
 	Adafruit_NeoPixel* _ringLeds;
 
 	void setStateReady();
-	void setStateDrive(unsigned long inner_target_speed, unsigned long outer_target_speed, unsigned long inner_target_position, unsigned long outer_target_position);
+	void setStateDrive();
 	void setStateBrake();
 };

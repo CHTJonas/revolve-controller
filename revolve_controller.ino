@@ -183,7 +183,7 @@ void loop() {
 			digitalWrite(GOLED, LOW);
 
 			// Move
-			stage.gotoPos(interface.currentMovements[0], interface.currentMovements[5], interface.currentMovements[1], interface.currentMovements[6], interface.currentMovements[2], interface.currentMovements[7], interface.currentMovements[3], interface.currentMovements[8], interface.currentMovements[4], interface.currentMovements[9]);
+			stage.gotoPos();
 
 			// Turn on switch leds
 			interface.encGreen();
@@ -255,15 +255,15 @@ void loop() {
 
 			// Move - both enabled
 			if (interface.cueParams[1] && interface.cueParams[2]) {
-				stage.gotoPos(interface.cueMovements[0], interface.cueMovements[5], interface.cueMovements[1], interface.cueMovements[6], interface.cueMovements[2], interface.cueMovements[7], interface.cueMovements[3], interface.cueMovements[8], interface.cueMovements[4], interface.cueMovements[9]);
+				stage.gotoPos();
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(stage._inner->displayPos(), interface.cueMovements[5], MINSPEED, interface.cueMovements[6], 1, interface.cueMovements[7], 0, interface.cueMovements[8], 0, interface.cueMovements[9]);
+				stage.gotoPos(,);
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(interface.cueMovements[0], stage._outer->displayPos(), interface.cueMovements[1], MINSPEED, interface.cueMovements[2], 1, interface.cueMovements[3], 0, interface.cueMovements[4], 0);
+				stage.gotoPos(,);
 			}
 
 			// Turn on switch leds
@@ -355,15 +355,15 @@ void loop() {
 
 			// Move - both enabled
 			if (interface.cueParams[1] && interface.cueParams[2]) {
-				stage.gotoPos(interface.cueMovements[0], interface.cueMovements[5], interface.cueMovements[1], interface.cueMovements[6], interface.cueMovements[2], interface.cueMovements[7], interface.cueMovements[3], interface.cueMovements[8], interface.cueMovements[4], interface.cueMovements[9]);
+				stage.gotoPos();
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(stage._inner->displayPos(), interface.cueMovements[5], MINSPEED, interface.cueMovements[6], 1, interface.cueMovements[7], 0, interface.cueMovements[8], 0, interface.cueMovements[9]);
+				stage.gotoPos(,);
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(interface.cueMovements[0], stage._outer->displayPos(), interface.cueMovements[1], MINSPEED, interface.cueMovements[2], 1, interface.cueMovements[3], 0, interface.cueMovements[4], 0);
+				stage.gotoPos(,);
 			}
 
 			// Turn on switch leds
@@ -543,15 +543,15 @@ void loop() {
 
 			// Move - both enabled
 			if (interface.cueParams[1] && interface.cueParams[2]) {
-				stage.gotoPos(interface.cueMovements[0], interface.cueMovements[5], interface.cueMovements[1], interface.cueMovements[6], interface.cueMovements[2], interface.cueMovements[7], interface.cueMovements[3], interface.cueMovements[8], interface.cueMovements[4], interface.cueMovements[9]);
+				stage.gotoPos();
 			}
 			// Move - inner disabled
 			else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-				stage.gotoPos(stage._inner->displayPos(), interface.cueMovements[5], MINSPEED, interface.cueMovements[6], 1, interface.cueMovements[7], 0, interface.cueMovements[8], 0, interface.cueMovements[9]);
+				stage.gotoPos(,);
 			}
 			// Move - outer disabled
 			else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-				stage.gotoPos(interface.cueMovements[0], stage._outer->displayPos(), interface.cueMovements[1], MINSPEED, interface.cueMovements[2], 1, interface.cueMovements[3], 0, interface.cueMovements[4], 0);
+				stage.gotoPos(,);
 			}
 
 			// Turn on switch leds

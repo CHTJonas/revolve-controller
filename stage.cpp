@@ -76,7 +76,7 @@ void Stage::gotoHome()
 
 	_displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
-	gotoPos(0, 0, MINSPEED, MINSPEED, 1, 1, BACKWARDS, BACKWARDS, 0, 0);
+	gotoPos(); // TODO get parameters from git history
 
 	_displays->setMode(NORMAL);
 }
@@ -103,10 +103,11 @@ void Stage::setStateReady()
 	_state.data.ready = {};
 }
 
-void Stage::setStateDrive(long unsigned inner_target_speed, long unsigned outer_target_speed, long unsigned inner_target_position, long unsigned outer_target_position)
+void Stage::setStateDrive()
 {
 	_state.state = REVOLVE_DRIVE;
-	_state.data.drive = { millis(), _inner->getSpeed(), _outer->getSpeed(), inner_target_speed, outer_target_speed, inner_target_position, outer_target_position, false, false };
+	// auto innerDriveData = setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
+	// auto outerDriveData = setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
 }
 
 void Stage::setStateBrake()
@@ -145,14 +146,14 @@ void Stage::runStage()
 
 void Stage::ready() {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive(0, 0, 0, 0);
+		setStateDrive();
 	}
 }
 
 void Stage::brake()
 {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive(0, 0, 0, 0);
+		setStateDrive();
 	}
 
 	const unsigned long inner_speed = [&]() {
@@ -183,17 +184,6 @@ void Stage::brake()
 	_inner->setSpeed(inner_speed);
 	_outer->setSpeed(outer_speed);
 }
-
-void Stage::drive()
-{
-	if (!dmhEngaged()) {
-		setStateBrake();
-	}
-
-	_inner->setSpeed(0);
-	_outer->setSpeed(0);
-}
-
 
 bool Stage::dmhEngaged()
 {
@@ -247,35 +237,36 @@ DriveData Stage::setupDrive(int position, int speed, int acceleration, int direc
 	kp = wheel->_kp_0 + ((100 - speed) * wheel->_kp_smin) / 100 + ((acceleration)* wheel->_kp_amax) / (MAXACCEL);
 
 	auto pid = setupPid(speed, kp, &currentPosition, &setPosition, &currentSpeed, wheel);
-	
-	return {&currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, &pid};
+
+	return{ &currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, &pid };
 }
 
-void Stage::gotoPos(int pos_inner, int pos_outer, int maxSpeed_inner, int maxSpeed_outer, int accel_inner, int accel_outer, int dir_inner, int dir_outer, int revs_inner, int revs_outer)
+void Stage::drive()
 {
-	auto innerDriveData = setupDrive(pos_inner, maxSpeed_inner, accel_inner, dir_inner, revs_inner, _inner);
-	auto outerDriveData = setupDrive(pos_outer, maxSpeed_outer, accel_outer, dir_outer, revs_outer, _outer);
+	auto innerDriveData = _state.data.drive.innerData;
+	auto outerDriveData = _state.data.drive.outerData;
 
-	auto inner_done = false;
-	auto outer_done = false;
+	auto inner_done = innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
+	auto outer_done = outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
-	while (!inner_done || !outer_done) {
-		inner_done = innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
-		outer_done = outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
+	if (inner_done && outer_done)
+	{
+		setStateReady();
+		return;
+	}
 
-		if (!inner_done) {
-			spin_revolve(innerDriveData.currentPosition, innerDriveData.currentSpeed, innerDriveData.tenths_accel, innerDriveData.pid, _inner);
-		}
-		else {
-			_inner->setSpeed(0);
-		}
+	if (!inner_done) {
+		spin_revolve(innerDriveData.currentPosition, innerDriveData.currentSpeed, innerDriveData.tenths_accel, innerDriveData.pid, _inner);
+	}
+	else {
+		_inner->setSpeed(0);
+	}
 
-		if (!outer_done) {
-			spin_revolve(outerDriveData.currentPosition, outerDriveData.currentSpeed, outerDriveData.tenths_accel, outerDriveData.pid, _outer);
-		}
-		else {
-			_outer->setSpeed(0);
-		}
+	if (!outer_done) {
+		spin_revolve(outerDriveData.currentPosition, outerDriveData.currentSpeed, outerDriveData.tenths_accel, outerDriveData.pid, _outer);
+	}
+	else {
+		_outer->setSpeed(0);
 	}
 }
 
@@ -317,15 +308,15 @@ void Stage::runCurrentCue()
 
 	// Move - both enabled
 	if (_interface->cueParams[1] && _interface->cueParams[2]) {
-		gotoPos(_interface->cueMovements[0], _interface->cueMovements[5], _interface->cueMovements[1], _interface->cueMovements[6], _interface->cueMovements[2], _interface->cueMovements[7], _interface->cueMovements[3], _interface->cueMovements[8], _interface->cueMovements[4], _interface->cueMovements[9]);
+		gotoPos();
 	}
 	// Move - inner disabled
 	else if (_interface->cueParams[1] == 0 && _interface->cueParams[2]) {
-		gotoPos(_inner->displayPos(), _interface->cueMovements[5], MINSPEED, _interface->cueMovements[6], 1, _interface->cueMovements[7], 0, _interface->cueMovements[8], 0, _interface->cueMovements[9]);
+		gotoPos(); // TODO pull parameters from git history
 	}
 	// Move - outer disabled
 	else if (_interface->cueParams[1] && _interface->cueParams[2] == 0) {
-		gotoPos(_interface->cueMovements[0], _outer->displayPos(), _interface->cueMovements[1], MINSPEED, _interface->cueMovements[2], 1, _interface->cueMovements[3], 0, _interface->cueMovements[4], 0);
+		gotoPos();
 	}
 
 
