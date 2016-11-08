@@ -1,5 +1,4 @@
 #include "stage.h"
-#include <iostream>
 
 Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
 	updateEncRatios();
