@@ -43,11 +43,11 @@ typedef struct RevolveState {
 	} data;
 } RevolveState;
 
-class Stage {
+class StageDriver {
 public:
 
 	// Constructor
-	Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds);
+	StageDriver(Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds);
 
 	// Settings updating
 	void updateEncRatios() const;

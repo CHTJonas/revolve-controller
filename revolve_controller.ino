@@ -1,5 +1,5 @@
 #include <TimerOne.h>
-#include "stage.h"
+#include "stagedriver.h"
 
 char keys[4][3] = {
 {'1','2','3'},
@@ -28,7 +28,7 @@ Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
 Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
-Stage stage(&inner, &outer, &displays, &interface, &ringLeds);
+StageDriver stage(&inner, &outer, &displays, &interface, &ringLeds);
 char * encodeCue(Cue cue);
 void updateFlags();
 void setup();
