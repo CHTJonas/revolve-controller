@@ -220,7 +220,6 @@ bool Stage::checkEstops()
 	}
 }
 
-
 bool Stage::eStopsEngaged()
 {
 	// Commented out line for non-conencted external esstop testing
@@ -314,7 +313,6 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 		wheel->_tenths = 0;
 	}
 }
-
 
 void Stage::runCurrentCue()
 {
