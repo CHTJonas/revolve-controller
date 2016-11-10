@@ -81,7 +81,7 @@ void goToCurrentCue(int target_mode)
 	}
 }
 
-void updateSetting(void(*settingUpdater)(void), void(*settingLimiter)(void))
+void updateSetting(void(*settingLimiter)(void), int mode)
 {
 	interface.select.update();
 	if (interface.select.read() == LOW) {
@@ -93,7 +93,13 @@ void updateSetting(void(*settingUpdater)(void), void(*settingLimiter)(void))
 		interface.resetKeypad();
 
 		while (interface.editing) {
-			(*settingUpdater)();
+			if (interface.editVars(mode))
+			{
+				if (!interface.usingKeypad) {
+					(*settingLimiter)();
+				}
+				displays.forceUpdateDisplays(0, 1, 0, 1); // the parameters originally varied but since we're redoing everything...
+			}
 
 			// If select pressed to confirm value, exit editing mode
 			interface.select.update();
@@ -106,23 +112,6 @@ void updateSetting(void(*settingUpdater)(void), void(*settingLimiter)(void))
 		}
 
 		interface.encGreen();
-	}
-}
-
-void brightnessUpdater()
-{
-	if (interface.editVars(BRIGHTNESS)) {
-		if (!interface.usingKeypad) {
-			interface.limitLedSettings();
-			keypadLeds.setBrightness(interface.ledSettings[0]);
-			interface.keypadLedsColor(
-			interface.ledSettings[1],
-			interface.ledSettings[2],
-			interface.ledSettings[3]);
-			ringLeds.setBrightness(interface.ledSettings[0]);
-			ringLeds.show();
-		}
-		displays.forceUpdateDisplays(0, 1, 0, 1);
 	}
 }
 
@@ -139,30 +128,10 @@ void brightnessLimiter()
 	displays.forceUpdateDisplays(0, 1, 0, 1);
 }
 
-void encoderUpdater()
-{
-	if (interface.editVars(ENCSETTINGS)) {
-		if (!interface.usingKeypad) {
-			interface.limitEncSettings();
-		}
-		displays.forceUpdateDisplays(0, 1, 0, 0);
-	}
-}
-
 void encoderLimiter()
 {
 	interface.limitEncSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void eepromUpdater()
-{
-	if (interface.editVars(DEFAULTVALUES)) {
-		if (!interface.usingKeypad) {
-			interface.limitMovements(interface.defaultValues);
-		}
-		displays.forceUpdateDisplays(0, 1, 0, 0);
-	}
 }
 
 void eepromLimiter()
@@ -171,46 +140,16 @@ void eepromLimiter()
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void kpUpdater()
-{
-	if (interface.editVars(KPSETTINGS)) {
-		if (!interface.usingKeypad) {
-			interface.limitKpSettings();
-		}
-		displays.forceUpdateDisplays(0, 1, 0, 0);
-	}
-}
-
 void kpLimiter()
 {
 	interface.limitKpSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void manualUpdater()
-{
-	if (interface.editVars(MAN)) {
-		if (!interface.usingKeypad) {
-			interface.limitMovements(interface.currentMovements);
-		}
-		displays.forceUpdateDisplays(0, 1, 0, 0);
-	}
-}
-
 void manualLimiter()
 {
 	interface.limitMovements(interface.currentMovements);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void movementUpdater()
-{
-	if (interface.editVars(PROGRAM_MOVEMENTS)) {
-		if (!interface.usingKeypad) {
-			interface.limitMovements(interface.cueMovements);
-		}
-		displays.forceUpdateDisplays(1, 0, 0, 0);
-	}
 }
 
 void movementLimiter()
@@ -305,7 +244,7 @@ void loop() {
 			displays.setMode(NORMAL);
 		}
 
-		updateSetting(manualUpdater, manualLimiter);
+		updateSetting(manualLimiter, MANUAL);
 
 		// Move to required position if Go and Pause pressed
 		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
@@ -396,7 +335,7 @@ void loop() {
 			}
 		}
 
-		updateSetting(movementUpdater, movementLimiter);
+		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);
 
 		// Back one level only
 		interface.back.update();
@@ -503,12 +442,9 @@ void loop() {
 				int activeCues = cuestack.activeCues();
 				int cueNum = cuestack.stack[activeCues - 1].num;
 
-				// Round down and add 1 to get next cue number
-				cueNum = floor(cueNum) + 1;
-
 				// Initialise next cue in stack with cueNum and default values
 				cuestack.stack[activeCues].active = 1;
-				cuestack.stack[activeCues].num = cueNum;
+				cuestack.stack[activeCues].num = (cueNum + 1) / 10;
 				cuestack.initialiseCue(activeCues);
 
 				// Set as current cue, load into display arrays
@@ -523,10 +459,7 @@ void loop() {
 			if (interface.menu_pos == 5) {
 				// Turn of GO and Pause LEDS
 				digitalWrite(GOLED, LOW);
-				interface.pauseLedsColor(
-					0,
-					0,
-					0);  // Moved into here so they don't flash when just flipping yes/no parameter
+				interface.pauseLedsColor(0, 0, 0);  // Moved into here so they don't flash when just flipping yes/no parameter
 
 				// Bring up warning dialog
 				displays.setMode(PROGRAM_DELETE);
@@ -748,42 +681,8 @@ void loop() {
 
 				// Reset cuestack
 			case 4:
-				displays.setMode(RESET_CUESTACK);
-				interface.encOff();
-				interface.pauseLedsColor(0, 255, 0);
-				digitalWrite(GOLED, HIGH);
-
-				while (true) {
-
-					// Exit if back pressed
-					interface.back.update();
-					if (interface.back.read()) {
-						interface.waitBackRelease();
-
-						// Reset LEDs
-						interface.encGreen();
-						digitalWrite(GOLED, LOW);
-						interface.pauseLedsColor(0, 0, 0);
-
-						// Back to settings
-						displays.setMode(SETTINGS);
-						break;
-					}
-
-					// Need Go, Pause and Select pressed to reset cuestack
-					if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW &&
-						digitalRead(SELECT) == LOW) {
-						cuestack.resetCuestack();
-						interface.loadCurrentCue();
-
-						// Reset LEDs
-						interface.pauseLedsColor(0, 0, 0);
-						digitalWrite(GOLED, LOW);
-						interface.encGreen();
-						displays.setMode(SETTINGS);
-						break;
-					}
-				}
+				interface.menu_pos = 0;
+				displays.setMode(NORMAL);
 				break;
 
 				// Edit encoder settings
@@ -858,7 +757,7 @@ void loop() {
 			displays.setMode(SETTINGS);
 		}
 
-		updateSetting(brightnessUpdater, brightnessLimiter);
+		updateSetting(brightnessLimiter, BRIGHTNESS);
 		break;
 
 	case ENCSETTINGS:
@@ -873,16 +772,9 @@ void loop() {
 		if (interface.back.read()) {
 			interface.waitBackRelease();
 
-			// Write new values, -ve is direction is reversed
-			if (interface.encSettings[0])
-				EEPROM.put(EEINNER_ENC_RATIO, -interface.encSettings[2]);
-			else
-				EEPROM.put(EEINNER_ENC_RATIO, interface.encSettings[2]);
-
-			if (interface.encSettings[1])
-				EEPROM.put(EEOUTER_ENC_RATIO, -interface.encSettings[3]);
-			else
-				EEPROM.put(EEOUTER_ENC_RATIO, interface.encSettings[3]);
+			// encSettings[0/1] store if direction is reversed
+			EEPROM.put(EEINNER_ENC_RATIO, (interface.encSettings[0] ? -1 : 1) * interface.encSettings[2]);
+			EEPROM.put(EEOUTER_ENC_RATIO, (interface.encSettings[1] ? -1 : 1) * interface.encSettings[3]);
 
 			// Update actual values in object
 			stage.updateEncRatios();
@@ -892,7 +784,7 @@ void loop() {
 			displays.setMode(SETTINGS);
 		}
 
-		updateSetting(encoderUpdater, encoderLimiter);
+		updateSetting(encoderLimiter, ENCSETTINGS);
 		break;
 
 		// Set default cue values
@@ -915,7 +807,7 @@ void loop() {
 			displays.setMode(SETTINGS);
 		}
 
-		updateSetting(eepromUpdater, eepromLimiter);
+		updateSetting(eepromLimiter, DEFAULTVALUES);
 		break;
 
 	case KPSETTINGS:
@@ -941,7 +833,7 @@ void loop() {
 			displays.setMode(SETTINGS);
 		}
 
-		updateSetting(kpUpdater, kpLimiter);
+		updateSetting(kpLimiter, KPSETTINGS);
 		break;
 
 	case CUESTACK_BACKUP:
