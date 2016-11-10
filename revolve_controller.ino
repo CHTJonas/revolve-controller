@@ -83,20 +83,16 @@ void goToCurrentCue(int target_mode)
 
 void updateSetting(void(*settingUpdater)(void), void(*settingLimiter)(void))
 {
-	// If select pressed edit current highlighted setting
 	interface.select.update();
 	if (interface.select.read() == LOW) {
 		interface.waitSelectRelease();
 
-		// Change encoder color
 		interface.encRed();
 
-		// Go into editing mode, reset keypad
 		interface.editing = 1;
 		interface.resetKeypad();
 
 		while (interface.editing) {
-
 			(*settingUpdater)();
 
 			// If select pressed to confirm value, exit editing mode
@@ -108,19 +104,14 @@ void updateSetting(void(*settingUpdater)(void), void(*settingLimiter)(void))
 				interface.editing = 0;
 			}
 		}
-		// Change back encoder color
-		interface.encGreen();
 
+		interface.encGreen();
 	}
 }
 
 void brightnessUpdater()
 {
-	// If value changed update display
 	if (interface.editVars(BRIGHTNESS)) {
-
-		// Only limit variables and update brightness after every change if using
-		// encoder
 		if (!interface.usingKeypad) {
 			interface.limitLedSettings();
 			keypadLeds.setBrightness(interface.ledSettings[0]);
@@ -137,7 +128,6 @@ void brightnessUpdater()
 
 void brightnessLimiter()
 {
-	// Limit variables from keypad, update display and LEDs, exit
 	interface.limitLedSettings();
 	keypadLeds.setBrightness(interface.ledSettings[0]);
 	interface.keypadLedsColor(
@@ -151,10 +141,7 @@ void brightnessLimiter()
 
 void encoderUpdater()
 {
-	// If value changed update display
 	if (interface.editVars(ENCSETTINGS)) {
-
-		// Only limit variables after every change if using encoder
 		if (!interface.usingKeypad) {
 			interface.limitEncSettings();
 		}
@@ -164,16 +151,13 @@ void encoderUpdater()
 
 void encoderLimiter()
 {
-	// Limit variables from keypad, update display and LEDs, exit
 	interface.limitEncSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
 void eepromUpdater()
 {
-	// If value changed update display
 	if (interface.editVars(DEFAULTVALUES)) {
-		// Only limit variables after every change if using encoder
 		if (!interface.usingKeypad) {
 			interface.limitMovements(interface.defaultValues);
 		}
@@ -183,18 +167,13 @@ void eepromUpdater()
 
 void eepromLimiter()
 {
-	// Limit variables from keypad now only, update display, exit
 	interface.limitMovements(interface.defaultValues);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
 void kpUpdater()
 {
-	// If value changed update display
 	if (interface.editVars(KPSETTINGS)) {
-
-		// Only limit variables and update brightness after every change if using
-		// encoder
 		if (!interface.usingKeypad) {
 			interface.limitKpSettings();
 		}
@@ -204,9 +183,41 @@ void kpUpdater()
 
 void kpLimiter()
 {
-	// Limit variables from keypad, update display and LEDs, exit
 	interface.limitKpSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void manualUpdater()
+{
+	if (interface.editVars(MAN)) {
+		if (!interface.usingKeypad) {
+			interface.limitMovements(interface.currentMovements);
+		}
+		displays.forceUpdateDisplays(0, 1, 0, 0);
+	}
+}
+
+void manualLimiter()
+{
+	interface.limitMovements(interface.currentMovements);
+	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void movementUpdater()
+{
+	if (interface.editVars(PROGRAM_MOVEMENTS)) {
+		if (!interface.usingKeypad) {
+			interface.limitMovements(interface.cueMovements);
+		}
+		displays.forceUpdateDisplays(1, 0, 0, 0);
+	}
+}
+
+void movementLimiter()
+{
+	interface.limitMovements(interface.cueMovements);
+	cuestack.setMovements(interface.cueMovements);
+	displays.forceUpdateDisplays(1, 0, 1, 0);
 }
 
 void loop() {
@@ -294,48 +305,7 @@ void loop() {
 			displays.setMode(NORMAL);
 		}
 
-		// If select pressed, edit corresponding value
-		interface.select.update();
-		if (interface.select.read() == LOW) {
-			interface.waitSelectRelease();
-
-			// Change LED colors
-			interface.encRed();
-			digitalWrite(GOLED, LOW);
-			interface.pauseLedsColor(0, 0, 0);
-
-			// Go into editing mode, reset keypad
-			interface.editing = 1;
-			interface.resetKeypad();
-
-			while (interface.editing) {
-
-				// If value changed update display
-				if (interface.editVars(MAN)) {
-					// Only limit variables after every change if using encoder
-					if (!interface.usingKeypad) {
-						interface.limitMovements(interface.currentMovements);
-					}
-					displays.forceUpdateDisplays(0, 1, 0, 0);
-				}
-
-				// If select pressed to confirm value, exit editing mode
-				interface.select.update();
-				if (interface.select.read() == LOW) {
-					interface.waitSelectRelease();
-
-					// Limit variables from keypad, update display, exit
-					interface.limitMovements(interface.currentMovements);
-					displays.forceUpdateDisplays(0, 1, 0, 0);
-					interface.editing = 0;
-				}
-			}
-
-			// Change back LED colors
-			interface.encGreen();
-			digitalWrite(GOLED, HIGH);
-			interface.updatePauseLeds();
-		}
+		updateSetting(manualUpdater, manualLimiter);
 
 		// Move to required position if Go and Pause pressed
 		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
@@ -426,48 +396,7 @@ void loop() {
 			}
 		}
 
-		// If select pressed, edit appropriate parameter
-		interface.select.update();
-		if (interface.select.read() == LOW) {
-			interface.waitSelectRelease();
-
-			// Turn of GO and Pause LEDS
-			digitalWrite(GOLED, LOW);
-			interface.pauseLedsColor(0, 0, 0);
-
-			// Change LED colors
-			interface.encRed();
-
-			// Go into editing mode, reset keypad
-			interface.editing = 1;
-			interface.resetKeypad();
-
-			while (interface.editing) {
-
-				// Edit movement variables
-				if (interface.editVars(PROGRAM_MOVEMENTS)) {
-					// Only limit variables after every change if using encoder
-					if (!interface.usingKeypad) {
-						interface.limitMovements(interface.cueMovements);
-					}
-					displays.forceUpdateDisplays(1, 0, 0, 0);
-				}
-
-				// If select pressed to confirm value, exit editing mode
-				interface.select.update();
-				if (interface.select.read() == LOW) {
-					interface.waitSelectRelease();
-
-					// Limit variables from keypad, update display, exit
-					interface.limitMovements(interface.cueMovements);
-					cuestack.setMovements(interface.cueMovements);
-					displays.forceUpdateDisplays(1, 0, 1, 0);
-					interface.editing = 0;
-				}
-			}
-			// Change back LED colors
-			interface.encGreen();
-		}
+		updateSetting(movementUpdater, movementLimiter);
 
 		// Back one level only
 		interface.back.update();
