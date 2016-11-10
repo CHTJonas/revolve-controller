@@ -1,16 +1,16 @@
-#include "stagedriver.h"
+#include "stage.h"
 
 template <class T>
 constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 	return max(min(v, hi), lo);
 }
 
-StageDriver::StageDriver(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
+Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
 
-void StageDriver::runStage()
+void Stage::runStage()
 {
 	_state.state = REVOLVE_READY;
 	_state.data.ready = {};
@@ -39,18 +39,18 @@ void StageDriver::runStage()
 }
 
 /***** Set stage states **********/
-void StageDriver::setStateReady()
+void Stage::setStateReady()
 {
 	_state.state = REVOLVE_READY;
 	_state.data.ready = {};
 }
 
-void StageDriver::setStateDrive()
+void Stage::setStateDrive()
 {
 	_state.state = REVOLVE_DRIVE;
 }
 
-void StageDriver::setStateBrake()
+void Stage::setStateBrake()
 {
 	_state.state = REVOLVE_BRAKE;
 	_state.data.brake = { millis(), _inner->getSpeed(), _outer->getSpeed(), false, false };
@@ -58,14 +58,14 @@ void StageDriver::setStateBrake()
 
 /***** Stage states *******/
 
-void StageDriver::ready() {
+void Stage::ready() {
 	if (dmhEngaged() && goEngaged()) {
 		setStateDrive();
 		return;
 	}
 }
 
-void StageDriver::drive()
+void Stage::drive()
 {
 	if (!dmhEngaged())
 	{
@@ -100,7 +100,7 @@ void StageDriver::drive()
 	}
 }
 
-void StageDriver::brake()
+void Stage::brake()
 {
 	if (dmhEngaged() && goEngaged()) {
 		setStateDrive();
@@ -138,17 +138,17 @@ void StageDriver::brake()
 
 /***** Key switches *****/
 
-bool StageDriver::dmhEngaged()
+bool Stage::dmhEngaged()
 {
 	return !digitalRead(PAUSE);
 }
 
-bool StageDriver::goEngaged()
+bool Stage::goEngaged()
 {
 	return !digitalRead(GO);
 }
 
-bool StageDriver::eStopsEngaged()
+bool Stage::eStopsEngaged()
 {
 	// Commented out line for non-conencted external esstop testing
 	//if !(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW && digitalRead(ESTOPNO)==HIGH){
@@ -157,7 +157,7 @@ bool StageDriver::eStopsEngaged()
 
 /***** Emergency Stop *****/
 
-bool StageDriver::checkEstops()
+bool Stage::checkEstops()
 {
 	if (eStopsEngaged())
 	{
@@ -169,7 +169,7 @@ bool StageDriver::checkEstops()
 	}
 }
 
-void StageDriver::emergencyStop()
+void Stage::emergencyStop()
 {
 	_inner->setSpeed(0);
 	_outer->setSpeed(0);
@@ -187,7 +187,7 @@ void StageDriver::emergencyStop()
 
 /**** Drive functions *****/
 
-void StageDriver::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel)
+void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel)
 {
 	// Update position and compute PID
 	*currentPosition = _inner->getPos();
@@ -201,7 +201,7 @@ void StageDriver::spin_revolve(double* currentPosition, double* currentSpeed, do
 	}
 }
 
-DriveData* StageDriver::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
+DriveData* Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel)
 {
 	double kp, currentPosition, setPosition, currentSpeed;
 	currentPosition = wheel->getPos();
@@ -232,7 +232,7 @@ DriveData* StageDriver::setupDrive(int position, int speed, int acceleration, in
 	return &data;
 }
 
-void StageDriver::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel)
+void Stage::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel)
 {
 	auto mode = data->setPosition < data->currentPosition ? REVERSE : DIRECT;
 	auto pid = PID(data->currentPosition, data->currentSpeed, data->setPosition, kp, wheel->_ki, wheel->_kd, mode);
@@ -245,7 +245,7 @@ void StageDriver::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wh
 
 /***** Cues *****/
 
-void StageDriver::runCurrentCue()
+void Stage::runCurrentCue()
 {
 	// Turn off switch leds
 	_interface->encOff();
@@ -291,7 +291,7 @@ void StageDriver::runCurrentCue()
 
 /***** Wheel homing *****/
 
-void StageDriver::gotoHome()
+void Stage::gotoHome()
 {
 	_displays->setMode(HOMING);
 
@@ -313,7 +313,7 @@ void StageDriver::gotoHome()
 	_displays->setMode(NORMAL);
 }
 
-void StageDriver::home_wheel(Revolve* wheel, int wheelPin)
+void Stage::home_wheel(Revolve* wheel, int wheelPin)
 {
 	setDriveGoal(0, HOMESPEED, 1, FORWARDS, 0, wheel);
 
@@ -350,13 +350,13 @@ void StageDriver::home_wheel(Revolve* wheel, int wheelPin)
 
 /***** Import EEPROM data *****/
 
-void StageDriver::updateEncRatios() const
+void Stage::updateEncRatios() const
 {
 	EEPROM.get(EEINNER_ENC_RATIO, _inner->_enc_ratio);
 	EEPROM.get(EEOUTER_ENC_RATIO, _outer->_enc_ratio);
 }
 
-void StageDriver::updateKpSettings() const
+void Stage::updateKpSettings() const
 {
 	double kpSettings[6];
 	EEPROM.get(EEKP_SETTINGS, kpSettings);
