@@ -8,33 +8,30 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
 Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface *interface, Adafruit_NeoPixel *ringLeds) : _inner(inner), _outer(outer), _displays(displays), _interface(interface), _ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
-}
-
-void Stage::runStage()
-{
 	_state.state = REVOLVE_READY;
 	_state.data.ready = {};
+}
 
-	while (true) {
-		checkEstops();
+void Stage::step()
+{
+	checkEstops();
 
-		switch (_state.state) {
+	switch (_state.state) {
 
-		case REVOLVE_READY:
-			ready();
-			break;
+	case REVOLVE_READY:
+		ready();
+		break;
 
-		case REVOLVE_DRIVE:
-			drive();
-			break;
+	case REVOLVE_DRIVE:
+		drive();
+		break;
 
-		case REVOLVE_BRAKE:
-			brake();
-			break; // but not break the brake. cause that'd be bad. probably.
+	case REVOLVE_BRAKE:
+		brake();
+		break; // but not break the brake. cause that'd be bad. probably.
 
-		default:
-			break;
-		}
+	default:
+		break;
 	}
 }
 
@@ -315,9 +312,6 @@ void Stage::gotoHome()
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin)
 {
-	setDriveGoal(0, HOMESPEED, 1, FORWARDS, 0, wheel);
-
-
 	// Spin until home switch pressed
 	wheel->setDir(FORWARDS);
 	wheel->setSpeed(HOMESPEED);

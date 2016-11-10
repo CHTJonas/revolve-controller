@@ -5,6 +5,11 @@ Displays::Displays(U8GLIB_ST7920_128X64& cue, U8GLIB_ST7920_128X64& menu, U8GLIB
 	mode = STARTUP;
 }
 
+void Displays::step()
+{
+	
+}
+
 void Displays::begin() {
 	_cue.begin();
 	_cue.setColorIndex(1);

@@ -1,5 +1,6 @@
+#include "state_machine.h"
 #include <TimerOne.h>
-#include "stagedriver.h"
+#include "stage.h"
 
 char keys[4][3] = {
 {'1','2','3'},
@@ -28,7 +29,7 @@ Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
 Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
-StageDriver stage(&inner, &outer, &displays, &interface, &ringLeds);
+Stage stage(&inner, &outer, &displays, &interface, &ringLeds);
 char * encodeCue(Cue cue);
 void updateFlags();
 void setup();
@@ -50,6 +51,9 @@ void setup() {
 }
 
 void loop() {
+	stage.step();
+	displays.step();
+	return;
 	// Main switch statement for navigating screens
 	switch (displays.mode) {
 		// Waits for Pause and GO to be pressed then initiates homing

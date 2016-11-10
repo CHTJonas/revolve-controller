@@ -5,9 +5,9 @@
 
 class Displays {
 public:
-
 	// Constructor
 	Displays(U8GLIB_ST7920_128X64& cue, U8GLIB_ST7920_128X64& menu, U8GLIB_ST7920_128X64& info, Adafruit_NeoPixel& ringLeds, Revolve& inner, Revolve& outer, Keypad& keypad, Interface& interface, Cuestack& cuestack);
+	void step();
 
 	// Initialisation
 	void begin();
@@ -33,7 +33,7 @@ public:
 	int ledInner;
 
 private:
-
+	DisplaysState _state;
 	char *menu_strings[4] = { "Manual Operation", "Program Cues", "Show Mode", "Settings" };
 	char *settings_strings[8] = { "Home Revolve", "PID Constants", "Default Cue Values", "Backup Cuestack","Reset Cuestack","Encoder Settings","LED Settings","Hardware Test" };
 	char *enc_settings_strings[4] = { "Inner Dir:","Outer Dir:","Inner RO:","Outer RO:" };

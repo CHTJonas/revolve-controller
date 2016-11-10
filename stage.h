@@ -4,14 +4,6 @@
 #define INNER 0
 #define OUTER 1
 
-enum RevolveStateEnum
-{
-	REVOLVE_READY,
-	REVOLVE_DRIVE,
-	REVOLVE_BRAKE,
-	REVOLVE_ESTOP
-};
-
 typedef struct DriveData {
 	double* currentPosition;
 	double* currentSpeed;
@@ -22,6 +14,14 @@ typedef struct DriveData {
 
 	PID* pid;
 } DriveData;
+
+enum RevolveStateEnum
+{
+	REVOLVE_READY,
+	REVOLVE_DRIVE,
+	REVOLVE_BRAKE,
+	REVOLVE_ESTOP
+};
 
 typedef struct RevolveState {
 	RevolveStateEnum state;
@@ -48,6 +48,7 @@ public:
 
 	// Constructor
 	Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds);
+	void step();
 
 	// Settings updating
 	void updateEncRatios() const;
@@ -57,7 +58,6 @@ public:
 	void home_wheel(Revolve* wheel, int wheelPin);
 	void gotoHome();
 	void emergencyStop();
-	void runStage();
 	void ready();
 	void brake();
 	void drive();
