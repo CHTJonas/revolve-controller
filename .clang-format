@@ -1,0 +1,17 @@
+IndentWidth: 8
+UseTab: ForIndentation
+SpacesBeforeTrailingComments: 2
+SortIncludes: true
+PointerAlignment: Left
+Language: Cpp
+BreakBeforeBraces: Attach
+AlignAfterOpenBracket: AlwaysBreak
+AlignTrailingComments: false
+Cpp11BracedListStyle: true
+BinPackArguments: false
+BinPackParameters: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 6
+ColumnLimit: 120
+AlignOperands: false
+AllowShortFunctionsOnASingleLine: false

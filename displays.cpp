@@ -1,13 +1,29 @@
 #include "displays.h"
 
 // Constructor
-Displays::Displays(U8GLIB_ST7920_128X64& cue, U8GLIB_ST7920_128X64& menu, U8GLIB_ST7920_128X64& info, Adafruit_NeoPixel& ringLeds, Revolve& inner, Revolve& outer, Keypad& keypad, Interface& interface, Cuestack& cuestack) : cue(cue), menu(menu), info(info), ringLeds(ringLeds), inner(inner), outer(outer), keypad(keypad), interface(interface), cuestack(cuestack) {
+Displays::Displays(
+    U8GLIB_ST7920_128X64& cue,
+    U8GLIB_ST7920_128X64& menu,
+    U8GLIB_ST7920_128X64& info,
+    Adafruit_NeoPixel& ringLeds,
+    Revolve& inner,
+    Revolve& outer,
+    Keypad& keypad,
+    Interface& interface,
+    Cuestack& cuestack)
+      : cue(cue),
+        menu(menu),
+        info(info),
+        ringLeds(ringLeds),
+        inner(inner),
+        outer(outer),
+        keypad(keypad),
+        interface(interface),
+        cuestack(cuestack) {
 	mode = STARTUP;
 }
 
-void Displays::step()
-{
-	
+void Displays::step() {
 }
 
 void Displays::begin() {
@@ -55,12 +71,11 @@ void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text) {
 	lcd.print(text);
 }
 
-void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(&values)[10], int cursorEnable) const
-{
+void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const {
 	lcd.setFont(font);
 
 	auto menu_pos_shift = interface.menu_pos;
-	if (mode != MAN &&interface.cueParams[1] == 0) { // Shift menu_pos by 5 if inner disabled
+	if (mode != MAN && interface.cueParams[1] == 0) {  // Shift menu_pos by 5 if inner disabled
 		menu_pos_shift += 5;
 	}
 
@@ -116,8 +131,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(&values)[10], int cu
 		}
 		if (values[3]) {
 			lcd.print("ACW");
-		}
-		else {
+		} else {
 			lcd.print("CW");
 		}
 		lcd.setDefaultForegroundColor();
@@ -188,8 +202,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(&values)[10], int cu
 		}
 		if (values[8]) {
 			lcd.print("ACW");
-		}
-		else {
+		} else {
 			lcd.print("CW");
 		}
 		lcd.setDefaultForegroundColor();
@@ -207,8 +220,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(&values)[10], int cu
 	}
 }
 
-void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const
-{
+void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const {
 	menu.setFont(font);
 	menu.drawStr(4, 10, "Cue Number:");
 	menu.setPrintPos(90, 10);
@@ -217,7 +229,8 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) con
 		menu.setDefaultBackgroundColor();
 	}
 
-	if (interface.cueNumber - floor(interface.cueNumber) == 0) // Don't display something like 1.0 (but do display 2.4)
+	if (interface.cueNumber - floor(interface.cueNumber) ==
+	    0)  // Don't display something like 1.0 (but do display 2.4)
 		menu.print(interface.cueNumber, 0);
 	else
 		menu.print(interface.cueNumber, 1);
@@ -254,8 +267,7 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) con
 	menu.setDefaultForegroundColor();
 }
 
-void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const
-{
+void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const {
 	// Set font and row height
 	lcd.setFont(small_font);
 
@@ -278,9 +290,10 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	// Draw correct page of cues
 	for (auto i = (cueListPage * 7); i < (cueListPage + 1) * 7; i++) {
 		if (cuestack.stack[i].active) {
-			auto iPos = (i - (cueListPage * 7)); // Offset page number from i used to position elements on page
+			auto iPos =
+			    (i - (cueListPage * 7));  // Offset page number from i used to position elements on page
 
-		  // Draw currentCue box
+			// Draw currentCue box
 			if (cuestack.currentCue == i) {
 				lcd.setDefaultForegroundColor();
 				lcd.drawFrame(0, (iPos + 1) * 8, 128, 8);
@@ -297,11 +310,10 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 			lcd.print(cuestack.stack[i].num / 10);
 
 			// Print decimal part if any
-			if(cuestack.stack[i].num % 10 != 0)
-			{
+			if (cuestack.stack[i].num % 10 != 0) {
 				lcd.print(".");
 				lcd.print(cuestack.stack[i].num % 10);
-			} 
+			}
 
 			if (cuestack.stack[i].en_i) {
 				lcd.setPrintPos(30, (8 * (iPos + 2)) - 1);
@@ -321,7 +333,6 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 				}
 			}
 
-
 			// Auto follow arrow
 			if (cuestack.stack[i].auto_follow) {
 				lcd.setFont(u8g_font_m2icon_7);
@@ -335,8 +346,7 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	lcd.setFont(font);
 }
 
-void Displays::drawCue() const
-{
+void Displays::drawCue() const {
 	cue.setFont(font);
 
 	switch (mode) {
@@ -389,8 +399,7 @@ void Displays::drawCue() const
 	}
 }
 
-void Displays::drawMenu() const
-{
+void Displays::drawMenu() const {
 	menu.setFont(font);
 
 	switch (mode) {
@@ -464,8 +473,7 @@ void Displays::drawMenu() const
 				drawStrCenter(menu, (i * 16) + 12, settings_strings[i]);
 				menu.setDefaultForegroundColor();
 			}
-		}
-		else if (interface.menu_pos < 8) {
+		} else if (interface.menu_pos < 8) {
 			for (int i = 0; i < 4; i++) {
 				if ((i + 4) == interface.menu_pos) {
 					// Position highlight box from top left corner
@@ -572,8 +580,7 @@ void Displays::drawMenu() const
 	}
 }
 
-void Displays::drawInfo() const
-{
+void Displays::drawInfo() const {
 	info.setFont(font);
 
 	switch (mode) {
@@ -595,17 +602,13 @@ void Displays::drawInfo() const
 
 		if (digitalRead(GO) == LOW) {
 			drawStrCenter(info, 40, "GO");
-		}
-		else if (digitalRead(PAUSE) == LOW) {
+		} else if (digitalRead(PAUSE) == LOW) {
 			drawStrCenter(info, 40, "PAUSE");
-		}
-		else if (digitalRead(BACK) == HIGH) {
+		} else if (digitalRead(BACK) == HIGH) {
 			drawStrCenter(info, 40, "BACK");
-		}
-		else if (digitalRead(SELECT) == LOW) {
+		} else if (digitalRead(SELECT) == LOW) {
 			drawStrCenter(info, 40, "SELECT");
-		}
-		else if (interface.currentKey) {
+		} else if (interface.currentKey) {
 			drawStrCenter(info, 40, interface.currentKey);
 		}
 		info.setFont(font);
@@ -734,12 +737,10 @@ void Displays::updateRingLeds() {
 		if (ledOuter == 0) {
 			ringLeds.setPixelColor(11, 100, 75, 0);
 			ringLeds.setPixelColor(1, 100, 75, 0);
-		}
-		else if (ledOuter == 11) {
+		} else if (ledOuter == 11) {
 			ringLeds.setPixelColor(0, 100, 75, 0);
 			ringLeds.setPixelColor(10, 100, 75, 0);
-		}
-		else {
+		} else {
 			ringLeds.setPixelColor(ledOuter - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledOuter + 1, 100, 75, 0);
 		}
@@ -747,12 +748,10 @@ void Displays::updateRingLeds() {
 		if (ledInner == 12) {
 			ringLeds.setPixelColor(13, 100, 75, 0);
 			ringLeds.setPixelColor(23, 100, 75, 0);
-		}
-		else if (ledInner == 23) {
+		} else if (ledInner == 23) {
 			ringLeds.setPixelColor(12, 100, 75, 0);
 			ringLeds.setPixelColor(22, 100, 75, 0);
-		}
-		else {
+		} else {
 			ringLeds.setPixelColor(ledInner - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledInner + 1, 100, 75, 0);
 		}
@@ -801,5 +800,3 @@ void Displays::forceUpdateDisplays(int cue1, int menu1, int info1, int ringLeds1
 	update++;
 	updateDisplays(cue1, menu1, info1, ringLeds1);
 }
-
-

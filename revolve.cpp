@@ -9,18 +9,18 @@ Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc) : enc(
 	speed_pin = speed_pin;
 
 	// Speed and acceleration parameters
-	cur_speed = 0;         // Updated with current speed whenever speed is changed
-	em_stop_time = 500;    // EM stop time as setup on motor controller
-	enc_ratio = 1;         // Encoder degrees per revolve degrees (updated from from eeprom by stage)
-	debug = 0;             // Debug flag to serial print debug information
-	tenths = 0;            // Incremented every 1/10 second by main loop to limit acceleration
+	cur_speed = 0;  // Updated with current speed whenever speed is changed
+	em_stop_time = 500;  // EM stop time as setup on motor controller
+	enc_ratio = 1;  // Encoder degrees per revolve degrees (updated from from eeprom by stage)
+	debug = 0;  // Debug flag to serial print debug information
+	tenths = 0;  // Incremented every 1/10 second by main loop to limit acceleration
 
 	// PID control variables
-	kp_0 = 0;        // Initial kp for 100 speed and 0 acceleration
-	kp_smin = 0;     // Difference between min and max kp between speed 0 and 100 for fixed acceleration
-	kp_amax = 0;     // Difference between min and max kp between 0 acceleration and MAXACCEL for fixed speed
-	ki = 0;          // Integral control coefficient (usually not needed)
-	kd = 0;          // Differential control coefficient (usually not needed)
+	kp_0 = 0;  // Initial kp for 100 speed and 0 acceleration
+	kp_smin = 0;  // Difference between min and max kp between speed 0 and 100 for fixed acceleration
+	kp_amax = 0;  // Difference between min and max kp between 0 acceleration and MAXACCEL for fixed speed
+	ki = 0;  // Integral control coefficient (usually not needed)
+	kd = 0;  // Differential control coefficient (usually not needed)
 
 	// Setup output pins
 	pinMode(start_pin, OUTPUT);
@@ -31,22 +31,19 @@ Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc) : enc(
 // INTERNAL HELPER FUNCTIONS
 
 // Enables motor control
-void Revolve::start() const
-{
+void Revolve::start() const {
 	digitalWrite(start_pin, HIGH);
 }
 
 // Stops motor - usually to stop energisation at 0Hz. Will cause EM stop if activated at speed.
-void Revolve::stop() const
-{
+void Revolve::stop() const {
 	digitalWrite(start_pin, LOW);
-	waitForStop(); // wait for full stop if stopping from high speed (uses em_stop_time)
+	waitForStop();  // wait for full stop if stopping from high speed (uses em_stop_time)
 }
 
 // Waits for motor to fully stop using em_stop_time
-void Revolve::waitForStop() const
-{
-	auto startTime = millis(); // Don't use delay so encoders catch final position
+void Revolve::waitForStop() const {
+	auto startTime = millis();  // Don't use delay so encoders catch final position
 	while (millis() < (startTime + em_stop_time)) {
 		// Break out if pause button released (revolve won't come to full stop if button briefly released)
 		if (digitalRead(PAUSE) == LOW) {
@@ -58,21 +55,19 @@ void Revolve::waitForStop() const
 // GETTERS AND SETTERS
 
 // Getter for cur_speed
-int Revolve::getSpeed() const
-{
+int Revolve::getSpeed() const {
 	return cur_speed;
 }
 
 // Getter for dir
-int Revolve::getDir() const
-{
+int Revolve::getDir() const {
 	return dir;
 }
 
 // Getter for current absolute position from encoder - updates cur_pos
 long Revolve::getPos() {
-	auto pos = (enc.read() / 4L); // Encoder has 4 steps per degree
-	pos = pos / enc_ratio;             // Divide by encoder degrees per revolve degree
+	auto pos = (enc.read() / 4L);  // Encoder has 4 steps per degree
+	pos = pos / enc_ratio;  // Divide by encoder degrees per revolve degree
 	cur_pos = pos;
 	return pos;
 }
@@ -115,11 +110,10 @@ void Revolve::setSpeed(float speed) {
 void Revolve::setDir(int dir) {
 	if (dir == BACKWARDS) {
 		digitalWrite(dir_pin, HIGH);
-		dir = BACKWARDS; // Update direction variable
-	}
-	else {
+		dir = BACKWARDS;  // Update direction variable
+	} else {
 		digitalWrite(dir_pin, LOW);
-		dir = FORWARDS; // Update direction variable
+		dir = FORWARDS;  // Update direction variable
 	}
 }
 
@@ -137,8 +131,7 @@ int Revolve::displayPos() {
 }
 
 // Reset position to 0
-void Revolve::resetPos() const
-{
+void Revolve::resetPos() const {
 	enc.write(0);
 }
 
@@ -146,8 +139,7 @@ void Revolve::resetPos() const
 void Revolve::setDebug(int debug) {
 	if (debug == 1) {
 		debug = 1;
-	}
-	else {
+	} else {
 		debug = 0;
 	}
 }

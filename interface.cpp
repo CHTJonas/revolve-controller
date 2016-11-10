@@ -1,6 +1,18 @@
 #include "interface.h"
 
-Interface::Interface(Cuestack& cuestack, Encoder& enc_input, Keypad& keypad, Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds) : cuestack(cuestack), enc_input(enc_input), keypad(keypad), ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
+Interface::Interface(
+    Cuestack& cuestack,
+    Encoder& enc_input,
+    Keypad& keypad,
+    Adafruit_NeoPixel& ringLeds,
+    Adafruit_NeoPixel& pauseLeds,
+    Adafruit_NeoPixel& keypadLeds)
+      : cuestack(cuestack),
+        enc_input(enc_input),
+        keypad(keypad),
+        ringLeds(ringLeds),
+        pauseLeds(pauseLeds),
+        keypadLeds(keypadLeds) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, ledSettings);
@@ -14,11 +26,11 @@ Interface::Interface(Cuestack& cuestack, Encoder& enc_input, Keypad& keypad, Ada
 
 	EEPROM.get(EEKP_SETTINGS, kpSettings);
 
-	if (encSettings[2] > 0) // -ve ratio for reverse direction
+	if (encSettings[2] > 0)  // -ve ratio for reverse direction
 		encSettings[0] = 0;
 	else
 		encSettings[0] = 1;
-	if (encSettings[3] > 0) // -ve ratio for reverse direction
+	if (encSettings[3] > 0)  // -ve ratio for reverse direction
 		encSettings[1] = 0;
 	else
 		encSettings[1] = 1;
@@ -64,8 +76,7 @@ bool Interface::editVars(int mode) {
 						encSettings[menu_pos] = 1;
 					else
 						encSettings[menu_pos] = 0;
-				}
-				else {
+				} else {
 					encSettings[menu_pos] = (static_cast<float>(keypadValue) / 100);
 				}
 				break;
@@ -76,10 +87,9 @@ bool Interface::editVars(int mode) {
 				kpSettings[menu_pos] = (static_cast<float>(keypadValue) / 1000);
 				break;
 			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {// If inner disabled
+				if (cueParams[1] == 0) {  // If inner disabled
 					cueMovements[menu_pos + 5] = keypadValue;
-				}
-				else {
+				} else {
 					cueMovements[menu_pos] = keypadValue;
 				}
 				break;
@@ -88,9 +98,8 @@ bool Interface::editVars(int mode) {
 				break;
 			}
 			return true;
-		}
-		else {
-			return false; // Do not update displays
+		} else {
+			return false;  // Do not update displays
 		}
 	}
 
@@ -113,8 +122,7 @@ bool Interface::editVars(int mode) {
 						encSettings[menu_pos] = 1;
 					else
 						encSettings[menu_pos] = 0;
-				}
-				else {
+				} else {
 					encSettings[menu_pos] += (static_cast<float>(change) / 100);
 				}
 				break;
@@ -125,10 +133,9 @@ bool Interface::editVars(int mode) {
 				kpSettings[menu_pos] += (static_cast<float>(change) / 1000);
 				break;
 			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {// If inner disabled
+				if (cueParams[1] == 0) {  // If inner disabled
 					cueMovements[menu_pos + 5] += change;
-				}
-				else {
+				} else {
 					cueMovements[menu_pos] += change;
 				}
 				break;
@@ -136,10 +143,9 @@ bool Interface::editVars(int mode) {
 				cueNumber += static_cast<float>(change) / 10;
 				break;
 			}
-			return true; // Update displays (has been a change)
-		}
-		else {
-			return false; // No change
+			return true;  // Update displays (has been a change)
+		} else {
+			return false;  // No change
 		}
 	}
 }
@@ -159,8 +165,7 @@ void Interface::limitVariable(double& variable, double varMin, double varMax) {
 	variable = max(varMin, variable);
 }
 
-void Interface::limitMovements(int(&movements)[10]) const
-{
+void Interface::limitMovements(int (&movements)[10]) const {
 	limitVariable(movements[0], 0, 359);
 	limitVariable(movements[1], MINSPEED, 100);
 	limitVariable(movements[2], 1, MAXACCEL);
@@ -218,8 +223,7 @@ bool Interface::updateMenu(int menuMax) {
 
 	if (encValue > 0 && menu_pos < menuMax) {
 		menu_pos = min(menuMax, menu_pos + encValue);
-	}
-	else if (encValue < 0 && menu_pos>0) {
+	} else if (encValue < 0 && menu_pos > 0) {
 		menu_pos = max(0, menu_pos + encValue);
 	}
 
@@ -239,18 +243,15 @@ void Interface::flashLed(int led, int interval) {
 	}
 }
 
-void Interface::updatePauseLeds() const
-{
+void Interface::updatePauseLeds() const {
 	if (digitalRead(PAUSE) == LOW) {
 		pauseLedsColor(0, 255, 0);
-	}
-	else {
+	} else {
 		pauseLedsColor(255, 0, 0);
 	}
 }
 
-int Interface::getInputEnc() const
-{
+int Interface::getInputEnc() const {
 	auto value = enc_input.read() / 4;
 	if (abs(value) > 0) {
 		enc_input.write(0);
@@ -270,8 +271,8 @@ int Interface::getInputEnc() const
 void Interface::updateKeypad() {
 	auto newKey = keypad.getKey();
 	if (newKey) {
-		key = newKey; // Holds last pressed key - reset to zero when read
-		currentKey = newKey; // Current key being pressed (if any)
+		key = newKey;  // Holds last pressed key - reset to zero when read
+		currentKey = newKey;  // Current key being pressed (if any)
 	}
 
 	// Enable keypad input
@@ -282,8 +283,7 @@ void Interface::updateKeypad() {
 	// Reset currentKey if key released
 	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
 		currentKey = key;
-	}
-	else {
+	} else {
 		currentKey = 0;
 	}
 }
@@ -306,7 +306,7 @@ void Interface::setupSwitches() {
 	pinMode(GO, INPUT_PULLUP);
 	pinMode(BACK, INPUT);
 	pinMode(PAUSE, INPUT_PULLUP);
-	pinMode(SELECT, INPUT_PULLUP); // Connects to +5v when pressed
+	pinMode(SELECT, INPUT_PULLUP);  // Connects to +5v when pressed
 
 	pinMode(INNERHOME, INPUT_PULLUP);
 	pinMode(OUTERHOME, INPUT_PULLUP);
@@ -323,7 +323,6 @@ void Interface::setupSwitches() {
 	back.attach(BACK);
 	back.interval(10);
 }
-
 
 void Interface::setupLeds() {
 
@@ -350,7 +349,6 @@ void Interface::setupLeds() {
 
 	keypadLeds.setBrightness(ledSettings[0]);
 	keypadLedsColor(ledSettings[1], ledSettings[2], ledSettings[3]);
-
 
 	// Set initial LED values
 	digitalWrite(ENCG, LOW);
@@ -381,22 +379,19 @@ void Interface::encOff() {
 	digitalWrite(ENCB, HIGH);
 }
 
-void Interface::ringLedsColor(int r, int g, int b) const
-{
+void Interface::ringLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 24; i++)
 		ringLeds.setPixelColor(i, r, g, b);
 	ringLeds.show();
 }
 
-void Interface::pauseLedsColor(int r, int g, int b) const
-{
+void Interface::pauseLedsColor(int r, int g, int b) const {
 	pauseLeds.setPixelColor(0, r, g, b);
 	pauseLeds.setPixelColor(1, r, g, b);
 	pauseLeds.show();
 }
 
-void Interface::keypadLedsColor(int r, int g, int b) const
-{
+void Interface::keypadLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 4; i++)
 		keypadLeds.setPixelColor(i, r, g, b);
 	keypadLeds.show();
@@ -414,8 +409,7 @@ void Interface::waitBackRelease() {
 	}
 }
 
-void Interface::allLedsOn() const
-{
+void Interface::allLedsOn() const {
 	digitalWrite(GOLED, HIGH);
 	digitalWrite(SELECTLED, HIGH);
 	digitalWrite(ENCR, LOW);
@@ -425,8 +419,7 @@ void Interface::allLedsOn() const
 	keypadLedsColor(255, 255, 255);
 }
 
-void Interface::allLedsOff() const
-{
+void Interface::allLedsOff() const {
 	digitalWrite(GOLED, LOW);
 	digitalWrite(SELECTLED, LOW);
 	digitalWrite(ENCR, HIGH);
