@@ -1,8 +1,7 @@
 #pragma once
-#include <Arduino.h>
 #include "constants.h"
+#include <Arduino.h>
 #include <EEPROM.h>
-
 
 typedef struct {
 	int pos_i;
@@ -18,7 +17,8 @@ typedef struct {
 	byte revs_o;
 
 	int num = 0;
-	int byteWaster = 0; // num used to be a float = 4 bytes, so this is a placeholder until we can rearchitect the struct
+	int byteWaster =
+	    0;  // num used to be a float = 4 bytes, so this is a placeholder until we can rearchitect the struct
 	byte auto_follow = 0;
 	byte en_i = 1;
 	byte en_o = 1;
@@ -26,8 +26,7 @@ typedef struct {
 } Cue;
 
 class Cuestack {
-public:
-
+      public:
 	// Constructor
 	Cuestack();
 
@@ -42,9 +41,9 @@ public:
 	void saveCuestack() const;
 
 	// Getters for current cue data
-	void getMovements(int(&outputValues)[10]);
+	void getMovements(int (&outputValues)[10]);
 	void getNumber(int& outputNumber) const;
-	void getParams(int(&outputParams)[3]);
+	void getParams(int (&outputParams)[3]);
 	void setMovements(int inputValues[10]);
 	void setNumber(int inputNumber);
 	void setParams(int inputParams[3]);
@@ -67,4 +66,3 @@ public:
 	// Master array to hold up to 100 written cues
 	Cue stack[100];
 };
-

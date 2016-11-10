@@ -1,15 +1,14 @@
 #pragma once
-#include <PID_v1.h>
-#include <Encoder.h>
-#include <Arduino.h>
 #include "constants.h"
+#include <Arduino.h>
+#include <Encoder.h>
+#include <PID_v1.h>
 
 #define FORWARDS 0
 #define BACKWARDS 1
 
 class Revolve {
-public:
-
+      public:
 	// Constructor
 	Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc);
 
@@ -49,8 +48,7 @@ public:
 	double ki;
 	double kd;
 
-private:
-
+      private:
 	// External object references
 	Encoder& enc;
 
@@ -58,5 +56,4 @@ private:
 	int start_pin;
 	int dir_pin;
 	int speed_pin;
-
 };
