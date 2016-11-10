@@ -33,7 +33,6 @@ public:
 	int ledInner;
 
 private:
-	DisplaysState _state;
 	char *menu_strings[4] = { "Manual Operation", "Program Cues", "Show Mode", "Settings" };
 	char *settings_strings[8] = { "Home Revolve", "PID Constants", "Default Cue Values", "Backup Cuestack","Reset Cuestack","Encoder Settings","LED Settings","Hardware Test" };
 	char *enc_settings_strings[4] = { "Inner Dir:","Outer Dir:","Inner RO:","Outer RO:" };
