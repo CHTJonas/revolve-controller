@@ -71,16 +71,16 @@ public:
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
-	Revolve* _outer;
-	Revolve* _inner;
-	RevolveState _state;
-	int _acceleration = 10; // TODO check for sanity
+	Revolve* outer;
+	Revolve* inner;
+	RevolveState state;
+	int acceleration = 10; // TODO check for sanity
 
 private:
 
-	Displays* _displays;
-	Interface* _interface;
-	Adafruit_NeoPixel* _ringLeds;
+	Displays* displays;
+	Interface* interface;
+	Adafruit_NeoPixel* ringLeds;
 
 	void setStateReady();
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);

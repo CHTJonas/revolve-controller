@@ -1100,9 +1100,9 @@ void loop() {
 }
 
 void updateFlags() {
-	inner._tenths = 1;
-	outer._tenths = 1;
-	displays._update = 1;
+	inner.tenths = 1;
+	outer.tenths = 1;
+	displays.update = 1;
 }
 
 char * encodeCue(Cue cue) {

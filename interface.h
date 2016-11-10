@@ -51,21 +51,21 @@ public:
 	void setupLeds();
 
 	// Cuestack
-	Cuestack& _cuestack;
+	Cuestack& cuestack;
 
 	// Debouced switches
 	Bounce select = Bounce();
 	Bounce back = Bounce();
 
 	// Input Encoder
-	Encoder& _enc_input;
+	Encoder& enc_input;
 
 	// Keypad
-	Keypad& _keypad;
+	Keypad& keypad;
 
-	Adafruit_NeoPixel& _ringLeds;
-	Adafruit_NeoPixel& _pauseLeds;
-	Adafruit_NeoPixel& _keypadLeds;
+	Adafruit_NeoPixel& ringLeds;
+	Adafruit_NeoPixel& pauseLeds;
+	Adafruit_NeoPixel& keypadLeds;
 
 	// Current manual values
 	int currentMovements[10];

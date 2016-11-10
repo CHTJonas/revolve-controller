@@ -29,34 +29,34 @@ public:
 	void setDebug(int debug);
 
 	// Public flags
-	volatile int _tenths;
-	int _debug;
+	volatile int tenths;
+	int debug;
 
 	// Speed and acceleration limits
-	float _max_speed;
-	int _em_stop_time;
-	float _enc_ratio;
+	float max_speed;
+	int em_stop_time;
+	float enc_ratio;
 
 	// Current position/speed data
-	float _cur_speed;
-	int _dir;
-	long _cur_pos;
+	float cur_speed;
+	int dir;
+	long cur_pos;
 
 	// PID globals
-	double _kp_0;
-	double _kp_smin;
-	double _kp_amax;
-	double _ki;
-	double _kd;
+	double kp_0;
+	double kp_smin;
+	double kp_amax;
+	double ki;
+	double kd;
 
 private:
 
 	// External object references
-	Encoder& _enc;
+	Encoder& enc;
 
 	// Pins
-	int _start_pin;
-	int _dir_pin;
-	int _speed_pin;
+	int start_pin;
+	int dir_pin;
+	int speed_pin;
 
 };

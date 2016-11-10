@@ -1,13 +1,13 @@
 #include "interface.h"
 
-Interface::Interface(Cuestack& cuestack, Encoder& enc_input, Keypad& keypad, Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds) : _cuestack(cuestack), _enc_input(enc_input), _keypad(keypad), _ringLeds(ringLeds), _pauseLeds(pauseLeds), _keypadLeds(keypadLeds) {
+Interface::Interface(Cuestack& cuestack, Encoder& enc_input, Keypad& keypad, Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds) : cuestack(cuestack), enc_input(enc_input), keypad(keypad), ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, ledSettings);
 
 	EEPROM.get(EEDEFAULT_VALUES, defaultValues);
 	EEPROM.get(EEDEFAULT_VALUES, currentMovements);
-	_cuestack.updateDefaultValues();
+	cuestack.updateDefaultValues();
 
 	EEPROM.get(EEINNER_ENC_RATIO, encSettings[2]);
 	EEPROM.get(EEOUTER_ENC_RATIO, encSettings[3]);
@@ -198,18 +198,18 @@ void Interface::limitCueParams() {
 }
 
 void Interface::loadCurrentCue() {
-	_cuestack.getMovements(cueMovements);
-	_cuestack.getNumber(cueNumber);
-	_cuestack.getParams(cueParams);
+	cuestack.getMovements(cueMovements);
+	cuestack.getNumber(cueNumber);
+	cuestack.getParams(cueParams);
 }
 
 void Interface::loadCue(int number) {
-	auto currentCue = _cuestack.currentCue;
-	_cuestack.currentCue = number;
-	_cuestack.getMovements(cueMovements);
-	_cuestack.getNumber(cueNumber);
-	_cuestack.getParams(cueParams);
-	_cuestack.currentCue = currentCue;
+	auto currentCue = cuestack.currentCue;
+	cuestack.currentCue = number;
+	cuestack.getMovements(cueMovements);
+	cuestack.getNumber(cueNumber);
+	cuestack.getParams(cueParams);
+	cuestack.currentCue = currentCue;
 }
 
 bool Interface::updateMenu(int menuMax) {
@@ -251,9 +251,9 @@ void Interface::updatePauseLeds() const
 
 int Interface::getInputEnc() const
 {
-	auto value = _enc_input.read() / 4;
+	auto value = enc_input.read() / 4;
 	if (abs(value) > 0) {
-		_enc_input.write(0);
+		enc_input.write(0);
 	}
 	// Skip acceleration if not editing (i.e. navigate menus at sensible speed)
 	if (editing) {
@@ -268,7 +268,7 @@ int Interface::getInputEnc() const
 }
 
 void Interface::updateKeypad() {
-	auto newKey = _keypad.getKey();
+	auto newKey = keypad.getKey();
 	if (newKey) {
 		key = newKey; // Holds last pressed key - reset to zero when read
 		currentKey = newKey; // Current key being pressed (if any)
@@ -280,7 +280,7 @@ void Interface::updateKeypad() {
 	}
 
 	// Reset currentKey if key released
-	if (_keypad.getState() == HOLD || _keypad.getState() == PRESSED) {
+	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
 		currentKey = key;
 	}
 	else {
@@ -338,17 +338,17 @@ void Interface::setupLeds() {
 	digitalWrite(ENCG, LOW);
 	digitalWrite(ENCB, HIGH);
 
-	_ringLeds.begin();
-	_pauseLeds.begin();
-	_keypadLeds.begin();
+	ringLeds.begin();
+	pauseLeds.begin();
+	keypadLeds.begin();
 
-	_ringLeds.setBrightness(ledSettings[0]);
-	_ringLeds.show();
+	ringLeds.setBrightness(ledSettings[0]);
+	ringLeds.show();
 
-	_pauseLeds.setBrightness(ledSettings[0]);
+	pauseLeds.setBrightness(ledSettings[0]);
 	pauseLedsColor(0, 0, 0);
 
-	_keypadLeds.setBrightness(ledSettings[0]);
+	keypadLeds.setBrightness(ledSettings[0]);
 	keypadLedsColor(ledSettings[1], ledSettings[2], ledSettings[3]);
 
 
@@ -384,22 +384,22 @@ void Interface::encOff() {
 void Interface::ringLedsColor(int r, int g, int b) const
 {
 	for (auto i = 0; i < 24; i++)
-		_ringLeds.setPixelColor(i, r, g, b);
-	_ringLeds.show();
+		ringLeds.setPixelColor(i, r, g, b);
+	ringLeds.show();
 }
 
 void Interface::pauseLedsColor(int r, int g, int b) const
 {
-	_pauseLeds.setPixelColor(0, r, g, b);
-	_pauseLeds.setPixelColor(1, r, g, b);
-	_pauseLeds.show();
+	pauseLeds.setPixelColor(0, r, g, b);
+	pauseLeds.setPixelColor(1, r, g, b);
+	pauseLeds.show();
 }
 
 void Interface::keypadLedsColor(int r, int g, int b) const
 {
 	for (auto i = 0; i < 4; i++)
-		_keypadLeds.setPixelColor(i, r, g, b);
-	_keypadLeds.show();
+		keypadLeds.setPixelColor(i, r, g, b);
+	keypadLeds.show();
 }
 
 void Interface::waitSelectRelease() {
