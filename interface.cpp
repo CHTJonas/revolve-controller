@@ -157,7 +157,7 @@ void Interface::limitMovements(int(&movements)[10]) const {
 }
 
 void Interface::limitLedSettings() {
-	for (auto i = 0; i < sizeof(ledSettings); i++) {
+	for (auto i = 0; i < sizeof(ledSettings) / sizeof(*ledSettings); i++) {
 		ledSettings[i] = clamp(ledSettings[i], 0, 255);
 	}
 }

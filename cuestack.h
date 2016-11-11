@@ -64,5 +64,5 @@ class Cuestack {
 	Cue defaultValues;
 
 	// Master array to hold up to 100 written cues
-	Cue stack[100];
+	Cue stack[MAX_CUES];
 };
