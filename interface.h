@@ -6,15 +6,9 @@
 #include <Keypad.h>
 
 class Interface {
-      public:
+public:
 	// Constructor
-	Interface(
-	    Cuestack& cuestack,
-	    Encoder& enc_input,
-	    Keypad& keypad,
-	    Adafruit_NeoPixel& ringLeds,
-	    Adafruit_NeoPixel& pauseLeds,
-	    Adafruit_NeoPixel& keypadLeds);
+	Interface(Cuestack& cuestack, Encoder& enc_input, Keypad& keypad, Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
 
 	// Navigation and editing
 	bool updateMenu(int menuMax);
@@ -22,7 +16,7 @@ class Interface {
 	static void limitVariable(int& variable, int varMin, int varMax);
 	static void limitVariable(float& variable, float varMin, float varMax);
 	static void limitVariable(double& variable, double varMin, double varMax);
-	void limitMovements(int (&movements)[10]) const;
+	void limitMovements(int(&movements)[10]) const;
 	void limitLedSettings();
 	void limitEncSettings();
 	void limitKpSettings();
@@ -94,6 +88,6 @@ class Interface {
 	int usingKeypad;
 	int keypadValue;
 
-      private:
+private:
 	long int flashCounter = 0;
 };

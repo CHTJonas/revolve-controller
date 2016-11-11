@@ -1,3 +1,5 @@
+#pragma once
+
 // Pins
 #pragma once
 #define GO 16
