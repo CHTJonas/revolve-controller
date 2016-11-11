@@ -42,7 +42,7 @@ void Cuestack::resetCue(int number) {
 }
 
 void Cuestack::resetCuestack() {
-	for (auto i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_CUES; i++) {
 		stack[i].num = 0;
 		initialiseCue(i);
 		stack[i].active = 0;
@@ -56,7 +56,7 @@ void Cuestack::resetCuestack() {
 	saveCuestack();
 }
 void Cuestack::loadCuestack() {
-	for (auto i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_CUES; i++) {
 		EEPROM.get(EECUESTACK_START + i * 20, stack[i]);
 	}
 	currentCue = 0;
@@ -64,7 +64,7 @@ void Cuestack::loadCuestack() {
 }
 
 void Cuestack::saveCuestack() const {
-	for (auto i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_CUES; i++) {
 		EEPROM.put(EECUESTACK_START + i * 20, stack[i]);
 	}
 }
@@ -118,7 +118,7 @@ void Cuestack::setParams(int inputParams[3]) {
 }
 
 int Cuestack::getCueIndex(int number) const {
-	for (auto i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_CUES; i++) {
 		if (number == stack[i].num) {
 			return i;
 		}
@@ -127,7 +127,7 @@ int Cuestack::getCueIndex(int number) const {
 
 // Checks to see if number already exists in stack
 bool Cuestack::validCueNumber(float number) const {
-	for (auto i = 0; i < 100; i++) {
+	for (int i = 0; i < MAX_CUES; i++) {
 		if (number == stack[i].num) {
 			return true;
 		}
@@ -139,33 +139,34 @@ bool Cuestack::validCueNumber(float number) const {
 // Counts total active cues
 int Cuestack::activeCues() const {
 	auto active = 0;
-	for (auto i = 0; i < 100; i++) {
-		if (stack[i].active)
+	for (int i = 0; i < MAX_CUES; i++) {
+		if (stack[i].active) {
 			active++;
+        }
 	}
 	return active;
 }
 
 // Sorts cuestack (e.g. after changing number, deleting cues etc.
-// Simple bubblesort unofortunately, but only performed quite rarely
+// Simple bubblesort unfortunately, but only performed quite rarely
 void Cuestack::sortCues() {
-	auto sorted = 0;
+	bool sorted = false;
 	Cue scratch1;
 	Cue scratch2;
 
 	while (!sorted) {
 		// Assume sorted, will get changed if anything swapped
-		sorted = 1;
+		sorted = true;
 
 		// Try every cue
 		// Don't run over end of array - each pass checks i and i+1!! (Causes issues....)
-		for (auto i = 0; i < 99; i++) {
+		for (int i = 0; i < MAX_CUES - 1; i++) {
 
 			// Move non active cues up (only if one above isn't active also, otherwise waste of time!)
 			if (!stack[i].active && stack[i + 1].active) {
 				stack[i] = stack[i + 1];  // Move cue up
 				resetCue(i + 1);  // Reset now duplicate cue
-				sorted = 0;  // Not sorted - need to go through again
+				sorted = false;  // Not sorted - need to go through again
 			}
 
 			// If num higher than num of next cue, swap
@@ -179,7 +180,7 @@ void Cuestack::sortCues() {
 				stack[i] = scratch2;
 
 				// Not sorted!
-				sorted = 0;
+				sorted = false;
 			}
 		}
 	}

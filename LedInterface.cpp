@@ -90,7 +90,7 @@ void LedInterface::allLedsOff() const {
 }
 
 void LedInterface::limitLedSettings() {
-	for (auto i = 0; i < sizeof(ledSettings); i++) {
+	for (auto i = 0; i < sizeof(ledSettings) / sizeof(*ledSettings); i++) {
 		ledSettings[i] = clamp(ledSettings[i], 0, 255);
 	}
 }
