@@ -20,16 +20,25 @@ U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
 
 // Con: Revolve(start_pin, dir_pin, speed_pin, enc);
+State state; //= State { STATE_MAINMENU };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
 Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
-Stage stage(&inner, &outer, &displays, &interface, &ringLeds);
+Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
 char* encodeCue(Cue cue);
 void updateFlags();
 void setup();
 void loop();
+void goToCurrentCue(int target_mode);
+void updateSetting(void(*settingLimiter)(void), int mode);
+void brightnessLimiter();
+void encoderLimiter();
+void eepromLimiter();
+void kpLimiter();
+void manualLimiter();
+void movementLimiter();
 
 void setup() {
 	Timer1.initialize(100000);

@@ -4,28 +4,26 @@ template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi
 	return max(min(v, hi), lo);
 }
 
-Stage::Stage(Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
-      : inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
+Stage::Stage(State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
+      : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
-	state.state = REVOLVE_READY;
-	state.data.ready = {};
 }
 
 void Stage::step() {
 	checkEstops();
 
-	switch (state.state) {
+	switch (state->state) {
 
-	case REVOLVE_READY:
+	case STATE_RUN_READY:
 		ready();
 		break;
 
-	case REVOLVE_DRIVE:
+	case STATE_RUN_DRIVE:
 		drive();
 		break;
 
-	case REVOLVE_BRAKE:
+	case STATE_RUN_BRAKE:
 		brake();
 		break;  // but not break the brake. cause that'd be bad. probably.
 
@@ -36,17 +34,18 @@ void Stage::step() {
 
 /***** Set stage states **********/
 void Stage::setStateReady() {
-	state.state = REVOLVE_READY;
-	state.data.ready = {};
+	state->state = STATE_RUN_READY;
+	state->data.run_ready = {};
 }
 
 void Stage::setStateDrive() {
-	state.state = REVOLVE_DRIVE;
+	state->state = STATE_RUN_DRIVE;
+	state->data.run_drive = {};
 }
 
 void Stage::setStateBrake() {
-	state.state = REVOLVE_BRAKE;
-	state.data.brake = {millis(), inner->getSpeed(), outer->getSpeed(), false, false};
+	state->state = STATE_RUN_BRAKE;
+	state->data.run_brake = {millis(), inner->getSpeed(), outer->getSpeed(), false, false};
 }
 
 /***** Stage states *******/
@@ -64,8 +63,8 @@ void Stage::drive() {
 		return;
 	}
 
-	auto innerDriveData = state.data.drive.innerData;
-	auto outerDriveData = state.data.drive.outerData;
+	auto innerDriveData = state->data.run_drive.innerData;
+	auto outerDriveData = state->data.run_drive.outerData;
 
 	auto inner_done =
 	    innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
@@ -107,29 +106,29 @@ void Stage::brake() {
 	}
 
 	const unsigned long inner_speed = [&]() {
-		if (state.data.brake.inner_at_speed)
+		if (state->data.run_brake.inner_at_speed)
 			return 0UL;
 		else
-			return state.data.brake.inner_start_speed -
-			    (millis() - state.data.brake.start_time) * acceleration;
+			return state->data.run_brake.inner_start_speed -
+			    (millis() - state->data.run_brake.start_time) * acceleration;
 	}();
 	const unsigned long outer_speed = [&]() {
-		if (state.data.brake.outer_at_speed)
+		if (state->data.run_brake.outer_at_speed)
 			return 0UL;
 		else
-			return state.data.brake.outer_start_speed -
-			    (millis() - state.data.brake.start_time) * acceleration;
+			return state->data.run_brake.outer_start_speed -
+			    (millis() - state->data.run_brake.start_time) * acceleration;
 	}();
 
 	if (inner_speed == 0) {
-		state.data.brake.inner_at_speed = true;
+		state->data.run_brake.inner_at_speed = true;
 	}
 
 	if (outer_speed == 0) {
-		state.data.brake.outer_at_speed = true;
+		state->data.run_brake.outer_at_speed = true;
 	}
 
-	if (state.data.brake.inner_at_speed && state.data.brake.outer_at_speed) {
+	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
 		setStateReady();
 	}
 
@@ -169,15 +168,15 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	state.state = REVOLVE_ESTOP;
-	state.data.estop = {};
+	state->state = STATE_RUN_ESTOP;
+	state->data.run_estop = {};
 	displays->setMode(ESTOP);  // TODO
 
 	// hold until we're ready to go again
 	while (eStopsEngaged()) {
 	}
 
-	state.state = REVOLVE_READY;
+	state->state = STATE_RUN_READY;
 }
 
 /**** Drive functions *****/
@@ -217,9 +216,9 @@ Stage::setupDrive(int position, int speed, int acceleration, int direction, int 
 	setupPid(speed, kp, &data, wheel);
 
 	if (wheel == inner) {
-		state.data.drive.innerData = data;
+		state->data.run_drive.innerData = data;
 	} else if (wheel == outer) {
-		state.data.drive.outerData = data;
+		state->data.run_drive.outerData = data;
 	}
 
 	return &data;
