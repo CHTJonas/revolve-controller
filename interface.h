@@ -1,5 +1,6 @@
 #pragma once
 #include "cuestack.h"
+#include "LedInterface.h"; 
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
 #include <Encoder.h>
@@ -14,25 +15,11 @@ public:
 	bool updateMenu(int menuMax);
 	bool editVars(int mode);
 	void limitMovements(int(&movements)[10]) const;
-	void limitLedSettings();
 	void limitEncSettings();
 	void limitKpSettings();
 	void limitCueParams();
 	void loadCurrentCue();
 	void loadCue(int number);
-
-	// LEDs
-	void flashLed(int led, int interval);
-	void updatePauseLeds() const;
-	void ringLedsColor(int r, int g, int b) const;
-	void pauseLedsColor(int r, int g, int b) const;
-	void keypadLedsColor(int r, int g, int b) const;
-	static void encRed();
-	static void encGreen();
-	static void encBlue();
-	static void encOff();
-	void allLedsOn() const;
-	void allLedsOff() const;
 
 	// Input helpers
 	int getInputEnc() const;
@@ -44,7 +31,6 @@ public:
 
 	// Setup functions
 	void setupSwitches();
-	void setupLeds();
 
 	// Cuestack
 	Cuestack& cuestack;
@@ -59,9 +45,7 @@ public:
 	// Keypad
 	Keypad& keypad;
 
-	Adafruit_NeoPixel& ringLeds;
-	Adafruit_NeoPixel& pauseLeds;
-	Adafruit_NeoPixel& keypadLeds;
+	LedInterface leds;
 
 	// Current manual values
 	int currentMovements[10];
@@ -72,7 +56,6 @@ public:
 	int cueParams[3];
 
 	// Settings parameters
-	int ledSettings[4];
 	float encSettings[4];
 	int defaultValues[10];
 	double kpSettings[6];
@@ -86,5 +69,4 @@ public:
 	int keypadValue;
 
 private:
-	long int flashCounter = 0;
 };

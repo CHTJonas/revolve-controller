@@ -508,7 +508,7 @@ void Displays::drawMenu() const {
 				menu.setDefaultBackgroundColor();
 			}
 
-			menu.print(interface.ledSettings[i]);
+			menu.print(interface.leds.ledSettings[i]);
 			menu.setDefaultForegroundColor();
 		}
 		menu.setFont(font);
@@ -760,7 +760,7 @@ void Displays::updateRingLeds() {
 		break;
 
 	default:
-		interface.ringLedsColor(200, 0, 255);
+		interface.leds.ringLedsColor(200, 0, 255);
 		break;
 	}
 }

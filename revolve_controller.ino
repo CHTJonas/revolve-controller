@@ -46,7 +46,7 @@ void setup() {
 
 	Serial.begin(1200);
 
-	interface.setupLeds();
+	interface.leds.setupLeds();
 	interface.setupSwitches();
 
 	// cuestack.loadCuestack();
@@ -63,7 +63,6 @@ void goToCurrentCue(int target_mode)
 		displays.setMode(PROGRAM_GOTOCUE);
 
 		// Turn off switch leds
-		interface.encOff();
 		digitalWrite(SELECTLED, LOW);
 		digitalWrite(GOLED, LOW);
 
@@ -81,7 +80,6 @@ void goToCurrentCue(int target_mode)
 		}
 
 		// Turn on switch leds
-		interface.encGreen();
 		digitalWrite(SELECTLED, HIGH);
 		digitalWrite(GOLED, HIGH);
 
@@ -95,8 +93,6 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 	interface.select.update();
 	if (interface.select.read() == LOW) {
 		interface.waitSelectRelease();
-
-		interface.encRed();
 
 		interface.editing = 1;
 		interface.resetKeypad();
@@ -119,20 +115,18 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 				interface.editing = 0;
 			}
 		}
-
-		interface.encGreen();
 	}
 }
 
 void brightnessLimiter()
 {
-	interface.limitLedSettings();
-	keypadLeds.setBrightness(interface.ledSettings[0]);
-	interface.keypadLedsColor(
-	interface.ledSettings[1],
-	interface.ledSettings[2],
-	interface.ledSettings[3]);
-	ringLeds.setBrightness(interface.ledSettings[0]);
+	interface.leds.limitLedSettings();
+	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
+	interface.leds.keypadLedsColor(
+		interface.leds.ledSettings[1],
+		interface.leds.ledSettings[2],
+		interface.leds.ledSettings[3]);
+	ringLeds.setBrightness(interface.leds.ledSettings[0]);
 	ringLeds.show();
 	displays.forceUpdateDisplays(0, 1, 0, 1);
 }
@@ -179,8 +173,6 @@ void loop() {
 
 		// Wait for both switches
 		while (digitalRead(GO) || digitalRead(PAUSE)) {
-			interface.flashLed(GOLED, 500);
-			interface.updatePauseLeds();
 		}
 
 		// Start homing
@@ -188,7 +180,6 @@ void loop() {
 		stage.gotoHome();
 
 		// Reset LEDs, go to NORMAL mode
-		interface.pauseLedsColor(0, 0, 0);
 		digitalWrite(GOLED, LOW);
 		displays.setMode(NORMAL);
 		break;
@@ -234,7 +225,6 @@ void loop() {
 	case MAN:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
-		interface.updatePauseLeds();
 
 		// Update selection screen
 		if (interface.updateMenu(9)) {
@@ -246,7 +236,6 @@ void loop() {
 
 			// Turn off GO and Pause
 			digitalWrite(GOLED, LOW);
-			interface.pauseLedsColor(0, 0, 0);
 
 			// Reset menu_pos and change mode
 			interface.menu_pos = 0;
@@ -259,7 +248,6 @@ void loop() {
 		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
 
 			// Turn off switch leds
-			interface.encOff();
 			digitalWrite(SELECTLED, LOW);
 			digitalWrite(GOLED, LOW);
 
@@ -267,7 +255,6 @@ void loop() {
 			// stage.gotoPos();
 
 			// Turn on switch leds
-			interface.encGreen();
 			digitalWrite(SELECTLED, HIGH);
 			digitalWrite(GOLED, HIGH);
 		}
@@ -277,7 +264,6 @@ void loop() {
 	case PROGRAM:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
-		interface.updatePauseLeds();
 
 		// Update menu and displays
 		if (interface.updateMenu(2)) {
@@ -297,7 +283,6 @@ void loop() {
 
 			// Turn off GO and Pause LEDS
 			digitalWrite(GOLED, LOW);
-			interface.pauseLedsColor(0, 0, 0);
 			interface.menu_pos = 0;
 			displays.setMode(NORMAL);
 		}
@@ -330,10 +315,9 @@ void loop() {
 	case PROGRAM_MOVEMENTS:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
-		interface.updatePauseLeds();
 
 		if (interface.cueParams[1] == 0 ||
-		interface.cueParams[2] == 0) {  // If either half disabled for this cue
+			interface.cueParams[2] == 0) {  // If either half disabled for this cue
 			if (interface.updateMenu(4)) {
 				displays.forceUpdateDisplays(1, 0, 0, 0);
 			}
@@ -360,7 +344,6 @@ void loop() {
 	case PROGRAM_PARAMS:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
-		interface.updatePauseLeds();
 
 		if (interface.updateMenu(5)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -372,8 +355,6 @@ void loop() {
 			interface.waitSelectRelease();
 
 			if (interface.menu_pos < 4) {
-				// Change LED colors
-				interface.encRed();
 
 				// Go into editing mode, reset keypad
 				interface.editing = 1;
@@ -393,9 +374,6 @@ void loop() {
 					else {
 						// Turn of GO and Pause LEDS
 						digitalWrite(GOLED, LOW);
-						interface.pauseLedsColor(0, 0, 0);  // Moved into here so they don't
-															// flash when just flipping yes/no
-															// parameter
 
 						if (interface.editVars(PROGRAM_PARAMS)) {
 							// Only limit variables after every change if using encoder
@@ -424,15 +402,13 @@ void loop() {
 									interface.cueNumber += 0.1;
 								}
 								else
-								interface.cueNumber = 0;
+									interface.cueNumber = 0;
 							}
 						}
 						// Exit editing
 						interface.editing = 0;
 					}
 				}
-				// Change back LED colors
-				interface.encGreen();
 
 				// Update display, sort, update cue
 				cuestack.setNumber(interface.cueNumber);
@@ -468,7 +444,6 @@ void loop() {
 			if (interface.menu_pos == 5) {
 				// Turn of GO and Pause LEDS
 				digitalWrite(GOLED, LOW);
-				interface.pauseLedsColor(0, 0, 0);  // Moved into here so they don't flash when just flipping yes/no parameter
 
 				// Bring up warning dialog
 				displays.setMode(PROGRAM_DELETE);
@@ -524,7 +499,6 @@ void loop() {
 	case PROGRAM_CUELIST:
 		// Turn of GO and Pause LEDS
 		digitalWrite(GOLED, LOW);
-		interface.pauseLedsColor(0, 0, 0);
 
 		if (interface.updateMenu(cuestack.totalCues - 1)) {
 			displays.forceUpdateDisplays(0, 0, 1, 0);
@@ -557,8 +531,6 @@ void loop() {
 	case SHOW:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
-		interface.updatePauseLeds();
-		interface.encOff();
 		digitalWrite(SELECTLED, HIGH);
 
 		// Only allow cue position jogging if select pressed
@@ -566,8 +538,6 @@ void loop() {
 		if (interface.select.read() == LOW) {
 			// Update LEDs
 			digitalWrite(GOLED, LOW);
-			interface.pauseLedsColor(0, 0, 0);
-			interface.encGreen();
 
 			// Reset input encoder before start of edit
 			interface.getInputEnc();
@@ -589,8 +559,7 @@ void loop() {
 			}
 			// Update LEDs
 			digitalWrite(GOLED, HIGH);
-			interface.updatePauseLeds();
-			interface.encOff();
+
 			// Load cue data for highlighted cue
 			interface.loadCue(interface.menu_pos);
 			displays.forceUpdateDisplays(1, 1, 0, 0);
@@ -637,17 +606,11 @@ void loop() {
 				displays.setMode(STARTUP);
 
 				while (true) {
-
-					// Flash GO led, update pause led
-					interface.flashLed(GOLED, 500);
-					interface.updatePauseLeds();
-
 					// Exit (1 level only, back to settings) if back pressed, reset LEDs
 					interface.back.update();
 					if (interface.back.read()) {
 						interface.waitBackRelease();
 						digitalWrite(GOLED, LOW);
-						interface.pauseLedsColor(0, 0, 0);
 						break;
 					}
 
@@ -656,12 +619,9 @@ void loop() {
 
 						// Update LEDS
 						digitalWrite(GOLED, HIGH);
-						interface.pauseLedsColor(0, 255, 0);
-
 						stage.gotoHome();
 
 						// Reset LEDS
-						interface.pauseLedsColor(0, 0, 0);
 						digitalWrite(GOLED, LOW);
 						break;
 					}
@@ -708,8 +668,7 @@ void loop() {
 
 				// Hardware test mode
 			case 7:
-				interface.allLedsOn();
-				interface.encBlue();  // All encoder lights on prevents switch from reading properly due
+				interface.leds.encBlue();  // All encoder lights on prevents switch from reading properly due
 									  // to voltage drop
 				displays.setMode(HARDWARETEST);
 				break;
@@ -735,10 +694,6 @@ void loop() {
 		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
 
 			// Reset LEDs to settings state
-			interface.allLedsOff();
-			interface.keypadLedsColor(
-			interface.ledSettings[1], interface.ledSettings[2], interface.ledSettings[3]);
-			interface.encGreen();
 			digitalWrite(SELECTLED, HIGH);
 
 			// Back to settings
@@ -759,7 +714,7 @@ void loop() {
 			interface.waitBackRelease();
 
 			// Write new values, update current movements
-			EEPROM.put(EELED_SETTINGS, interface.ledSettings);
+			EEPROM.put(EELED_SETTINGS, interface.leds.ledSettings);
 
 			// Back to settings
 			interface.menu_pos = 5;

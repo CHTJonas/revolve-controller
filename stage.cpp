@@ -238,7 +238,6 @@ void Stage::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel) {
 
 void Stage::runCurrentCue() {
 	// Turn off switch leds
-	interface->encOff();
 	digitalWrite(SELECTLED, LOW);
 	digitalWrite(GOLED, LOW);
 
@@ -292,8 +291,6 @@ void Stage::gotoHome() {
 	ringLeds->show();
 
 	home_wheel(outer, OUTERHOME);
-	// Set outer ring green
-	interface->ringLedsColor(0, 255, 0);
 
 	displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
@@ -315,7 +312,6 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 			emergencyStop();
 
 			// Restart
-			interface->pauseLedsColor(0, 255, 0);
 			digitalWrite(GOLED, LOW);
 			wheel->setSpeed(HOMESPEED);
 
