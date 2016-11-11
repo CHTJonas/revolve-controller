@@ -13,9 +13,6 @@ public:
 	// Navigation and editing
 	bool updateMenu(int menuMax);
 	bool editVars(int mode);
-	static void limitVariable(int& variable, int varMin, int varMax);
-	static void limitVariable(float& variable, float varMin, float varMax);
-	static void limitVariable(double& variable, double varMin, double varMax);
 	void limitMovements(int(&movements)[10]) const;
 	void limitLedSettings();
 	void limitEncSettings();
