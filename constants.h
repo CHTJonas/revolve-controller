@@ -1,7 +1,9 @@
 #pragma once
 
+// The max number of cues in the Cuestack
+#define MAX_CUES 100
+
 // Pins
-#pragma once
 #define GO 16
 #define BACK 53
 #define PAUSE 13
