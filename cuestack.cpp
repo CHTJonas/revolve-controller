@@ -147,43 +147,15 @@ int Cuestack::activeCues() const {
 	return active;
 }
 
-// Sorts cuestack (e.g. after changing number, deleting cues etc.
-// Simple bubblesort unfortunately, but only performed quite rarely
+// Sorts cuestack (e.g. after changing number, deleting cues etc.)
 void Cuestack::sortCues() {
-	bool sorted = false;
-	Cue scratch1;
-	Cue scratch2;
-
-	while (!sorted) {
-		// Assume sorted, will get changed if anything swapped
-		sorted = true;
-
-		// Try every cue
-		// Don't run over end of array - each pass checks i and i+1!! (Causes issues....)
-		for (int i = 0; i < MAX_CUES - 1; i++) {
-
-			// Move non active cues up (only if one above isn't active also, otherwise waste of time!)
-			if (!stack[i].active && stack[i + 1].active) {
-				stack[i] = stack[i + 1];  // Move cue up
-				resetCue(i + 1);  // Reset now duplicate cue
-				sorted = false;  // Not sorted - need to go through again
-			}
-
-			// If num higher than num of next cue, swap
-			// Don't bother testing if either isn't active
-			if (stack[i].active && stack[i + 1].active && stack[i].num > stack[i + 1].num) {
-				scratch1 = stack[i];
-				scratch2 = stack[i + 1];
-
-				// Re-enter into array
-				stack[i + 1] = scratch1;
-				stack[i] = scratch2;
-
-				// Not sorted!
-				sorted = false;
-			}
-		}
-	}
+    qsort(&stack[0],
+        MAX_CUES,
+        sizeof(stack[0]),
+        *[](void *cue1, void *cue2) {
+            return ((Cue*)cue1)->num - ((Cue*)cue2)->num;
+        }
+    );
 }
 
 void Cuestack::loadExampleCues() {
