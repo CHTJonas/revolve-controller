@@ -1,12 +1,12 @@
 #pragma once
 #include "interface.h"
-#include "revolve.h"
 #include "logo.h"
+#include "revolve.h"
 #include "strings.h"
 #include <U8glib.h>
 
 class Displays {
-      public:
+public:
 	// Constructor
 	Displays(
 	    U8GLIB_ST7920_128X64& cue,
@@ -44,53 +44,19 @@ class Displays {
 	int ledInner;
 
 private:
-	const char* menu_strings[4] = {
-        MENU_OPTION_1,
-        MENU_OPTION_2,
-        MENU_OPTION_3,
-        MENU_OPTION_4
-    };
+	const char* menu_strings[4] = { MENU_OPTION_1, MENU_OPTION_2, MENU_OPTION_3, MENU_OPTION_4 };
 	const char* settings_strings[8] = {
-        SETTINGS_OPTION_1,
-        SETTINGS_OPTION_2,
-        SETTINGS_OPTION_3,
-        SETTINGS_OPTION_4,
-        SETTINGS_OPTION_5,
-        SETTINGS_OPTION_6,
-        SETTINGS_OPTION_7,
-        SETTINGS_OPTION_8
-    };
+		SETTINGS_OPTION_1, SETTINGS_OPTION_2, SETTINGS_OPTION_3, SETTINGS_OPTION_4,
+		SETTINGS_OPTION_5, SETTINGS_OPTION_6, SETTINGS_OPTION_7, SETTINGS_OPTION_8
+	};
 	const char* enc_settings_strings[4] = {
-        ENCODER_OPTION_1,
-        ENCODER_OPTION_2,
-        ENCODER_OPTION_3,
-        ENCODER_OPTION_4
-    };
-	const char* led_settings_strings[4] = {
-        LED_OPTION_1,
-        LED_OPTION_2,
-        LED_OPTION_3,
-        LED_OPTION_4
-    };
-	const char* kp_settings_strings[6] = {
-        PID_OPTION_1,
-        PID_OPTION_2,
-        PID_OPTION_3,
-        PID_OPTION_4,
-        PID_OPTION_5,
-        PID_OPTION_6
-    };
-	const char* program_strings[4] = {
-        PROGRAM_OPTION_1,
-        PROGRAM_OPTION_2,
-        PROGRAM_OPTION_3,
-        PROGRAM_OPTION_4
-    };
-	const char* param_strings[3] = {
-        PARAM_OPTION_1,
-        PARAM_OPTION_2,
-        PARAM_OPTION_3
-    };
+		ENCODER_OPTION_1, ENCODER_OPTION_2, ENCODER_OPTION_3, ENCODER_OPTION_4
+	};
+	const char* led_settings_strings[4] = { LED_OPTION_1, LED_OPTION_2, LED_OPTION_3, LED_OPTION_4 };
+	const char* kp_settings_strings[6] = { PID_OPTION_1, PID_OPTION_2, PID_OPTION_3,
+		                               PID_OPTION_4, PID_OPTION_5, PID_OPTION_6 };
+	const char* program_strings[4] = { PROGRAM_OPTION_1, PROGRAM_OPTION_2, PROGRAM_OPTION_3, PROGRAM_OPTION_4 };
+	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
 
 	const u8g_fntpgm_uint8_t* font = u8g_font_profont11;  // 8px high row
 	const u8g_fntpgm_uint8_t* xlarge_font = u8g_font_profont22;  // 16px high row

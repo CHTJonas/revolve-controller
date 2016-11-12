@@ -2,7 +2,7 @@
 #include "state_machine.h"
 #include <TimerOne.h>
 
-char keys[4][3] = { {'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}, {'*', '0', '#'} };
+char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
 byte ROWS[4] = { KEY1, KEY2, KEY3, KEY4 };
 byte COLS[3] = { KEY5, KEY6, KEY7 };
 Keypad keypad = Keypad(makeKeymap(keys), ROWS, COLS, 4, 3);
@@ -20,7 +20,7 @@ U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
 
 // Con: Revolve(start_pin, dir_pin, speed_pin, enc);
-State state; //= State { STATE_MAINMENU };
+State state;  //= State { STATE_MAINMENU };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
@@ -32,7 +32,7 @@ void updateFlags();
 void setup();
 void loop();
 void goToCurrentCue(int target_mode);
-void updateSetting(void(*settingLimiter)(void), int mode);
+void updateSetting(void (*settingLimiter)(void), int mode);
 void brightnessLimiter();
 void encoderLimiter();
 void eepromLimiter();
@@ -55,8 +55,7 @@ void setup() {
 	displays.setMode(NORMAL);
 }
 
-void goToCurrentCue(int target_mode)
-{
+void goToCurrentCue(int target_mode) {
 	// Goto current cue if Go and Pause pressed
 	if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
 		// Update displays to show realtime position
@@ -88,8 +87,7 @@ void goToCurrentCue(int target_mode)
 	}
 }
 
-void updateSetting(void(*settingLimiter)(void), int mode)
-{
+void updateSetting(void (*settingLimiter)(void), int mode) {
 	interface.select.update();
 	if (interface.select.read() == LOW) {
 		interface.waitSelectRelease();
@@ -98,12 +96,15 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 		interface.resetKeypad();
 
 		while (interface.editing) {
-			if (interface.editVars(mode))
-			{
+			if (interface.editVars(mode)) {
 				if (!interface.usingKeypad) {
 					(*settingLimiter)();
 				}
-				displays.forceUpdateDisplays(0, 1, 0, 1); // the parameters originally varied but since we're redoing everything...
+				displays.forceUpdateDisplays(
+				    0,
+				    1,
+				    0,
+				    1);  // the parameters originally varied but since we're redoing everything...
 			}
 
 			// If select pressed to confirm value, exit editing mode
@@ -118,56 +119,48 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 	}
 }
 
-void brightnessLimiter()
-{
+void brightnessLimiter() {
 	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
 	interface.leds.keypadLedsColor(
-		interface.leds.ledSettings[1],
-		interface.leds.ledSettings[2],
-		interface.leds.ledSettings[3]);
+	    interface.leds.ledSettings[1], interface.leds.ledSettings[2], interface.leds.ledSettings[3]);
 	ringLeds.setBrightness(interface.leds.ledSettings[0]);
 	ringLeds.show();
 	displays.forceUpdateDisplays(0, 1, 0, 1);
 }
 
-void encoderLimiter()
-{
+void encoderLimiter() {
 	interface.limitEncSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void eepromLimiter()
-{
+void eepromLimiter() {
 	interface.limitMovements(interface.defaultValues);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void kpLimiter()
-{
+void kpLimiter() {
 	interface.limitKpSettings();
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void manualLimiter()
-{
+void manualLimiter() {
 	interface.limitMovements(interface.currentMovements);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
-void movementLimiter()
-{
+void movementLimiter() {
 	interface.limitMovements(interface.cueMovements);
 	cuestack.setMovements(interface.cueMovements);
 	displays.forceUpdateDisplays(1, 0, 1, 0);
 }
 
 void loop() {
-	//stage.step();
-	//displays.step();
-	//return;
+	// stage.step();
+	// displays.step();
+	// return;
 	// Main switch statement for navigating screens
 	switch (displays.mode) {
-		// Waits for Pause and GO to be pressed then initiates homing
+	// Waits for Pause and GO to be pressed then initiates homing
 	case STARTUP:
 
 		// Wait for both switches
@@ -183,11 +176,11 @@ void loop() {
 		displays.setMode(NORMAL);
 		break;
 
-		// During homing everything handled by stage and display classes
+	// During homing everything handled by stage and display classes
 	case HOMING:
 		break;
 
-		// Main Menu
+	// Main Menu
 	case NORMAL:
 		// Update menu with encoder
 		if (interface.updateMenu(3)) {
@@ -220,7 +213,7 @@ void loop() {
 		}
 		break;
 
-		// Manual control
+	// Manual control
 	case MAN:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
@@ -259,7 +252,7 @@ void loop() {
 		}
 		break;
 
-		// Mode to edit cue stack
+	// Mode to edit cue stack
 	case PROGRAM:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
@@ -316,12 +309,11 @@ void loop() {
 		digitalWrite(GOLED, HIGH);
 
 		if (interface.cueParams[1] == 0 ||
-			interface.cueParams[2] == 0) {  // If either half disabled for this cue
+		    interface.cueParams[2] == 0) {  // If either half disabled for this cue
 			if (interface.updateMenu(4)) {
 				displays.forceUpdateDisplays(1, 0, 0, 0);
 			}
-		}
-		else {
+		} else {
 			if (interface.updateMenu(9)) {
 				displays.forceUpdateDisplays(1, 0, 0, 0);
 			}
@@ -363,7 +355,7 @@ void loop() {
 					// Just flip Yes/No variables on select
 					if (interface.menu_pos > 0) {
 						interface.cueParams[interface.menu_pos - 1] =
-							!interface.cueParams[interface.menu_pos - 1];
+						    !interface.cueParams[interface.menu_pos - 1];
 						interface.editing = 0;
 						interface.limitCueParams();
 						displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -399,8 +391,7 @@ void loop() {
 							while (!cuestack.validCueNumber(interface.cueNumber)) {
 								if (interface.cueNumber < 99.9) {
 									interface.cueNumber += 0.1;
-								}
-								else
+								} else
 									interface.cueNumber = 0;
 							}
 						}
@@ -414,9 +405,9 @@ void loop() {
 				cuestack.setParams(interface.cueParams);
 				cuestack.sortCues();
 				cuestack.currentCue =
-					cuestack.getCueIndex(interface.cueNumber);  // If sorting has occured, cue
-																// highlighter in list is in wrong place
-																// now
+				    cuestack.getCueIndex(interface.cueNumber);  // If sorting has occured, cue
+				// highlighter in list is in wrong place
+				// now
 				displays.forceUpdateDisplays(1, 1, 1, 0);
 			}
 
@@ -526,7 +517,7 @@ void loop() {
 		}
 		break;
 
-		// Run mode for during show - cannot edit cues
+	// Run mode for during show - cannot edit cues
 	case SHOW:
 		// Turn on GO and Pause LEDS
 		digitalWrite(GOLED, HIGH);
@@ -578,7 +569,7 @@ void loop() {
 		}
 		break;
 
-		// Change system settings
+	// Change system settings
 	case SETTINGS:
 
 		// Update menu position
@@ -630,13 +621,13 @@ void loop() {
 				displays.setMode(SETTINGS);
 				break;
 
-				// Edit PID Constants
+			// Edit PID Constants
 			case 1:
 				interface.menu_pos = 0;
 				displays.setMode(KPSETTINGS);
 				break;
 
-				// Edit default cue values
+			// Edit default cue values
 			case 2:
 				interface.menu_pos = 0;
 				displays.setMode(DEFAULTVALUES);
@@ -647,27 +638,27 @@ void loop() {
 				displays.setMode(CUESTACK_BACKUP);
 				break;
 
-				// Reset cuestack
+			// Reset cuestack
 			case 4:
 				interface.menu_pos = 0;
 				displays.setMode(NORMAL);
 				break;
 
-				// Edit encoder settings
+			// Edit encoder settings
 			case 5:
 				interface.menu_pos = 0;
 				displays.setMode(ENCSETTINGS);
 				break;
 
-				// Edit LED settings
+			// Edit LED settings
 			case 6:
 				interface.menu_pos = 0;
 				displays.setMode(BRIGHTNESS);
 				break;
 
-				// Hardware test mode
+			// Hardware test mode
 			case 7:
-				// All encoder lights on prevents switch from reading properly due to voltage 
+				// All encoder lights on prevents switch from reading properly due to voltage
 				interface.leds.encoderLedColor(false, false, true);
 				displays.setMode(HARDWARETEST);
 				break;
@@ -680,7 +671,7 @@ void loop() {
 		}
 		break;
 
-		// Mode to test all switches and LEDs
+	// Mode to test all switches and LEDs
 	case HARDWARETEST:
 
 		// Read keypad
@@ -750,7 +741,7 @@ void loop() {
 		updateSetting(encoderLimiter, ENCSETTINGS);
 		break;
 
-		// Set default cue values
+	// Set default cue values
 	case DEFAULTVALUES:
 
 		// Update selection screen

@@ -7,11 +7,12 @@ Language: Cpp
 BreakBeforeBraces: Attach
 AlignAfterOpenBracket: AlwaysBreak
 AlignTrailingComments: false
-Cpp11BracedListStyle: true
+Cpp11BracedListStyle: false
 BinPackArguments: false
 BinPackParameters: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 6
+AccessModifierOffset: -8
 ColumnLimit: 120
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: false

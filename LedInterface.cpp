@@ -5,8 +5,7 @@ template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi
 }
 
 LedInterface::LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
-	: ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds)
-{
+      : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 }
 
 void LedInterface::setupLeds() {
@@ -52,8 +51,7 @@ void LedInterface::flashLed(int led, int interval) {
 	}
 }
 
-void LedInterface::encoderLedColor(bool r, bool g, bool b) const
-{
+void LedInterface::encoderLedColor(bool r, bool g, bool b) const {
 	digitalWrite(ENCR, r ? LOW : HIGH);
 	digitalWrite(ENCG, g ? LOW : HIGH);
 	digitalWrite(ENCB, b ? LOW : HIGH);
@@ -81,9 +79,7 @@ void LedInterface::keypadLedsColor(int r, int g, int b) const {
 void LedInterface::updatePauseLeds() const {
 	if (digitalRead(PAUSE) == LOW) {
 		pauseLedsColor(0, 255, 0);
-	}
-	else {
+	} else {
 		pauseLedsColor(255, 0, 0);
 	}
 }
-

@@ -24,8 +24,10 @@ typedef struct State {
 	enum StateEnum state;
 
 	union {
-		struct {} mainmenu;
-		struct {} run_ready;
+		struct {
+		} mainmenu;
+		struct {
+		} run_ready;
 		struct {
 			DriveData innerData;
 			DriveData outerData;

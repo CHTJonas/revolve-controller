@@ -142,20 +142,16 @@ int Cuestack::activeCues() const {
 	for (int i = 0; i < MAX_CUES; i++) {
 		if (stack[i].active) {
 			active++;
-        }
+		}
 	}
 	return active;
 }
 
 // Sorts cuestack (e.g. after changing number, deleting cues etc.)
 void Cuestack::sortCues() {
-    qsort(&stack[0],
-        MAX_CUES,
-        sizeof(stack[0]),
-        *[](const void *cue1, const void *cue2) {
-            return ((Cue*)cue1)->num - ((Cue*)cue2)->num;
-        }
-    );
+	qsort(&stack[0], MAX_CUES, sizeof(stack[0]), *[](const void* cue1, const void* cue2) {
+		return ((Cue*)cue1)->num - ((Cue*)cue2)->num;
+	});
 }
 
 void Cuestack::loadExampleCues() {

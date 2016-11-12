@@ -4,7 +4,8 @@ template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi
 	return max(min(v, hi), lo);
 }
 
-Stage::Stage(State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
+Stage::Stage(
+    State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
       : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
@@ -45,7 +46,7 @@ void Stage::setStateDrive() {
 
 void Stage::setStateBrake() {
 	state->state = STATE_RUN_BRAKE;
-	state->data.run_brake = {millis(), inner->getSpeed(), outer->getSpeed(), false, false};
+	state->data.run_brake = { millis(), inner->getSpeed(), outer->getSpeed(), false, false };
 }
 
 /***** Stage states *******/
@@ -105,13 +106,13 @@ void Stage::brake() {
 		return;
 	}
 
-	const unsigned long inner_speed =
-	  state->data.run_brake.inner_at_speed ?
-	  0UL : state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+	const unsigned long inner_speed = state->data.run_brake.inner_at_speed
+	    ? 0UL
+	    : state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
-	const unsigned long outer_speed =
-	  state->data.run_brake.outer_at_speed ?
-	  0UL : state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+	const unsigned long outer_speed = state->data.run_brake.outer_at_speed
+	    ? 0UL
+	    : state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
 	state->data.run_brake.inner_at_speed = (inner_speed == 0);
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
@@ -181,8 +182,7 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 	}
 }
 
-DriveData
-Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel) {
+DriveData Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel) {
 	double kp, currentPosition, setPosition, currentSpeed;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
@@ -198,7 +198,7 @@ Stage::setupDrive(int position, int speed, int acceleration, int direction, int 
 
 	kp = wheel->kp_0 + ((100 - speed) * wheel->kp_smin) / 100 + ((acceleration)*wheel->kp_amax) / (MAXACCEL);
 
-	DriveData data = {currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr};
+	DriveData data = { currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr };
 	setupPid(speed, kp, &data, wheel);
 
 	if (wheel == inner) {

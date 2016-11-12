@@ -5,8 +5,7 @@
 #include <Encoder.h>
 #include <Keypad.h>
 
-class LedInterface
-{
+class LedInterface {
 public:
 	LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
 	void setupLeds();
@@ -26,5 +25,4 @@ public:
 
 private:
 	long int flashCounter = 0;
-
 };

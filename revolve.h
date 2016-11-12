@@ -8,7 +8,7 @@
 #define BACKWARDS 1
 
 class Revolve {
-      public:
+public:
 	// Constructor
 	Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc);
 
@@ -48,7 +48,7 @@ class Revolve {
 	double ki;
 	double kd;
 
-      private:
+private:
 	// External object references
 	Encoder& enc;
 

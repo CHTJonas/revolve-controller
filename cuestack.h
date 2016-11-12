@@ -26,7 +26,7 @@ typedef struct {
 } Cue;
 
 class Cuestack {
-      public:
+public:
 	// Constructor
 	Cuestack();
 

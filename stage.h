@@ -8,7 +8,13 @@
 class Stage {
 public:
 	// Constructor
-	Stage(State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds);
+	Stage(
+	    State* state,
+	    Revolve* inner,
+	    Revolve* outer,
+	    Displays* displays,
+	    Interface* interface,
+	    Adafruit_NeoPixel* ringLeds);
 	void step();
 
 	// Settings updating
@@ -37,7 +43,7 @@ public:
 	State* state;
 	int acceleration = 10;  // TODO check for sanity
 
- private:
+private:
 	Displays* displays;
 	Interface* interface;
 	Adafruit_NeoPixel* ringLeds;
