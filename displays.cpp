@@ -367,7 +367,7 @@ void Displays::drawCue() const {
 		if (interface.menu_pos == 0 && mode == PROGRAM) {
 			cue.setDefaultForegroundColor();
 			cue.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			cue.drawFrame(1, 1, 126, 62);
+			cue.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
 			cue.setDefaultForegroundColor();
 		}
 		drawCueLayout(cue, interface.cueMovements, 0);
@@ -430,7 +430,7 @@ void Displays::drawMenu() const {
 		if (interface.menu_pos == 1 && mode == PROGRAM) {
 			menu.setDefaultForegroundColor();
 			menu.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			menu.drawFrame(1, 1, 126, 62);
+			menu.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
 			menu.setDefaultForegroundColor();
 		}
 		drawParamsLayout(menu, 0);
@@ -647,7 +647,7 @@ void Displays::drawInfo() const {
 		if (interface.menu_pos == 2 && mode == PROGRAM) {
 			info.setDefaultForegroundColor();
 			info.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			info.drawFrame(1, 1, 126, 62);
+			info.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
 			info.setDefaultForegroundColor();
 		}
 		drawCuelistLayout(info, cuestack.currentCue, 1);
