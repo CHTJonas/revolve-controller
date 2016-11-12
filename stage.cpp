@@ -38,7 +38,7 @@ void Stage::setStateReady() {
 }
 
 void Stage::setupDrive(
-    int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data) {
+    int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel) {
 	double kp, currentPosition, setPosition, currentSpeed = 0.;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
@@ -59,36 +59,12 @@ void Stage::setupDrive(
 	setupPid(speed, kp, data, wheel);
 }
 
-void Stage::setStateDrive(
-    int inner_position,
-    int inner_speed,
-    int inner_acceleration,
-    int inner_direction,
-    int inner_revolutions,
-    int outer_position,
-    int outer_speed,
-    int outer_acceleration,
-    int outer_direction,
-    int outer_revolutions) {
+void Stage::setStateDrive() {
+	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
 	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = {.innerData = DriveData{ 0, 0, 0, 0, 0, nullptr },
-		                 .outerData = DriveData{ 0, 0, 0, 0, 0, nullptr } };
-	setupDrive(
-	    inner_position,
-	    inner_speed,
-	    inner_acceleration,
-	    inner_direction,
-	    inner_revolutions,
-	    inner,
-	    &state->data.run_drive.innerData);
-	setupDrive(
-	    outer_position,
-	    outer_speed,
-	    outer_acceleration,
-	    outer_direction,
-	    outer_revolutions,
-	    outer,
-	    &state->data.run_drive.outerData);
+	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
+	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
+	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
 }
 
 void Stage::setStateBrake() {
@@ -100,7 +76,7 @@ void Stage::setStateBrake() {
 
 void Stage::ready() {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);  // TODO: set these parameters
+		setStateDrive();
 		return;
 	}
 }
@@ -149,7 +125,7 @@ void Stage::drive() {
 
 void Stage::brake() {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);  // TODO: set these parameters
+		setStateDrive();
 		return;
 	}
 

@@ -35,7 +35,7 @@ public:
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
 	void setupDrive(
-	    int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data);
+	    int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel);
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
@@ -52,16 +52,6 @@ private:
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
 
 	void setStateReady();
-	void setStateDrive(
-	    int inner_position,
-	    int inner_speed,
-	    int inner_acceleration,
-	    int inner_direction,
-	    int inner_revolutions,
-	    int outer_position,
-	    int outer_speed,
-	    int outer_acceleration,
-	    int outer_direction,
-	    int outer_revolutions);
+	void setStateDrive();
 	void setStateBrake();
 };
