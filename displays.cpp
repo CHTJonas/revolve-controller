@@ -366,7 +366,7 @@ void Displays::drawCue() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 0 && mode == PROGRAM) {
 			cue.setDefaultForegroundColor();
-			cue.drawFrame(0, 0, SCREEN_WIDTH, 64);
+			cue.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			cue.drawFrame(1, 1, 126, 62);
 			cue.setDefaultForegroundColor();
 		}
@@ -386,7 +386,7 @@ void Displays::drawCue() const {
 		break;
 
 	default:
-		menu.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
+		menu.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	}
 }
@@ -397,7 +397,7 @@ void Displays::drawMenu() const {
 	switch (mode) {
 	case STARTUP:
 	case HOMING:
-		menu.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
+		menu.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	case NORMAL:
 		menu.setFont(large_font);
@@ -429,7 +429,7 @@ void Displays::drawMenu() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 1 && mode == PROGRAM) {
 			menu.setDefaultForegroundColor();
-			menu.drawFrame(0, 0, SCREEN_WIDTH, 64);
+			menu.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			menu.drawFrame(1, 1, 126, 62);
 			menu.setDefaultForegroundColor();
 		}
@@ -646,7 +646,7 @@ void Displays::drawInfo() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 2 && mode == PROGRAM) {
 			info.setDefaultForegroundColor();
-			info.drawFrame(0, 0, SCREEN_WIDTH, 64);
+			info.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			info.drawFrame(1, 1, 126, 62);
 			info.setDefaultForegroundColor();
 		}
@@ -658,7 +658,7 @@ void Displays::drawInfo() const {
 		break;
 
 	default:
-		info.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
+		info.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	}
 }
