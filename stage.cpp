@@ -37,7 +37,8 @@ void Stage::setStateReady() {
 	state->data.run_ready = {};
 }
 
-void Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data) {
+void Stage::setupDrive(
+    int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data) {
 	double kp, currentPosition, setPosition, currentSpeed = 0.;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
@@ -53,7 +54,7 @@ void Stage::setupDrive(int position, int speed, int acceleration, int direction,
 
 	kp = wheel->kp_0 + ((100 - speed) * wheel->kp_smin) / 100 + ((acceleration)*wheel->kp_amax) / (MAXACCEL);
 
-	*data = DriveData { currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr };
+	*data = DriveData{ currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr };
 
 	setupPid(speed, kp, data, wheel);
 }
@@ -70,12 +71,24 @@ void Stage::setStateDrive(
     int outer_direction,
     int outer_revolutions) {
 	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = {
-		.innerData = DriveData { 0, 0, 0, 0, 0, nullptr },
-		.outerData = DriveData { 0, 0, 0, 0, 0, nullptr }
-	};
-	setupDrive(inner_position, inner_speed, inner_acceleration, inner_direction, inner_revolutions, inner, &state->data.run_drive.innerData);
-	setupDrive(outer_position, outer_speed, outer_acceleration, outer_direction, outer_revolutions, outer, &state->data.run_drive.outerData);
+	state->data.run_drive = {.innerData = DriveData{ 0, 0, 0, 0, 0, nullptr },
+		                 .outerData = DriveData{ 0, 0, 0, 0, 0, nullptr } };
+	setupDrive(
+	    inner_position,
+	    inner_speed,
+	    inner_acceleration,
+	    inner_direction,
+	    inner_revolutions,
+	    inner,
+	    &state->data.run_drive.innerData);
+	setupDrive(
+	    outer_position,
+	    outer_speed,
+	    outer_acceleration,
+	    outer_direction,
+	    outer_revolutions,
+	    outer,
+	    &state->data.run_drive.outerData);
 }
 
 void Stage::setStateBrake() {

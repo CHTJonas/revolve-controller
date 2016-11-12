@@ -34,7 +34,8 @@ public:
 	static bool eStopsEngaged();
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
-	void setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data);
+	void setupDrive(
+	    int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data);
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
