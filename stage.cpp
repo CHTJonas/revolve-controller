@@ -25,7 +25,7 @@ void Stage::step() {
 
 	case STATE_RUN_BRAKE:
 		brake();
-		break;  // but not break the brake. cause that'd be bad. probably.
+		break;  // but not break the brake. Because that'd be bad. Probably...
 
 	default:
 		break;
