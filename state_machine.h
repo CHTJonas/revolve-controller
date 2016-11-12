@@ -18,7 +18,6 @@ enum StateEnum {
 	STATE_RUN_READY,
 	STATE_RUN_DRIVE,
 	STATE_RUN_BRAKE,
-	STATE_RUN_ESTOP,
 };
 
 typedef struct State {
@@ -38,6 +37,5 @@ typedef struct State {
 			bool inner_at_speed;
 			bool outer_at_speed;
 		} run_brake;
-		struct {} run_estop;
 	} data;
 } State;

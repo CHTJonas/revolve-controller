@@ -156,8 +156,6 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	state->state = STATE_RUN_ESTOP;
-	state->data.run_estop = {};
 	displays->setMode(ESTOP);  // TODO
 
 	// hold until we're ready to go again
