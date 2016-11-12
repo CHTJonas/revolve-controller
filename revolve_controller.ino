@@ -19,18 +19,19 @@ U8GLIB_ST7920_128X64 cue1(22, 24, 26, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
 
-// Con: Revolve(start_pin, dir_pin, speed_pin, enc);
-State state;  //= State { STATE_MAINMENU };
+State state = State{ STATE_MAINMENU };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
 Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
 Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
-char* encodeCue(Cue cue);
-void updateFlags();
+
 void setup();
 void loop();
+
+char* encodeCue(Cue cue);
+void updateFlags();
 void goToCurrentCue(int target_mode);
 void updateSetting(void (*settingLimiter)(void), int mode);
 void brightnessLimiter();
@@ -53,105 +54,6 @@ void setup() {
 	// cuestack.loadExampleCues();
 	displays.begin();
 	displays.setMode(NORMAL);
-}
-
-void goToCurrentCue(int target_mode) {
-	// Goto current cue if Go and Pause pressed
-	if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
-		// Update displays to show realtime position
-		displays.setMode(PROGRAM_GOTOCUE);
-
-		// Turn off switch leds
-		digitalWrite(SELECTLED, LOW);
-		digitalWrite(GOLED, LOW);
-
-		// Move - both enabled
-		if (interface.cueParams[1] && interface.cueParams[2]) {
-			// stage.gotoPos();
-		}
-		// Move - inner disabled
-		else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
-			// stage.gotoPos();
-		}
-		// Move - outer disabled
-		else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
-			// stage.gotoPos();
-		}
-
-		// Turn on switch leds
-		digitalWrite(SELECTLED, HIGH);
-		digitalWrite(GOLED, HIGH);
-
-		// Reset mode
-		displays.setMode(target_mode);
-	}
-}
-
-void updateSetting(void (*settingLimiter)(void), int mode) {
-	interface.select.update();
-	if (interface.select.read() == LOW) {
-		interface.waitSelectRelease();
-
-		interface.editing = 1;
-		interface.resetKeypad();
-
-		while (interface.editing) {
-			if (interface.editVars(mode)) {
-				if (!interface.usingKeypad) {
-					(*settingLimiter)();
-				}
-				displays.forceUpdateDisplays(
-				    0,
-				    1,
-				    0,
-				    1);  // the parameters originally varied but since we're redoing everything...
-			}
-
-			// If select pressed to confirm value, exit editing mode
-			interface.select.update();
-			if (interface.select.read() == LOW) {
-				interface.waitSelectRelease();
-
-				(*settingLimiter)();
-				interface.editing = 0;
-			}
-		}
-	}
-}
-
-void brightnessLimiter() {
-	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
-	interface.leds.keypadLedsColor(
-	    interface.leds.ledSettings[1], interface.leds.ledSettings[2], interface.leds.ledSettings[3]);
-	ringLeds.setBrightness(interface.leds.ledSettings[0]);
-	ringLeds.show();
-	displays.forceUpdateDisplays(0, 1, 0, 1);
-}
-
-void encoderLimiter() {
-	interface.limitEncSettings();
-	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void eepromLimiter() {
-	interface.limitMovements(interface.defaultValues);
-	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void kpLimiter() {
-	interface.limitKpSettings();
-	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void manualLimiter() {
-	interface.limitMovements(interface.currentMovements);
-	displays.forceUpdateDisplays(0, 1, 0, 0);
-}
-
-void movementLimiter() {
-	interface.limitMovements(interface.cueMovements);
-	cuestack.setMovements(interface.cueMovements);
-	displays.forceUpdateDisplays(1, 0, 1, 0);
 }
 
 void loop() {
@@ -802,6 +704,105 @@ void loop() {
 
 		break;
 	}
+}
+
+void goToCurrentCue(int target_mode) {
+	// Goto current cue if Go and Pause pressed
+	if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+		// Update displays to show realtime position
+		displays.setMode(PROGRAM_GOTOCUE);
+
+		// Turn off switch leds
+		digitalWrite(SELECTLED, LOW);
+		digitalWrite(GOLED, LOW);
+
+		// Move - both enabled
+		if (interface.cueParams[1] && interface.cueParams[2]) {
+			// stage.gotoPos();
+		}
+		// Move - inner disabled
+		else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
+			// stage.gotoPos();
+		}
+		// Move - outer disabled
+		else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
+			// stage.gotoPos();
+		}
+
+		// Turn on switch leds
+		digitalWrite(SELECTLED, HIGH);
+		digitalWrite(GOLED, HIGH);
+
+		// Reset mode
+		displays.setMode(target_mode);
+	}
+}
+
+void updateSetting(void (*settingLimiter)(void), int mode) {
+	interface.select.update();
+	if (interface.select.read() == LOW) {
+		interface.waitSelectRelease();
+
+		interface.editing = 1;
+		interface.resetKeypad();
+
+		while (interface.editing) {
+			if (interface.editVars(mode)) {
+				if (!interface.usingKeypad) {
+					(*settingLimiter)();
+				}
+				displays.forceUpdateDisplays(
+				    0,
+				    1,
+				    0,
+				    1);  // the parameters originally varied but since we're redoing everything...
+			}
+
+			// If select pressed to confirm value, exit editing mode
+			interface.select.update();
+			if (interface.select.read() == LOW) {
+				interface.waitSelectRelease();
+
+				(*settingLimiter)();
+				interface.editing = 0;
+			}
+		}
+	}
+}
+
+void brightnessLimiter() {
+	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
+	interface.leds.keypadLedsColor(
+	    interface.leds.ledSettings[1], interface.leds.ledSettings[2], interface.leds.ledSettings[3]);
+	ringLeds.setBrightness(interface.leds.ledSettings[0]);
+	ringLeds.show();
+	displays.forceUpdateDisplays(0, 1, 0, 1);
+}
+
+void encoderLimiter() {
+	interface.limitEncSettings();
+	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void eepromLimiter() {
+	interface.limitMovements(interface.defaultValues);
+	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void kpLimiter() {
+	interface.limitKpSettings();
+	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void manualLimiter() {
+	interface.limitMovements(interface.currentMovements);
+	displays.forceUpdateDisplays(0, 1, 0, 0);
+}
+
+void movementLimiter() {
+	interface.limitMovements(interface.cueMovements);
+	cuestack.setMovements(interface.cueMovements);
+	displays.forceUpdateDisplays(1, 0, 1, 0);
 }
 
 void updateFlags() {
