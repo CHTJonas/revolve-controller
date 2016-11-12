@@ -48,13 +48,13 @@ void Displays::setMode(int newMode) {
 	forceUpdateDisplays(1, 1, 1, 1);
 }
 
-void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text) {
-	auto string = reinterpret_cast<const char*>(text);
-	int width = lcd.getStrWidth(string);
-	auto x = (128 - width) / 2;
-	lcd.setPrintPos(x, y);
-	lcd.print(text);
-}
+// void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text) {
+// 	auto string = reinterpret_cast<const char*>(text);
+// 	int width = lcd.getStrWidth(string);
+// 	auto x = (128 - width) / 2;
+// 	lcd.setPrintPos(x, y);
+// 	lcd.print(text);
+// }
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text) {
 	int width = lcd.getStrWidth(text);

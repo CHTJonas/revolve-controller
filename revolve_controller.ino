@@ -49,8 +49,8 @@ void setup() {
 	interface.leds.setupLeds();
 	interface.setupSwitches();
 
-	// cuestack.loadCuestack();
-	cuestack.loadExampleCues();
+	cuestack.loadCuestack();
+	// cuestack.loadExampleCues();
 	displays.begin();
 	displays.setMode(NORMAL);
 }
