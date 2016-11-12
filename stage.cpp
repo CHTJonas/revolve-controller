@@ -105,28 +105,16 @@ void Stage::brake() {
 		return;
 	}
 
-	const unsigned long inner_speed = [&]() {
-		if (state->data.run_brake.inner_at_speed)
-			return 0UL;
-		else
-			return state->data.run_brake.inner_start_speed -
-			    (millis() - state->data.run_brake.start_time) * acceleration;
-	}();
-	const unsigned long outer_speed = [&]() {
-		if (state->data.run_brake.outer_at_speed)
-			return 0UL;
-		else
-			return state->data.run_brake.outer_start_speed -
-			    (millis() - state->data.run_brake.start_time) * acceleration;
-	}();
+	const unsigned long inner_speed =
+	  state->data.run_brake.inner_at_speed ?
+	  0UL : state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
-	if (inner_speed == 0) {
-		state->data.run_brake.inner_at_speed = true;
-	}
+	const unsigned long outer_speed =
+	  state->data.run_brake.outer_at_speed ?
+	  0UL : state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
-	if (outer_speed == 0) {
-		state->data.run_brake.outer_at_speed = true;
-	}
+	state->data.run_brake.inner_at_speed = (inner_speed == 0);
+	state->data.run_brake.outer_at_speed = (outer_speed == 0);
 
 	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
 		setStateReady();
