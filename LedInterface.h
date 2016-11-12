@@ -11,7 +11,6 @@ public:
 	LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
 
 	void setupLeds();
-	void limitLedSettings();
 
 	void flashLed(int led, int interval);
 	void updatePauseLeds() const;
@@ -29,7 +28,7 @@ public:
 	Adafruit_NeoPixel& pauseLeds;
 	Adafruit_NeoPixel& keypadLeds;
 
-	int ledSettings[4];
+	uint8_t ledSettings[4];
 
 private:
 	long int flashCounter = 0;

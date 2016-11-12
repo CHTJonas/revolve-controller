@@ -120,7 +120,6 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 
 void brightnessLimiter()
 {
-	interface.leds.limitLedSettings();
 	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
 	interface.leds.keypadLedsColor(
 		interface.leds.ledSettings[1],

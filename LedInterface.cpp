@@ -51,8 +51,9 @@ void LedInterface::encOff() {
 }
 
 void LedInterface::ringLedsColor(int r, int g, int b) const {
-	for (auto i = 0; i < 24; i++)
+	for (auto i = 0; i < 24; i++) {
 		ringLeds.setPixelColor(i, r, g, b);
+	}
 	ringLeds.show();
 }
 
@@ -87,12 +88,6 @@ void LedInterface::allLedsOff() const {
 	digitalWrite(ENCB, HIGH);
 	pauseLedsColor(0, 0, 0);
 	keypadLedsColor(0, 0, 0);
-}
-
-void LedInterface::limitLedSettings() {
-	for (auto i = 0; i < sizeof(ledSettings) / sizeof(*ledSettings); i++) {
-		ledSettings[i] = clamp(ledSettings[i], 0, 255);
-	}
 }
 
 LedInterface::LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
