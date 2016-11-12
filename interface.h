@@ -1,6 +1,6 @@
 #pragma once
 #include "cuestack.h"
-#include "LedInterface.h"; 
+#include "LedInterface.h"
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
 #include <Encoder.h>
