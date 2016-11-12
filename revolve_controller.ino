@@ -20,7 +20,7 @@ U8GLIB_ST7920_128X64 cue1(22, 24, 26, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
 
-State state = State{ STATE_MAINMENU };
+State state = State{.state = STATE_MAINMENU, .data = {} };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;

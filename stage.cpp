@@ -37,9 +37,45 @@ void Stage::setStateReady() {
 	state->data.run_ready = {};
 }
 
-void Stage::setStateDrive() {
+void Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel, DriveData* data) {
+	double kp, currentPosition, setPosition, currentSpeed = 0.;
+	currentPosition = wheel->getPos();
+	wheel->setDir(direction);
+
+	auto directionBoolean = wheel->getDir() == FORWARDS;
+	revolutions += (directionBoolean == (position < inner->displayPos()));
+	setPosition =
+	    currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
+
+	speed = clamp(abs(speed), MINSPEED + 1, 100);
+	acceleration = clamp(abs(acceleration), 1, MAXACCEL);
+	auto tenths_accel = (acceleration) / 10.0;
+
+	kp = wheel->kp_0 + ((100 - speed) * wheel->kp_smin) / 100 + ((acceleration)*wheel->kp_amax) / (MAXACCEL);
+
+	*data = DriveData { currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr };
+
+	setupPid(speed, kp, data, wheel);
+}
+
+void Stage::setStateDrive(
+    int inner_position,
+    int inner_speed,
+    int inner_acceleration,
+    int inner_direction,
+    int inner_revolutions,
+    int outer_position,
+    int outer_speed,
+    int outer_acceleration,
+    int outer_direction,
+    int outer_revolutions) {
 	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = {};
+	state->data.run_drive = {
+		.innerData = DriveData { 0, 0, 0, 0, 0, nullptr },
+		.outerData = DriveData { 0, 0, 0, 0, 0, nullptr }
+	};
+	setupDrive(inner_position, inner_speed, inner_acceleration, inner_direction, inner_revolutions, inner, &state->data.run_drive.innerData);
+	setupDrive(outer_position, outer_speed, outer_acceleration, outer_direction, outer_revolutions, outer, &state->data.run_drive.outerData);
 }
 
 void Stage::setStateBrake() {
@@ -51,7 +87,7 @@ void Stage::setStateBrake() {
 
 void Stage::ready() {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive();
+		setStateDrive(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);  // TODO: set these parameters
 		return;
 	}
 }
@@ -100,7 +136,7 @@ void Stage::drive() {
 
 void Stage::brake() {
 	if (dmhEngaged() && goEngaged()) {
-		setStateDrive();
+		setStateDrive(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);  // TODO: set these parameters
 		return;
 	}
 
@@ -178,34 +214,6 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 		wheel->setSpeed(allowedSpeed);
 		wheel->tenths = 0;
 	}
-}
-
-DriveData Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel) {
-	double kp, currentPosition, setPosition, currentSpeed = 0.;
-	currentPosition = wheel->getPos();
-	wheel->setDir(direction);
-
-	auto directionBoolean = wheel->getDir() == FORWARDS;
-	revolutions += (directionBoolean == (position < inner->displayPos()));
-	setPosition =
-	    currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
-
-	speed = clamp(abs(speed), MINSPEED + 1, 100);
-	acceleration = clamp(abs(acceleration), 1, MAXACCEL);
-	auto tenths_accel = (acceleration) / 10.0;
-
-	kp = wheel->kp_0 + ((100 - speed) * wheel->kp_smin) / 100 + ((acceleration)*wheel->kp_amax) / (MAXACCEL);
-
-	DriveData data = { currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr };
-	setupPid(speed, kp, &data, wheel);
-
-	if (wheel == inner) {
-		state->data.run_drive.innerData = data;
-	} else if (wheel == outer) {
-		state->data.run_drive.outerData = data;
-	}
-
-	return data;
 }
 
 void Stage::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel) {
