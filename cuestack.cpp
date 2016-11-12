@@ -152,7 +152,7 @@ void Cuestack::sortCues() {
     qsort(&stack[0],
         MAX_CUES,
         sizeof(stack[0]),
-        *[](void *cue1, void *cue2) {
+        *[](const void *cue1, const void *cue2) {
             return ((Cue*)cue1)->num - ((Cue*)cue2)->num;
         }
     );
