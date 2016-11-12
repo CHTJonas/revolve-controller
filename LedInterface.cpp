@@ -39,7 +39,6 @@ void LedInterface::setupLeds() {
 	digitalWrite(SELECTLED, HIGH);
 }
 
-
 void LedInterface::flashLed(int led, int interval) {
 	auto currentState = digitalRead(led);
 
