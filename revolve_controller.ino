@@ -120,7 +120,6 @@ void updateSetting(void(*settingLimiter)(void), int mode)
 
 void brightnessLimiter()
 {
-	interface.leds.limitLedSettings();
 	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
 	interface.leds.keypadLedsColor(
 		interface.leds.ledSettings[1],
@@ -668,8 +667,8 @@ void loop() {
 
 				// Hardware test mode
 			case 7:
-				interface.leds.encBlue();  // All encoder lights on prevents switch from reading properly due
-									  // to voltage drop
+				// All encoder lights on prevents switch from reading properly due to voltage 
+				interface.leds.encoderLedColor(false, false, true);
 				displays.setMode(HARDWARETEST);
 				break;
 

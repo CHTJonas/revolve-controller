@@ -9,30 +9,22 @@ class LedInterface
 {
 public:
 	LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
-
 	void setupLeds();
-	void limitLedSettings();
 
 	void flashLed(int led, int interval);
 	void updatePauseLeds() const;
 	void ringLedsColor(int r, int g, int b) const;
 	void pauseLedsColor(int r, int g, int b) const;
 	void keypadLedsColor(int r, int g, int b) const;
-	static void encRed();
-	static void encGreen();
-	static void encBlue();
-	static void encOff();
-	void allLedsOn() const;
-	void allLedsOff() const;
+	void encoderLedColor(bool r, bool g, bool b) const;
 
 	Adafruit_NeoPixel& ringLeds;
 	Adafruit_NeoPixel& pauseLeds;
 	Adafruit_NeoPixel& keypadLeds;
 
-	int ledSettings[4];
+	uint8_t ledSettings[4];
 
 private:
 	long int flashCounter = 0;
 
 };
-
