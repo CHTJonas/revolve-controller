@@ -1,5 +1,6 @@
 #include "stage.h"
 #include "state_machine.h"
+#include <EEPROM.h>
 #include <TimerOne.h>
 
 char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
@@ -171,7 +172,7 @@ void loop() {
 
 			// Show saved message (without using delay)
 			displays.setMode(PROGRAM_SAVED);
-			long startTime = millis();
+			unsigned long startTime = millis();
 			while (millis() < startTime + 1000) {
 			}
 
@@ -695,7 +696,7 @@ void loop() {
 	case CUESTACK_BACKUP:
 		for (int i = 0; i < 100; i++) {
 			char* encoding = encodeCue(cuestack.stack[i]);
-			int x = Serial.write(encoding);
+			Serial.write(encoding);
 			Serial.flush();
 			delay(100);
 			delete[] encoding;
@@ -814,7 +815,7 @@ void updateFlags() {
 char* encodeCue(Cue cue) {
 	auto cue_bytes = reinterpret_cast<char*>(&cue);
 	auto encoded = new char[(sizeof cue) * 2 + 1];
-	for (auto i = 0; i < sizeof cue; i++) {
+	for (size_t i = 0; i < sizeof cue; i++) {
 		encoded[2 * i] = cue_bytes[i] | 0x0f;
 		encoded[2 * i + 1] = cue_bytes[i] | 0xf0;
 	}

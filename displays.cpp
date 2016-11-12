@@ -1,4 +1,5 @@
 #include "displays.h"
+#include "logo.h"
 #include "strings.h"
 
 // Constructor

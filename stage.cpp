@@ -1,5 +1,6 @@
 #include "stage.h"
 #include "utils.h"
+#include <EEPROM.h>
 
 Stage::Stage(
     State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
@@ -180,7 +181,7 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 }
 
 DriveData Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel) {
-	double kp, currentPosition, setPosition, currentSpeed;
+	double kp, currentPosition, setPosition, currentSpeed = 0.;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
 

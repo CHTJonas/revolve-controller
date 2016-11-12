@@ -1,6 +1,5 @@
 #pragma once
 #include "interface.h"
-#include "logo.h"
 #include "revolve.h"
 #include "strings.h"
 #include <U8glib.h>

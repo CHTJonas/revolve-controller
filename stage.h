@@ -38,9 +38,9 @@ public:
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
-	Revolve* outer;
-	Revolve* inner;
 	State* state;
+	Revolve* inner;
+	Revolve* outer;
 	int acceleration = 10;  // TODO check for sanity
 
 private:

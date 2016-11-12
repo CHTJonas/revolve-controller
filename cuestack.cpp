@@ -1,4 +1,5 @@
 #include "cuestack.h"
+#include <EEPROM.h>
 
 Cuestack::Cuestack() {
 }
@@ -123,6 +124,9 @@ int Cuestack::getCueIndex(int number) const {
 			return i;
 		}
 	}
+
+	return MAX_CUES;  // TODO: check whether this is actually necessary (it
+	// fixes a warning though)
 }
 
 // Checks to see if number already exists in stack

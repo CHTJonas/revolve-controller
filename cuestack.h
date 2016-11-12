@@ -1,7 +1,6 @@
 #pragma once
 #include "constants.h"
 #include <Arduino.h>
-#include <EEPROM.h>
 
 typedef struct {
 	int pos_i;

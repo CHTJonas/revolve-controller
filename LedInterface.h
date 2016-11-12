@@ -24,5 +24,5 @@ public:
 	uint8_t ledSettings[4];
 
 private:
-	long int flashCounter = 0;
+	unsigned long flashCounter = 0;
 };
