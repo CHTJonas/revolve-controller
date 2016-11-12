@@ -1,4 +1,5 @@
 #include "displays.h"
+#include "strings.h"
 
 // Constructor
 Displays::Displays(
@@ -345,12 +346,12 @@ void Displays::drawCue() const {
 	case STARTUP:
 	case HOMING:
 		cue.setFont(large_font);
-		drawStrCenter(cue, 15, "Panto Revolve");
-		drawStrCenter(cue, 30, "Controller");
+		drawStrCenter(cue, 15, TITLE);
+		drawStrCenter(cue, 30, SUBTITLE);
 		cue.setFont(font);
-		drawStrCenter(cue, 45, "Designed by Jack");
+		drawStrCenter(cue, 45, NAME);
 		cue.setFont(small_font);
-		drawStrCenter(cue, 55, "August 2016");
+		drawStrCenter(cue, 55, DATE);
 		break;
 
 	case SHOW:
