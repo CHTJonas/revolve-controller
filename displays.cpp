@@ -48,25 +48,17 @@ void Displays::setMode(int newMode) {
 	forceUpdateDisplays(1, 1, 1, 1);
 }
 
-// void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text) {
-// 	auto string = reinterpret_cast<const char*>(text);
-// 	int width = lcd.getStrWidth(string);
-// 	auto x = (128 - width) / 2;
-// 	lcd.setPrintPos(x, y);
-// 	lcd.print(text);
-// }
-
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text) {
 	int width = lcd.getStrWidth(text);
-	auto x = (128 - width) / 2;
+	auto x = (SCREEN_WIDTH - width) / 2;
 	lcd.setPrintPos(x, y);
 	lcd.print(text);
 }
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text) {
-	auto string = "a";
+	const char string[] = {text, '\0'};
 	int width = lcd.getStrWidth(string);
-	auto x = (128 - width) / 2;
+	auto x = (SCREEN_WIDTH - width) / 2;
 	lcd.setPrintPos(x, y);
 	lcd.print(text);
 }
@@ -81,7 +73,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int c
 
 	// Only draw if enabled
 	if (mode == MAN || (mode != MAN && interface.cueParams[1] == 1)) {
-		lcd.drawHLine(0, 0, 128);
+		lcd.drawHLine(0, 0, SCREEN_WIDTH);
 		// Inner label
 		lcd.drawBox(0, 1, lcd.getStrWidth("INNER") + 4, 10);
 		lcd.setDefaultBackgroundColor();
@@ -151,7 +143,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int c
 	// Only draw if enabled
 	if (mode == MAN || (mode != MAN && interface.cueParams[2] == 1)) {
 		// Outer
-		lcd.drawHLine(0, 32, 128);
+		lcd.drawHLine(0, 32, SCREEN_WIDTH);
 
 		// Outer label
 		lcd.drawBox(0, 33, lcd.getStrWidth("OUTER") + 4, 10);
@@ -253,14 +245,14 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) con
 	}
 
 	if (interface.menu_pos == 4 && cursorEnable) {
-		menu.drawBox(0, 41, 128, 11);
+		menu.drawBox(0, 41, SCREEN_WIDTH, 11);
 		menu.setDefaultBackgroundColor();
 	}
 	drawStrCenter(menu, 50, "Add Cue");
 	menu.setDefaultForegroundColor();
 
 	if (interface.menu_pos == 5 && cursorEnable) {
-		menu.drawBox(0, 51, 128, 11);
+		menu.drawBox(0, 51, SCREEN_WIDTH, 11);
 		menu.setDefaultBackgroundColor();
 	}
 	drawStrCenter(menu, 60, "Delete Cue");
@@ -275,7 +267,7 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	int cueListPage = index / 7;
 
 	// Header highlight
-	lcd.drawBox(0, 0, 128, 8);
+	lcd.drawBox(0, 0, SCREEN_WIDTH, 8);
 	lcd.setDefaultBackgroundColor();
 
 	// Draw header row
@@ -296,12 +288,12 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 			// Draw currentCue box
 			if (cuestack.currentCue == i) {
 				lcd.setDefaultForegroundColor();
-				lcd.drawFrame(0, (iPos + 1) * 8, 128, 8);
+				lcd.drawFrame(0, (iPos + 1) * 8, SCREEN_WIDTH, 8);
 			}
 
 			// Draw highlight box if cue selected
 			if (index == i && cursorEnable) {
-				lcd.drawBox(0, (iPos + 1) * 8, 128, 8);
+				lcd.drawBox(0, (iPos + 1) * 8, SCREEN_WIDTH, 8);
 				lcd.setDefaultBackgroundColor();
 			}
 
@@ -374,7 +366,7 @@ void Displays::drawCue() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 0 && mode == PROGRAM) {
 			cue.setDefaultForegroundColor();
-			cue.drawFrame(0, 0, 128, 64);
+			cue.drawFrame(0, 0, SCREEN_WIDTH, 64);
 			cue.drawFrame(1, 1, 126, 62);
 			cue.setDefaultForegroundColor();
 		}
@@ -394,7 +386,7 @@ void Displays::drawCue() const {
 		break;
 
 	default:
-		menu.drawXBMP(0, 0, 128, 64, screen_logo);
+		menu.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
 		break;
 	}
 }
@@ -405,7 +397,7 @@ void Displays::drawMenu() const {
 	switch (mode) {
 	case STARTUP:
 	case HOMING:
-		menu.drawXBMP(0, 0, 128, 64, screen_logo);
+		menu.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
 		break;
 	case NORMAL:
 		menu.setFont(large_font);
@@ -413,7 +405,7 @@ void Displays::drawMenu() const {
 		for (int i = 0; i < 4; i++) {
 			if (i == interface.menu_pos) {
 				// Position highlight box from top left corner
-				menu.drawBox(0, (interface.menu_pos * 16), 128, 16);
+				menu.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
 				menu.setDefaultBackgroundColor();
 				drawStrCenter(menu, (i * 16) + 12, menu_strings[i]);
 			}
@@ -437,7 +429,7 @@ void Displays::drawMenu() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 1 && mode == PROGRAM) {
 			menu.setDefaultForegroundColor();
-			menu.drawFrame(0, 0, 128, 64);
+			menu.drawFrame(0, 0, SCREEN_WIDTH, 64);
 			menu.drawFrame(1, 1, 126, 62);
 			menu.setDefaultForegroundColor();
 		}
@@ -466,7 +458,7 @@ void Displays::drawMenu() const {
 			for (int i = 0; i < 4; i++) {
 				if (i == interface.menu_pos) {
 					// Position highlight box from top left corner
-					menu.drawBox(0, (interface.menu_pos * 16), 128, 16);
+					menu.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
 					menu.setDefaultBackgroundColor();
 					drawStrCenter(menu, (i * 16) + 12, settings_strings[i]);
 				}
@@ -477,7 +469,7 @@ void Displays::drawMenu() const {
 			for (int i = 0; i < 4; i++) {
 				if ((i + 4) == interface.menu_pos) {
 					// Position highlight box from top left corner
-					menu.drawBox(0, (i * 16), 128, 16);
+					menu.drawBox(0, (i * 16), SCREEN_WIDTH, 16);
 					menu.setDefaultBackgroundColor();
 					drawStrCenter(menu, (i * 16) + 12, settings_strings[i + 4]);
 				}
@@ -654,7 +646,7 @@ void Displays::drawInfo() const {
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 2 && mode == PROGRAM) {
 			info.setDefaultForegroundColor();
-			info.drawFrame(0, 0, 128, 64);
+			info.drawFrame(0, 0, SCREEN_WIDTH, 64);
 			info.drawFrame(1, 1, 126, 62);
 			info.setDefaultForegroundColor();
 		}
@@ -666,7 +658,7 @@ void Displays::drawInfo() const {
 		break;
 
 	default:
-		info.drawXBMP(0, 0, 128, 64, screen_logo);
+		info.drawXBMP(0, 0, SCREEN_WIDTH, 64, screen_logo);
 		break;
 	}
 }

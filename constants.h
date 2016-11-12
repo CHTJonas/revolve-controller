@@ -3,6 +3,10 @@
 // The max number of cues in the Cuestack
 #define MAX_CUES 100
 
+// Displays
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
 // Pins
 #define GO 16
 #define BACK 53
