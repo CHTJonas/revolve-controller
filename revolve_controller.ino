@@ -667,8 +667,8 @@ void loop() {
 
 				// Hardware test mode
 			case 7:
-				interface.leds.encBlue();  // All encoder lights on prevents switch from reading properly due
-									  // to voltage drop
+				// All encoder lights on prevents switch from reading properly due to voltage 
+				interface.leds.encoderLedColor(false, false, true);
 				displays.setMode(HARDWARETEST);
 				break;
 
