@@ -3,9 +3,9 @@
 #include <stdbool.h>
 
 typedef struct DriveData {
-	double* currentPosition;
-	double* currentSpeed;
-	double* setPosition;
+	double currentPosition;
+	double currentSpeed;
+	double setPosition;
 
 	bool directionBoolean;
 	double tenths_accel;

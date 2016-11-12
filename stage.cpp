@@ -78,8 +78,8 @@ void Stage::drive() {
 
 	if (!inner_done) {
 		spin_revolve(
-		    innerDriveData.currentPosition,
-		    innerDriveData.currentSpeed,
+		    &innerDriveData.currentPosition,
+		    &innerDriveData.currentSpeed,
 		    innerDriveData.tenths_accel,
 		    innerDriveData.pid,
 		    inner);
@@ -89,8 +89,8 @@ void Stage::drive() {
 
 	if (!outer_done) {
 		spin_revolve(
-		    outerDriveData.currentPosition,
-		    outerDriveData.currentSpeed,
+		    &outerDriveData.currentPosition,
+		    &outerDriveData.currentSpeed,
 		    outerDriveData.tenths_accel,
 		    outerDriveData.pid,
 		    outer);
@@ -183,7 +183,7 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 	}
 }
 
-DriveData*
+DriveData
 Stage::setupDrive(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel) {
 	double kp, currentPosition, setPosition, currentSpeed;
 	currentPosition = wheel->getPos();
@@ -200,7 +200,7 @@ Stage::setupDrive(int position, int speed, int acceleration, int direction, int 
 
 	kp = wheel->kp_0 + ((100 - speed) * wheel->kp_smin) / 100 + ((acceleration)*wheel->kp_amax) / (MAXACCEL);
 
-	DriveData data = {&currentPosition, &currentSpeed, &setPosition, directionBoolean, tenths_accel, nullptr};
+	DriveData data = {currentPosition, currentSpeed, setPosition, directionBoolean, tenths_accel, nullptr};
 	setupPid(speed, kp, &data, wheel);
 
 	if (wheel == inner) {
@@ -209,12 +209,12 @@ Stage::setupDrive(int position, int speed, int acceleration, int direction, int 
 		state->data.run_drive.outerData = data;
 	}
 
-	return &data;
+	return data;
 }
 
 void Stage::setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel) {
 	auto mode = data->setPosition < data->currentPosition ? REVERSE : DIRECT;
-	auto pid = PID(data->currentPosition, data->currentSpeed, data->setPosition, kp, wheel->ki, wheel->kd, mode);
+	auto pid = PID(&data->currentPosition, &data->currentSpeed, &data->setPosition, kp, wheel->ki, wheel->kd, mode);
 	pid.SetOutputLimits(MINSPEED, maxSpeed);
 	pid.SetSampleTime(75);
 	pid.SetMode(AUTOMATIC);
