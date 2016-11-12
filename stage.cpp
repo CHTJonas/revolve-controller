@@ -1,8 +1,5 @@
 #include "stage.h"
-
-template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
-	return max(min(v, hi), lo);
-}
+#include "utils.h"
 
 Stage::Stage(
     State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)

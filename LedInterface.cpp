@@ -1,8 +1,5 @@
 #include "LedInterface.h"
-
-template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
-	return max(min(v, hi), lo);
-}
+#include "utils.h"
 
 LedInterface::LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
