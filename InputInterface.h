@@ -9,9 +9,11 @@ public:
 	InputInterface(Encoder& encoder, Keypad& keypad);
 
 	int getInputEncoder();
+
 	void updateKeypad();
 	char getKey();
 	void resetKeypad();
+
 	void waitSelectRelease();
 	void waitBackRelease();
 	
