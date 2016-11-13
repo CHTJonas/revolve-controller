@@ -6,9 +6,9 @@ class InputButtonsInterface
 
 public:
 
-	bool dmhEngaged();
-	bool goEngaged();
-	bool eStopsEngaged();
+	static bool dmhEngaged();
+	static bool goEngaged();
+	static bool eStopsEngaged();
 	bool inputEncoderEngaged();
 	bool backEngaged();
 

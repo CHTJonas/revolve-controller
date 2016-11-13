@@ -75,14 +75,14 @@ void Stage::setStateBrake() {
 /***** Stage states *******/
 
 void Stage::ready() {
-	if ((*interface).buttons.dmhEngaged() && (*interface).buttons.goEngaged()) {
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		setStateDrive();
 		return;
 	}
 }
 
 void Stage::drive() {
-	if (!(*interface).buttons.dmhEngaged()) {
+	if (!InputButtonsInterface::dmhEngaged()) {
 		setStateBrake();
 		return;
 	}
@@ -124,7 +124,7 @@ void Stage::drive() {
 }
 
 void Stage::brake() {
-	if ((*interface).buttons.dmhEngaged() && (*interface).buttons.goEngaged()) {
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		setStateDrive();
 		return;
 	}
@@ -151,7 +151,7 @@ void Stage::brake() {
 /***** Emergency Stop *****/
 
 bool Stage::checkEstops() {
-	if ((*interface).buttons.eStopsEngaged()) {
+	if (InputButtonsInterface::eStopsEngaged()) {
 		emergencyStop();
 		return true;
 	} else {
@@ -166,7 +166,7 @@ void Stage::emergencyStop() {
 	displays->setMode(ESTOP);  // TODO
 
 	// hold until we're ready to go again
-	while ((*interface).buttons.eStopsEngaged()) {
+	while (InputButtonsInterface::eStopsEngaged()) {
 	}
 
 	state->state = STATE_RUN_READY;
@@ -272,7 +272,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (digitalRead(DMH) || (*interface).buttons.eStopsEngaged()) {
+		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
 			emergencyStop();
 
 			// Restart
