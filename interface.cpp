@@ -1,9 +1,6 @@
 #include "interface.h"
+#include "utils.h" 
 #include <EEPROM.h>
-
-template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
-	return max(min(v, hi), lo);
-}
 
 Interface::Interface(
     Cuestack& cuestack,
