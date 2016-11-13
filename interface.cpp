@@ -45,13 +45,15 @@ bool Interface::editVars(int mode) {
 		char pressedKey = getKey();
 
 		if (pressedKey) {
-			// Reset to zero if # or * pressed
-			if (pressedKey == '#' || pressedKey == '*')
+			if (pressedKey == '#' || pressedKey == '*') {
+				// Reset to zero if # or * pressed
 				keypadValue = 0;
-
-			// Otherwise concatenate onto keypadvalue if less than four digits
+			}
 			else if (String(keypadValue).length() < 4)
+			{
+				// Otherwise concatenate onto keypadvalue if less than four digits
 				keypadValue = (String(keypadValue) + pressedKey).toInt();
+			}
 
 			// Update current selected parameter
 			switch (mode) {
@@ -89,9 +91,7 @@ bool Interface::editVars(int mode) {
 			}
 			return true;
 		}
-		else {
-			return false;  // Do not update displays
-		}
+		return false;  // Do not update displays
 	}
 
 	// Otherwise encoder input
@@ -109,20 +109,17 @@ bool Interface::editVars(int mode) {
 				break;
 			case ENCSETTINGS:
 				if (menu_pos < 2) {
-					if (change > 0)
-						encSettings[menu_pos] = 1;
-					else
-						encSettings[menu_pos] = 0;
+					encSettings[menu_pos] = keypadValue > 0 ? 1 : 0;
 				}
 				else {
-					encSettings[menu_pos] += (static_cast<float>(change) / 100);
+					encSettings[menu_pos] += change / 100.0f;
 				}
 				break;
 			case DEFAULTVALUES:
 				defaultValues[menu_pos] += change;
 				break;
 			case KPSETTINGS:
-				kpSettings[menu_pos] += (static_cast<float>(change) / 1000);
+				kpSettings[menu_pos] += change / 1000.0f;
 				break;
 			case PROGRAM_MOVEMENTS:
 				if (cueParams[1] == 0) {  // If inner disabled
@@ -138,9 +135,7 @@ bool Interface::editVars(int mode) {
 			}
 			return true;  // Update displays (has been a change)
 		}
-		else {
-			return false;  // No change
-		}
+		return false;  // No change
 	}
 }
 
