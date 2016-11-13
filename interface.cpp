@@ -3,13 +3,13 @@
 #include <EEPROM.h>
 
 Interface::Interface(
-    Cuestack& cuestack,
-    Encoder& enc_input,
-    Keypad& keypad,
-    Adafruit_NeoPixel& ringLeds,
-    Adafruit_NeoPixel& pauseLeds,
-    Adafruit_NeoPixel& keypadLeds)
-      : cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(LedInterface(ringLeds, pauseLeds, keypadLeds)) {
+	Cuestack& cuestack,
+	Encoder& enc_input,
+	Keypad& keypad,
+	Adafruit_NeoPixel& ringLeds,
+	Adafruit_NeoPixel& pauseLeds,
+	Adafruit_NeoPixel& keypadLeds)
+	: cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(LedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
@@ -63,11 +63,9 @@ bool Interface::editVars(int mode) {
 				break;
 			case ENCSETTINGS:
 				if (menu_pos < 2) {
-					if (keypadValue > 0)
-						encSettings[menu_pos] = 1;
-					else
-						encSettings[menu_pos] = 0;
-				} else {
+					encSettings[menu_pos] = keypadValue > 0 ? 1 : 0;
+				}
+				else {
 					encSettings[menu_pos] = (static_cast<float>(keypadValue) / 100);
 				}
 				break;
@@ -80,7 +78,8 @@ bool Interface::editVars(int mode) {
 			case PROGRAM_MOVEMENTS:
 				if (cueParams[1] == 0) {  // If inner disabled
 					cueMovements[menu_pos + 5] = keypadValue;
-				} else {
+				}
+				else {
 					cueMovements[menu_pos] = keypadValue;
 				}
 				break;
@@ -89,7 +88,8 @@ bool Interface::editVars(int mode) {
 				break;
 			}
 			return true;
-		} else {
+		}
+		else {
 			return false;  // Do not update displays
 		}
 	}
@@ -113,7 +113,8 @@ bool Interface::editVars(int mode) {
 						encSettings[menu_pos] = 1;
 					else
 						encSettings[menu_pos] = 0;
-				} else {
+				}
+				else {
 					encSettings[menu_pos] += (static_cast<float>(change) / 100);
 				}
 				break;
@@ -126,7 +127,8 @@ bool Interface::editVars(int mode) {
 			case PROGRAM_MOVEMENTS:
 				if (cueParams[1] == 0) {  // If inner disabled
 					cueMovements[menu_pos + 5] += change;
-				} else {
+				}
+				else {
 					cueMovements[menu_pos] += change;
 				}
 				break;
@@ -135,13 +137,14 @@ bool Interface::editVars(int mode) {
 				break;
 			}
 			return true;  // Update displays (has been a change)
-		} else {
+		}
+		else {
 			return false;  // No change
 		}
 	}
 }
 
-void Interface::limitMovements(int (&movements)[10]) const {
+void Interface::limitMovements(int(&movements)[10]) const {
 	movements[0] = clamp(movements[0], 0, 359);
 	movements[1] = clamp(movements[1], MINSPEED, 100);
 	movements[2] = clamp(movements[2], 1, MAXACCEL);
@@ -195,7 +198,8 @@ bool Interface::updateMenu(int menuMax) {
 
 	if (encValue > 0 && menu_pos < menuMax) {
 		menu_pos = min(menuMax, menu_pos + encValue);
-	} else if (encValue < 0 && menu_pos > 0) {
+	}
+	else if (encValue < 0 && menu_pos > 0) {
 		menu_pos = max(0, menu_pos + encValue);
 	}
 
@@ -234,7 +238,8 @@ void Interface::updateKeypad() {
 	// Reset currentKey if key released
 	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
 		currentKey = key;
-	} else {
+	}
+	else {
 		currentKey = 0;
 	}
 }
