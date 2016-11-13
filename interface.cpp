@@ -66,14 +66,14 @@ bool Interface::editVars(int mode) {
 					encSettings[menu_pos] = keypadValue > 0 ? 1 : 0;
 				}
 				else {
-					encSettings[menu_pos] = (static_cast<float>(keypadValue) / 100);
+					encSettings[menu_pos] = keypadValue / 100.0f;
 				}
 				break;
 			case DEFAULTVALUES:
 				defaultValues[menu_pos] = keypadValue;
 				break;
 			case KPSETTINGS:
-				kpSettings[menu_pos] = (static_cast<float>(keypadValue) / 1000);
+				kpSettings[menu_pos] = keypadValue / 1000.0f;
 				break;
 			case PROGRAM_MOVEMENTS:
 				if (cueParams[1] == 0) {  // If inner disabled
