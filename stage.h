@@ -1,6 +1,8 @@
 #pragma once
 #include "displays.h"
 #include "state_machine.h"
+#include "revolve.h"
+#include "interface.h"
 
 #define INNER 0
 #define OUTER 1
@@ -12,7 +14,6 @@ public:
 	    State* state,
 	    Revolve* inner,
 	    Revolve* outer,
-	    Displays* displays,
 	    Interface* interface,
 	    Adafruit_NeoPixel* ringLeds);
 	void step();
@@ -45,7 +46,6 @@ public:
 	int acceleration = 10;  // TODO check for sanity
 
 private:
-	Displays* displays;
 	Interface* interface;
 	Adafruit_NeoPixel* ringLeds;
 

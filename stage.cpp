@@ -3,8 +3,8 @@
 #include <EEPROM.h>
 
 Stage::Stage(
-    State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
-      : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
+    State* state, Revolve* inner, Revolve* outer, Interface* interface, Adafruit_NeoPixel* ringLeds)
+      : state(state), inner(inner), outer(outer), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
@@ -180,8 +180,6 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	displays->setMode(ESTOP);  // TODO
-
 	// hold until we're ready to go again
 	while (eStopsEngaged()) {
 	}
@@ -246,9 +244,6 @@ void Stage::runCurrentCue() {
 	// Load next cue data
 	interface->loadCue(interface->menu_pos);
 
-	// Update displays
-	displays->forceUpdateDisplays(1, 1, 1, 1);
-
 	// Recursively call runCurrentCue whilst previous cue had autofollow enabled, unless we are at last cue (where
 	// menu_pos = currentCue as it won't have been incremented)
 	if (auto_follow && interface->cuestack.currentCue != interface->menu_pos)
@@ -262,8 +257,6 @@ void Stage::runCurrentCue() {
 /***** Wheel homing *****/
 
 void Stage::gotoHome() {
-	displays->setMode(HOMING);
-
 	home_wheel(inner, INNERHOME);
 	// Set inner ring green
 	for (int i = 12; i < 24; i++) {
@@ -273,11 +266,8 @@ void Stage::gotoHome() {
 
 	home_wheel(outer, OUTERHOME);
 
-	displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
 	// gotoPos(); // TODO get parameters from git history
-
-	displays->setMode(NORMAL);
 }
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin) {
