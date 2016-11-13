@@ -5,7 +5,9 @@ class Screen {
 public:
 	Screen(int a, int b, int c);
 
-	void draw_image(unsigned char image[]);
+	void clear();
+	void write_text(int x, int y, const char* text);
+	void draw_image(const unsigned char image[]);
 
 private:
 	U8GLIB_ST7920_128X64 screen;

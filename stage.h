@@ -32,7 +32,6 @@ public:
 	static bool dmhEngaged();
 	static bool goEngaged();
 	bool checkEstops();
-	static bool eStopsEngaged();
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
 	void setupDrive(

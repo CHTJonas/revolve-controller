@@ -19,6 +19,7 @@ enum StateEnum {
 	STATE_RUN_READY,
 	STATE_RUN_DRIVE,
 	STATE_RUN_BRAKE,
+	STATE_ABOUT,
 };
 
 typedef struct State {
@@ -26,6 +27,7 @@ typedef struct State {
 
 	union {
 		struct {
+			int selected_item_index;
 		} mainmenu;
 		struct {
 		} run_ready;
@@ -40,5 +42,7 @@ typedef struct State {
 			bool inner_at_speed;
 			bool outer_at_speed;
 		} run_brake;
+		struct {
+		} about;
 	} data;
 } State;

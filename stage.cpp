@@ -158,13 +158,6 @@ bool Stage::goEngaged() {
 	return !digitalRead(GO);
 }
 
-bool Stage::eStopsEngaged() {
-	// Commented out line for non-conencted external esstop testing
-	// if !(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW &&
-	// digitalRead(ESTOPNO)==HIGH){
-	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
-}
-
 /***** Emergency Stop *****/
 
 bool Stage::checkEstops() {
