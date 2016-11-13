@@ -20,10 +20,10 @@ public:
 	Encoder& enc_input;
 	Keypad& keypad;
 
-	int key;
-	int currentKey;
-	int usingKeypad;
-	int value;
+	char key;
+	char currentKey;
+	bool usingKeypad;
+	int value = 0;
 
 	bool editing;
 };

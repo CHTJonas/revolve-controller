@@ -34,7 +34,7 @@ void InputInterface::updateKeypad() {
 
 	// Enable keypad input
 	if (!usingKeypad && key) {
-		usingKeypad = 1;
+		usingKeypad = true;
 	}
 
 	// Reset currentKey if key released

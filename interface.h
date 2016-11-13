@@ -52,10 +52,6 @@ public:
 	// Screen navigation variables
 	int menu_pos;
 	int editing;
-	char key;
-	char currentKey;
-	int usingKeypad;
-	int value = 0;
 
 private:
 };

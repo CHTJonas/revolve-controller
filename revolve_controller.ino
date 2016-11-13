@@ -271,7 +271,7 @@ void loop() {
 
 						if (interface.editVars(PROGRAM_PARAMS)) {
 							// Only limit variables after every change if using encoder
-							if (!interface.usingKeypad) {
+							if (!interface.input.usingKeypad) {
 								interface.limitCueParams();
 							}
 							displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -749,7 +749,7 @@ void updateSetting(void (*settingLimiter)(void), int mode) {
 
 		while (interface.editing) {
 			if (interface.editVars(mode)) {
-				if (!interface.usingKeypad) {
+				if (!interface.input.usingKeypad) {
 					(*settingLimiter)();
 				}
 				displays.forceUpdateDisplays(

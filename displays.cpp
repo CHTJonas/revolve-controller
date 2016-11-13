@@ -602,8 +602,8 @@ void Displays::drawInfo() const {
 			drawStrCenter(info, 40, "BACK");
 		} else if (digitalRead(SELECT) == LOW) {
 			drawStrCenter(info, 40, "SELECT");
-		} else if (interface.currentKey) {
-			drawStrCenter(info, 40, interface.currentKey);
+		} else if (interface.input.currentKey) {
+			drawStrCenter(info, 40, interface.input.currentKey);
 		}
 		info.setFont(font);
 		break;

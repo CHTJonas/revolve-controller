@@ -33,7 +33,7 @@ Interface::Interface(
 	// Initialise navigation variables
 	editing = 0;
 	menu_pos = 0;
-	usingKeypad = 0;
+	input.usingKeypad = false;
 }
 
 bool Interface::editVars(int mode) {
@@ -42,7 +42,7 @@ bool Interface::editVars(int mode) {
 
 	auto delta = false, change = false;
 
-	if (usingKeypad)
+	if (input.usingKeypad)
 	{
 		auto pressedKey = input.getKey();
 		delta = false;
@@ -50,19 +50,19 @@ bool Interface::editVars(int mode) {
 		if (pressedKey) {
 			change = true;
 			if (pressedKey == '#' || pressedKey == '*') {
-				value = 0;
+				input.value = 0;
 			}
-			else if (String(value).length() < 4)
+			else if (String(input.value).length() < 4)
 			{
-				value = value * 10 + atoi(&pressedKey);
+				input.value = input.value * 10 + atoi(&pressedKey);
 			}
 		}
 	}
 	else // using encoder
 	{
 		delta = true;
-		value = input.getInputEncoder();
-		if (value)
+		input.value = input.getInputEncoder();
+		if (input.value)
 		{
 			change = true;
 		}
@@ -72,35 +72,35 @@ bool Interface::editVars(int mode) {
 	{
 		switch (mode) {
 		case MAN:
-			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + value : value;
+			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + input.value : input.value;
 			break;
 		case BRIGHTNESS:
-			leds.ledSettings[menu_pos] = delta ? leds.ledSettings[menu_pos] + value : value;
+			leds.ledSettings[menu_pos] = delta ? leds.ledSettings[menu_pos] + input.value : input.value;
 			break;
 		case ENCSETTINGS:
 			if (menu_pos < 2) {
-				encSettings[menu_pos] = value > 0 ? 1 : 0;
+				encSettings[menu_pos] = input.value > 0 ? 1 : 0;
 			}
 			else {
-				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + value) / 100.0f : value / 100.0f;
+				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
 			}
 			break;
 		case DEFAULTVALUES:
-			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + value : value;
+			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + input.value : input.value;
 			break;
 		case KPSETTINGS:
-			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + value) / 1000.0f : value / 1000.0f;
+			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
 			break;
 		case PROGRAM_MOVEMENTS:
 			if (cueParams[1] == 0) {  // If inner disabled
-				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + value : value;
+				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + input.value : input.value;
 			}
 			else {
-				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + value : value;
+				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + input.value : input.value;
 			}
 			break;
 		case PROGRAM_PARAMS:
-			cueNumber = delta ? cueNumber + value : value;
+			cueNumber = delta ? cueNumber + input.value : input.value;
 			break;
 		default:
 			break;
@@ -160,14 +160,14 @@ void Interface::loadCue(int number) {
 }
 
 bool Interface::updateMenu(int menuMax) {
-	auto encValue = input.getInputEncoder();
+	auto encvalue = input.getInputEncoder();
 	auto oldMenuPos = menu_pos;
 
-	if (encValue > 0 && menu_pos < menuMax) {
-		menu_pos = min(menuMax, menu_pos + encValue);
+	if (encvalue > 0 && menu_pos < menuMax) {
+		menu_pos = min(menuMax, menu_pos + encvalue);
 	}
-	else if (encValue < 0 && menu_pos > 0) {
-		menu_pos = max(0, menu_pos + encValue);
+	else if (encvalue < 0 && menu_pos > 0) {
+		menu_pos = max(0, menu_pos + encvalue);
 	}
 
 	return !(menu_pos == oldMenuPos);
