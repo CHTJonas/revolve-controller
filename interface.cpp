@@ -9,7 +9,7 @@ Interface::Interface(
 	Adafruit_NeoPixel& ringLeds,
 	Adafruit_NeoPixel& pauseLeds,
 	Adafruit_NeoPixel& keypadLeds)
-	: cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(LedInterface(ringLeds, pauseLeds, keypadLeds)) {
+	: cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);

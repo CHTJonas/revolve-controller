@@ -1,5 +1,5 @@
 #pragma once
-#include "LedInterface.h"
+#include "OutputLedInterface.h"
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
@@ -51,7 +51,7 @@ public:
 	// Keypad
 	Keypad& keypad;
 
-	LedInterface leds;
+	OutputLedInterface leds;
 
 	// Current manual values
 	int currentMovements[10];
