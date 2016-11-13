@@ -5,8 +5,15 @@ class InputButtonsInterface
 {
 
 public:
-	Bounce select = Bounce();
+
+	bool dmhEngaged();
+	bool goEngaged();
+	bool eStopsEngaged();
+	bool inputEncoderEngaged();
+	bool backEngaged();
+
 	Bounce back = Bounce();
+	Bounce inputEncoder = Bounce();
 
 	void waitSelectRelease();
 	void waitBackRelease();

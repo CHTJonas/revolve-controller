@@ -596,8 +596,8 @@ void Displays::drawInfo() const {
 
 		if (digitalRead(GO) == LOW) {
 			drawStrCenter(info, 40, "GO");
-		} else if (digitalRead(PAUSE) == LOW) {
-			drawStrCenter(info, 40, "PAUSE");
+		} else if (digitalRead(DMH) == LOW) {
+			drawStrCenter(info, 40, "DMH");
 		} else if (digitalRead(BACK) == HIGH) {
 			drawStrCenter(info, 40, "BACK");
 		} else if (digitalRead(SELECT) == LOW) {

@@ -71,7 +71,7 @@ void OutputLedInterface::keypadLedsColor(int r, int g, int b) const {
 }
 
 void OutputLedInterface::updatePauseLeds() const {
-	if (digitalRead(PAUSE) == LOW) {
+	if (digitalRead(DMH) == LOW) {
 		pauseLedsColor(0, 255, 0);
 	} else {
 		pauseLedsColor(255, 0, 0);

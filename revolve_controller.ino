@@ -67,7 +67,7 @@ void loop() {
 	case STARTUP:
 
 		// Wait for both switches
-		while (digitalRead(GO) || digitalRead(PAUSE)) {
+		while (digitalRead(GO) || digitalRead(DMH)) {
 		}
 
 		// Start homing
@@ -91,8 +91,8 @@ void loop() {
 		}
 
 		// If select is pressed, move into appropriate mode
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			interface.buttons.waitSelectRelease();
 
 			// Reset menu position
@@ -140,7 +140,7 @@ void loop() {
 		updateSetting(manualLimiter, MANUAL);
 
 		// Move to required position if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
 
 			// Turn off switch leds
 			digitalWrite(SELECTLED, LOW);
@@ -183,8 +183,8 @@ void loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			interface.buttons.waitSelectRelease();
 
 			// Choose based on menu_pos
@@ -225,8 +225,8 @@ void loop() {
 		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);
 
 		// Back one level only
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 			interface.menu_pos = 0;
 			displays.setMode(PROGRAM);
@@ -244,8 +244,8 @@ void loop() {
 		}
 
 		// If select pressed, edit appropriate parameter
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			interface.buttons.waitSelectRelease();
 
 			if (interface.menu_pos < 4) {
@@ -279,8 +279,8 @@ void loop() {
 					}
 
 					// If select pressed to confirm value, exit editing mode
-					interface.buttons.select.update();
-					if (interface.buttons.select.read() == LOW) {
+					interface.buttons.back.update();
+					if (interface.buttons.back.read() == LOW) {
 						interface.buttons.waitSelectRelease();
 
 						// Limit variables from keypad
@@ -345,8 +345,8 @@ void loop() {
 				while (!decision) {
 
 					// If select pressed, delete cue
-					interface.buttons.select.update();
-					if (interface.buttons.select.read() == LOW) {
+					interface.buttons.back.update();
+					if (interface.buttons.back.read() == LOW) {
 						interface.buttons.waitSelectRelease();
 						// Reset current cue
 						cuestack.resetCue(cuestack.currentCue);
@@ -366,8 +366,8 @@ void loop() {
 					}
 
 					// If back pressed, don't!
-					interface.buttons.back.update();
-					if (interface.buttons.back.read() == HIGH) {
+					interface.buttons.inputEncoder.update();
+					if (interface.buttons.inputEncoder.read() == HIGH) {
 						interface.buttons.waitBackRelease();
 						// Go back into PROGRAM_PARAMS
 						interface.menu_pos = 5;
@@ -379,8 +379,8 @@ void loop() {
 		}
 
 		// Back one level only
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 			interface.menu_pos = 1;
 			displays.setMode(PROGRAM);
@@ -398,8 +398,8 @@ void loop() {
 		}
 
 		// If select pressed, load appropriate cue
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			interface.buttons.waitSelectRelease();
 
 			// Load cue data
@@ -412,8 +412,8 @@ void loop() {
 		}
 
 		// Back one level only
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 			interface.menu_pos = 2;
 			displays.setMode(PROGRAM);
@@ -427,8 +427,8 @@ void loop() {
 		digitalWrite(SELECTLED, HIGH);
 
 		// Only allow cue position jogging if select pressed
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			// Update LEDs
 			digitalWrite(GOLED, LOW);
 
@@ -437,10 +437,10 @@ void loop() {
 
 			interface.buttons.waitSelectRelease();
 			while (true) {
-				interface.buttons.select.update();
+				interface.buttons.back.update();
 
 				// If select presed again, exit jogging mode
-				if (interface.buttons.select.read() == LOW) {
+				if (interface.buttons.back.read() == LOW) {
 					interface.buttons.waitSelectRelease();
 					break;
 				}
@@ -459,13 +459,13 @@ void loop() {
 		}
 
 		// Goto current cue if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
 			stage.runCurrentCue();
 		}
 
 		// Back one level only
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 			interface.menu_pos = 2;
 			displays.setMode(NORMAL);
@@ -487,8 +487,8 @@ void loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		interface.buttons.select.update();
-		if (interface.buttons.select.read() == LOW) {
+		interface.buttons.back.update();
+		if (interface.buttons.back.read() == LOW) {
 			interface.buttons.waitSelectRelease();
 
 			// Choose based on menu_pos
@@ -500,15 +500,15 @@ void loop() {
 
 				while (true) {
 					// Exit (1 level only, back to settings) if back pressed, reset LEDs
-					interface.buttons.back.update();
-					if (interface.buttons.back.read()) {
+					interface.buttons.inputEncoder.update();
+					if (interface.buttons.inputEncoder.read()) {
 						interface.buttons.waitBackRelease();
 						digitalWrite(GOLED, LOW);
 						break;
 					}
 
 					// Run homing sequence if Pause and Go pressed
-					if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+					if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
 
 						// Update LEDS
 						digitalWrite(GOLED, HIGH);
@@ -584,7 +584,7 @@ void loop() {
 		displays.updateDisplays(0, 0, 1, 0);
 
 		// Exit if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
 
 			// Reset LEDs to settings state
 			digitalWrite(SELECTLED, HIGH);
@@ -602,8 +602,8 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 
 			// Write new values, update current movements
@@ -625,8 +625,8 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 
 			// encSettings[0/1] store if direction is reversed
@@ -675,8 +675,8 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.back.update();
-		if (interface.buttons.back.read()) {
+		interface.buttons.inputEncoder.update();
+		if (interface.buttons.inputEncoder.read()) {
 			interface.buttons.waitBackRelease();
 
 			// Write new values on exit
@@ -709,7 +709,7 @@ void loop() {
 
 void goToCurrentCue(int target_mode) {
 	// Goto current cue if Go and Pause pressed
-	if (digitalRead(GO) == LOW && digitalRead(PAUSE) == LOW) {
+	if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
 		// Update displays to show realtime position
 		displays.setMode(PROGRAM_GOTOCUE);
 
@@ -740,8 +740,8 @@ void goToCurrentCue(int target_mode) {
 }
 
 void updateSetting(void (*settingLimiter)(void), int mode) {
-	interface.buttons.select.update();
-	if (interface.buttons.select.read() == LOW) {
+	interface.buttons.back.update();
+	if (interface.buttons.back.read() == LOW) {
 		interface.buttons.waitSelectRelease();
 
 		interface.editing = 1;
@@ -760,8 +760,8 @@ void updateSetting(void (*settingLimiter)(void), int mode) {
 			}
 
 			// If select pressed to confirm value, exit editing mode
-			interface.buttons.select.update();
-			if (interface.buttons.select.read() == LOW) {
+			interface.buttons.back.update();
+			if (interface.buttons.back.read() == LOW) {
 				interface.buttons.waitSelectRelease();
 
 				(*settingLimiter)();

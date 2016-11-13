@@ -178,7 +178,7 @@ bool Interface::updateMenu(int menuMax) {
 void Interface::setupSwitches() {
 	pinMode(GO, INPUT_PULLUP);
 	pinMode(BACK, INPUT);
-	pinMode(PAUSE, INPUT_PULLUP);
+	pinMode(DMH, INPUT_PULLUP);
 	pinMode(SELECT, INPUT_PULLUP);  // Connects to +5v when pressed
 
 	pinMode(INNERHOME, INPUT_PULLUP);
@@ -190,9 +190,9 @@ void Interface::setupSwitches() {
 	pinMode(ESTOPNO, INPUT_PULLUP);
 
 	// Setup debouncers
-	buttons.select.attach(SELECT);
-	buttons.select.interval(10);
-
-	buttons.back.attach(BACK);
+	buttons.back.attach(SELECT);
 	buttons.back.interval(10);
+
+	buttons.inputEncoder.attach(BACK);
+	buttons.inputEncoder.interval(10);
 }

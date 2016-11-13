@@ -46,7 +46,7 @@ void Revolve::waitForStop() const {
 	auto startTime = millis();  // Don't use delay so encoders catch final position
 	while (millis() < (startTime + em_stop_time)) {
 		// Break out if pause button released (revolve won't come to full stop if button briefly released)
-		if (digitalRead(PAUSE) == LOW) {
+		if (digitalRead(DMH) == LOW) {
 			break;
 		}
 	}

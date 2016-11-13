@@ -75,14 +75,14 @@ void Stage::setStateBrake() {
 /***** Stage states *******/
 
 void Stage::ready() {
-	if (dmhEngaged() && goEngaged()) {
+	if ((*interface).buttons.dmhEngaged() && (*interface).buttons.goEngaged()) {
 		setStateDrive();
 		return;
 	}
 }
 
 void Stage::drive() {
-	if (!dmhEngaged()) {
+	if (!(*interface).buttons.dmhEngaged()) {
 		setStateBrake();
 		return;
 	}
@@ -124,7 +124,7 @@ void Stage::drive() {
 }
 
 void Stage::brake() {
-	if (dmhEngaged() && goEngaged()) {
+	if ((*interface).buttons.dmhEngaged() && (*interface).buttons.goEngaged()) {
 		setStateDrive();
 		return;
 	}
@@ -148,27 +148,10 @@ void Stage::brake() {
 	outer->setSpeed(outer_speed);
 }
 
-/***** Key switches *****/
-
-bool Stage::dmhEngaged() {
-	return !digitalRead(PAUSE);
-}
-
-bool Stage::goEngaged() {
-	return !digitalRead(GO);
-}
-
-bool Stage::eStopsEngaged() {
-	// Commented out line for non-conencted external esstop testing
-	// if !(digitalRead(ESTOPNC1)==LOW && digitalRead(ESTOPNC2)==LOW && digitalRead(ESTOPNC3)==LOW &&
-	// digitalRead(ESTOPNO)==HIGH){
-	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
-}
-
 /***** Emergency Stop *****/
 
 bool Stage::checkEstops() {
-	if (eStopsEngaged()) {
+	if ((*interface).buttons.eStopsEngaged()) {
 		emergencyStop();
 		return true;
 	} else {
@@ -183,7 +166,7 @@ void Stage::emergencyStop() {
 	displays->setMode(ESTOP);  // TODO
 
 	// hold until we're ready to go again
-	while (eStopsEngaged()) {
+	while ((*interface).buttons.eStopsEngaged()) {
 	}
 
 	state->state = STATE_RUN_READY;
@@ -289,7 +272,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (digitalRead(PAUSE) || eStopsEngaged()) {
+		if (digitalRead(DMH) || (*interface).buttons.eStopsEngaged()) {
 			emergencyStop();
 
 			// Restart
@@ -298,7 +281,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 
 			// TODO check this
 			// below code was origianlly only in E-Stops
-			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
+			if (digitalRead(DMH) == LOW && digitalRead(GO) == LOW) {
 				wheel->setSpeed(HOMESPEED);
 			}
 		}
