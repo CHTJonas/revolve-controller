@@ -13,9 +13,7 @@ void LedInterface::setupLeds() {
 	pinMode(SELECTLED, OUTPUT);
 
 	// Encoder LEDS are common anode
-	digitalWrite(ENCR, HIGH);
-	digitalWrite(ENCG, LOW);
-	digitalWrite(ENCB, HIGH);
+	encoderLedColor(false, true, false);
 
 	ringLeds.begin();
 	pauseLeds.begin();
