@@ -132,7 +132,8 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 	lcd.setFont(font);
 
 	auto menu_pos_shift = interface.menu_pos;
-	if (mode != MAN && interface.cueParams[1] == 0) {  // Shift menu_pos by 5 if inner disabled
+	if (mode != MAN && interface.cueParams[1] == 0) {
+        // Shift menu_pos by 5 if inner disabled
 		menu_pos_shift += 5;
 	}
 
