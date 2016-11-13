@@ -2,8 +2,6 @@
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
-#include <Encoder.h>
-#include <Keypad.h>
 
 class OutputLedInterface {
 public:
