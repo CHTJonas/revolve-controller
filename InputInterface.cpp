@@ -57,15 +57,3 @@ void InputInterface::resetKeypad() {
 	usingKeypad = false;
 	value = 0;
 }
-
-void InputInterface::waitSelectRelease() {
-	while (select.read() == LOW) {
-		select.update();
-	}
-}
-
-void InputInterface::waitBackRelease() {
-	while (back.read()) {
-		back.update();
-	}
-}
