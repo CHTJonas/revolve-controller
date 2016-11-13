@@ -9,7 +9,7 @@ Interface::Interface(
 	Adafruit_NeoPixel& ringLeds,
 	Adafruit_NeoPixel& pauseLeds,
 	Adafruit_NeoPixel& keypadLeds)
-	: cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
+	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
@@ -38,13 +38,13 @@ Interface::Interface(
 
 bool Interface::editVars(int mode) {
 	// Check if keypad not in use and if key has been pressed
-	updateKeypad();
+	input.updateKeypad();
 
 	auto delta = false, change = false;
 
 	if (usingKeypad)
 	{
-		auto pressedKey = getKey();
+		auto pressedKey = input.getKey();
 		delta = false;
 
 		if (pressedKey) {
@@ -61,7 +61,7 @@ bool Interface::editVars(int mode) {
 	else // using encoder
 	{
 		delta = true;
-		value = getInputEnc();
+		value = input.getInputEncoder();
 		if (value)
 		{
 			change = true;
@@ -160,7 +160,7 @@ void Interface::loadCue(int number) {
 }
 
 bool Interface::updateMenu(int menuMax) {
-	auto encValue = getInputEnc();
+	auto encValue = input.getInputEncoder();
 	auto oldMenuPos = menu_pos;
 
 	if (encValue > 0 && menu_pos < menuMax) {
@@ -171,58 +171,6 @@ bool Interface::updateMenu(int menuMax) {
 	}
 
 	return !(menu_pos == oldMenuPos);
-}
-
-int Interface::getInputEnc() const {
-	auto value = enc_input.read() / 4;
-	if (abs(value) > 0) {
-		enc_input.write(0);
-	}
-	// Skip acceleration if not editing (i.e. navigate menus at sensible speed)
-	if (editing) {
-		if (abs(value) > 4) {
-			value = value * 2;
-		}
-		if (abs(value) > 6) {
-			value = value * 3;
-		}
-	}
-	return -value;
-}
-
-void Interface::updateKeypad() {
-	auto newKey = keypad.getKey();
-	if (newKey) {
-		key = newKey;  // Holds last pressed key - reset to zero when read
-		currentKey = newKey;  // Current key being pressed (if any)
-	}
-
-	// Enable keypad input
-	if (!usingKeypad && key) {
-		usingKeypad = 1;
-	}
-
-	// Reset currentKey if key released
-	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
-		currentKey = key;
-	}
-	else {
-		currentKey = 0;
-	}
-}
-
-void Interface::resetKeypad() {
-	key = 0;
-	currentKey = 0;
-	usingKeypad = 0;
-	value = 0;
-}
-
-// Returns value of last pressed key, then resets key
-char Interface::getKey() {
-	auto returnKey = key;
-	key = 0;
-	return returnKey;
 }
 
 void Interface::setupSwitches() {
@@ -240,21 +188,9 @@ void Interface::setupSwitches() {
 	pinMode(ESTOPNO, INPUT_PULLUP);
 
 	// Setup debouncers
-	select.attach(SELECT);
-	select.interval(10);
+	input.select.attach(SELECT);
+	input.select.interval(10);
 
-	back.attach(BACK);
-	back.interval(10);
-}
-
-void Interface::waitSelectRelease() {
-	while (select.read() == LOW) {
-		select.update();
-	}
-}
-
-void Interface::waitBackRelease() {
-	while (back.read()) {
-		back.update();
-	}
+	input.back.attach(BACK);
+	input.back.interval(10);
 }

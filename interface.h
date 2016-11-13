@@ -2,9 +2,9 @@
 #include "OutputLedInterface.h"
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
-#include <Bounce2.h>
-#include <Encoder.h>
-#include <Keypad.h>
+#include "InputInterface.h"
+
+class InputInterface;
 
 class Interface {
 public:
@@ -27,30 +27,13 @@ public:
 	void loadCurrentCue();
 	void loadCue(int number);
 
-	// Input helpers
-	int getInputEnc() const;
-	void updateKeypad();
-	void resetKeypad();
-	char getKey();
-	void waitSelectRelease();
-	void waitBackRelease();
-
 	// Setup functions
 	void setupSwitches();
 
 	// Cuestack
 	Cuestack& cuestack;
 
-	// Debouced switches
-	Bounce select = Bounce();
-	Bounce back = Bounce();
-
-	// Input Encoder
-	Encoder& enc_input;
-
-	// Keypad
-	Keypad& keypad;
-
+	InputInterface input;
 	OutputLedInterface leds;
 
 	// Current manual values

@@ -45,7 +45,7 @@ void Displays::begin() {
 
 void Displays::setMode(int newMode) {
 	// Reset input encoder in case value has accrued
-	interface.getInputEnc();
+	interface.input.getInputEncoder();
 	mode = newMode;
 	forceUpdateDisplays(1, 1, 1, 1);
 }
