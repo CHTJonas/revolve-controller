@@ -1,14 +1,12 @@
 #include "InputInterface.h"
 
-
 InputInterface::InputInterface(Encoder& encoder, Keypad& keypad) : enc_input(encoder), keypad(keypad)
 {
-
 }
-
 
 int InputInterface::getInputEncoder() {
 	auto value = enc_input.read() / 4;
+	
 	if (abs(value) > 0) {
 		enc_input.write(0);
 	}
@@ -22,6 +20,7 @@ int InputInterface::getInputEncoder() {
 			value = value * 3;
 		}
 	}
+
 	return -value;
 }
 
@@ -32,8 +31,7 @@ void InputInterface::updateKeypad() {
 		currentKey = newKey;  // Current key being pressed (if any)
 	}
 
-	// Enable keypad input
-	if (!usingKeypad && key) {
+	if (key) {
 		usingKeypad = true;
 	}
 
@@ -46,7 +44,6 @@ void InputInterface::updateKeypad() {
 	}
 }
 
-
 // Returns value of last pressed key, then resets key
 char InputInterface::getKey() {
 	auto returnKey = key;
@@ -57,10 +54,9 @@ char InputInterface::getKey() {
 void InputInterface::resetKeypad() {
 	key = 0;
 	currentKey = 0;
-	usingKeypad = 0;
+	usingKeypad = false;
 	value = 0;
 }
-
 
 void InputInterface::waitSelectRelease() {
 	while (select.read() == LOW) {
