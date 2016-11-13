@@ -40,103 +40,75 @@ bool Interface::editVars(int mode) {
 	// Check if keypad not in use and if key has been pressed
 	updateKeypad();
 
-	// Keypad input if enabled
-	if (usingKeypad) {
-		char pressedKey = getKey();
+	auto delta = false, change = false;
+
+	if (usingKeypad)
+	{
+		auto pressedKey = getKey();
+		delta = false;
 
 		if (pressedKey) {
+			change = true;
 			if (pressedKey == '#' || pressedKey == '*') {
-				// Reset to zero if # or * pressed
-				keypadValue = 0;
+				value = 0;
 			}
-			else if (String(keypadValue).length() < 4)
+			else if (String(value).length() < 4)
 			{
-				// Otherwise concatenate onto keypadvalue if less than four digits
-				keypadValue = (String(keypadValue) + pressedKey).toInt();
+				value = value * 10 + atoi(&pressedKey);
 			}
-
-			// Update current selected parameter
-			switch (mode) {
-			case MAN:
-				currentMovements[menu_pos] = keypadValue;
-				break;
-			case BRIGHTNESS:
-				leds.ledSettings[menu_pos] = keypadValue;
-				break;
-			case ENCSETTINGS:
-				if (menu_pos < 2) {
-					encSettings[menu_pos] = keypadValue > 0 ? 1 : 0;
-				}
-				else {
-					encSettings[menu_pos] = keypadValue / 100.0f;
-				}
-				break;
-			case DEFAULTVALUES:
-				defaultValues[menu_pos] = keypadValue;
-				break;
-			case KPSETTINGS:
-				kpSettings[menu_pos] = keypadValue / 1000.0f;
-				break;
-			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {  // If inner disabled
-					cueMovements[menu_pos + 5] = keypadValue;
-				}
-				else {
-					cueMovements[menu_pos] = keypadValue;
-				}
-				break;
-			case PROGRAM_PARAMS:
-				cueNumber = keypadValue;
-				break;
-			}
-			return true;
 		}
-		return false;  // Do not update displays
+	}
+	else // using encoder
+	{
+		delta = true;
+		value = getInputEnc();
+		if (value)
+		{
+			change = true;
+		}
 	}
 
-	// Otherwise encoder input
-	else {
-		// Add change to currently selected parameter
-		int change = getInputEnc();
-		if (change) {
-			// Choose which settings to update based on mode
-			switch (mode) {
-			case MAN:
-				currentMovements[menu_pos] += change;
-				break;
-			case BRIGHTNESS:
-				leds.ledSettings[menu_pos] += change;
-				break;
-			case ENCSETTINGS:
-				if (menu_pos < 2) {
-					encSettings[menu_pos] = keypadValue > 0 ? 1 : 0;
-				}
-				else {
-					encSettings[menu_pos] += change / 100.0f;
-				}
-				break;
-			case DEFAULTVALUES:
-				defaultValues[menu_pos] += change;
-				break;
-			case KPSETTINGS:
-				kpSettings[menu_pos] += change / 1000.0f;
-				break;
-			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {  // If inner disabled
-					cueMovements[menu_pos + 5] += change;
-				}
-				else {
-					cueMovements[menu_pos] += change;
-				}
-				break;
-			case PROGRAM_PARAMS:
-				cueNumber += static_cast<float>(change) / 10;
-				break;
+	if (change)
+	{
+		switch (mode) {
+		case MAN:
+			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + value : value;
+			break;
+		case BRIGHTNESS:
+			leds.ledSettings[menu_pos] = delta ? leds.ledSettings[menu_pos] + value : value;
+			break;
+		case ENCSETTINGS:
+			if (menu_pos < 2) {
+				encSettings[menu_pos] = value > 0 ? 1 : 0;
 			}
-			return true;  // Update displays (has been a change)
+			else {
+				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + value) / 100.0f : value / 100.0f;
+			}
+			break;
+		case DEFAULTVALUES:
+			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + value : value;
+			break;
+		case KPSETTINGS:
+			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + value) / 1000.0f : value / 1000.0f;
+			break;
+		case PROGRAM_MOVEMENTS:
+			if (cueParams[1] == 0) {  // If inner disabled
+				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + value : value;
+			}
+			else {
+				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + value : value;
+			}
+			break;
+		case PROGRAM_PARAMS:
+			cueNumber = delta ? cueNumber + value : value;
+			break;
+		default:
+			break;
 		}
-		return false;  // No change
+		return true;
 	}
+
+	return false;
 }
 
 void Interface::limitMovements(int(&movements)[10]) const {
@@ -243,7 +215,7 @@ void Interface::resetKeypad() {
 	key = 0;
 	currentKey = 0;
 	usingKeypad = 0;
-	keypadValue = 0;
+	value = 0;
 }
 
 // Returns value of last pressed key, then resets key

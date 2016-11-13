@@ -72,7 +72,7 @@ public:
 	char key;
 	char currentKey;
 	int usingKeypad;
-	int keypadValue;
+	int value = 0;
 
 private:
 };
