@@ -1,18 +1,15 @@
 #include "interface.h"
+#include "utils.h" 
 #include <EEPROM.h>
 
-template <class T> constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
-	return max(min(v, hi), lo);
-}
-
 Interface::Interface(
-    Cuestack& cuestack,
-    Encoder& enc_input,
-    Keypad& keypad,
-    Adafruit_NeoPixel& ringLeds,
-    Adafruit_NeoPixel& pauseLeds,
-    Adafruit_NeoPixel& keypadLeds)
-      : cuestack(cuestack), enc_input(enc_input), keypad(keypad), leds(LedInterface(ringLeds, pauseLeds, keypadLeds)) {
+	Cuestack& cuestack,
+	Encoder& enc_input,
+	Keypad& keypad,
+	Adafruit_NeoPixel& ringLeds,
+	Adafruit_NeoPixel& pauseLeds,
+	Adafruit_NeoPixel& keypadLeds)
+	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
@@ -36,115 +33,85 @@ Interface::Interface(
 	// Initialise navigation variables
 	editing = 0;
 	menu_pos = 0;
-	usingKeypad = 0;
+	input.usingKeypad = false;
 }
 
 bool Interface::editVars(int mode) {
 	// Check if keypad not in use and if key has been pressed
-	updateKeypad();
+	input.updateKeypad();
 
-	// Keypad input if enabled
-	if (usingKeypad) {
-		char pressedKey = getKey();
+	auto delta = false, change = false;
+
+	if (input.usingKeypad)
+	{
+		auto pressedKey = input.getKey();
+		delta = false;
 
 		if (pressedKey) {
-			// Reset to zero if # or * pressed
-			if (pressedKey == '#' || pressedKey == '*')
-				keypadValue = 0;
-
-			// Otherwise concatenate onto keypadvalue if less than four digits
-			else if (String(keypadValue).length() < 4)
-				keypadValue = (String(keypadValue) + pressedKey).toInt();
-
-			// Update current selected parameter
-			switch (mode) {
-			case MAN:
-				currentMovements[menu_pos] = keypadValue;
-				break;
-			case BRIGHTNESS:
-				leds.ledSettings[menu_pos] = keypadValue;
-				break;
-			case ENCSETTINGS:
-				if (menu_pos < 2) {
-					if (keypadValue > 0)
-						encSettings[menu_pos] = 1;
-					else
-						encSettings[menu_pos] = 0;
-				} else {
-					encSettings[menu_pos] = (static_cast<float>(keypadValue) / 100);
-				}
-				break;
-			case DEFAULTVALUES:
-				defaultValues[menu_pos] = keypadValue;
-				break;
-			case KPSETTINGS:
-				kpSettings[menu_pos] = (static_cast<float>(keypadValue) / 1000);
-				break;
-			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {  // If inner disabled
-					cueMovements[menu_pos + 5] = keypadValue;
-				} else {
-					cueMovements[menu_pos] = keypadValue;
-				}
-				break;
-			case PROGRAM_PARAMS:
-				cueNumber = keypadValue;
-				break;
+			change = true;
+			if (pressedKey == '#' || pressedKey == '*') {
+				input.value = 0;
 			}
-			return true;
-		} else {
-			return false;  // Do not update displays
+			else if (String(input.value).length() < 4)
+			{
+				input.value = input.value * 10 + atoi(&pressedKey);
+			}
+		}
+	}
+	else // using encoder
+	{
+		delta = true;
+		input.value = input.getInputEncoder();
+		if (input.value)
+		{
+			change = true;
 		}
 	}
 
-	// Otherwise encoder input
-	else {
-		// Add change to currently selected parameter
-		int change = getInputEnc();
-		if (change) {
-			// Choose which settings to update based on mode
-			switch (mode) {
-			case MAN:
-				currentMovements[menu_pos] += change;
-				break;
-			case BRIGHTNESS:
-				leds.ledSettings[menu_pos] += change;
-				break;
-			case ENCSETTINGS:
-				if (menu_pos < 2) {
-					if (change > 0)
-						encSettings[menu_pos] = 1;
-					else
-						encSettings[menu_pos] = 0;
-				} else {
-					encSettings[menu_pos] += (static_cast<float>(change) / 100);
-				}
-				break;
-			case DEFAULTVALUES:
-				defaultValues[menu_pos] += change;
-				break;
-			case KPSETTINGS:
-				kpSettings[menu_pos] += (static_cast<float>(change) / 1000);
-				break;
-			case PROGRAM_MOVEMENTS:
-				if (cueParams[1] == 0) {  // If inner disabled
-					cueMovements[menu_pos + 5] += change;
-				} else {
-					cueMovements[menu_pos] += change;
-				}
-				break;
-			case PROGRAM_PARAMS:
-				cueNumber += static_cast<float>(change) / 10;
-				break;
+	if (change)
+	{
+		switch (mode) {
+		case MAN:
+			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + input.value : input.value;
+			break;
+		case BRIGHTNESS:
+			leds.ledSettings[menu_pos] = delta ? leds.ledSettings[menu_pos] + input.value : input.value;
+			break;
+		case ENCSETTINGS:
+			if (menu_pos < 2) {
+				encSettings[menu_pos] = input.value > 0 ? 1 : 0;
 			}
-			return true;  // Update displays (has been a change)
-		} else {
-			return false;  // No change
+			else {
+				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
+			}
+			break;
+		case DEFAULTVALUES:
+			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + input.value : input.value;
+			break;
+		case KPSETTINGS:
+			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
+			break;
+		case PROGRAM_MOVEMENTS:
+			if (cueParams[1] == 0) {  // If inner disabled
+				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + input.value : input.value;
+			}
+			else {
+				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + input.value : input.value;
+			}
+			break;
+		case PROGRAM_PARAMS:
+			cueNumber = delta ? cueNumber + input.value : input.value;
+			break;
+		default:
+			break;
 		}
+		return true;
 	}
+
+	return false;
 }
 
-void Interface::limitMovements(int (&movements)[10]) const {
+void Interface::limitMovements(int(&movements)[10]) const {
 	movements[0] = clamp(movements[0], 0, 359);
 	movements[1] = clamp(movements[1], MINSPEED, 100);
 	movements[2] = clamp(movements[2], 1, MAXACCEL);
@@ -193,67 +160,17 @@ void Interface::loadCue(int number) {
 }
 
 bool Interface::updateMenu(int menuMax) {
-	auto encValue = getInputEnc();
+	auto encvalue = input.getInputEncoder();
 	auto oldMenuPos = menu_pos;
 
-	if (encValue > 0 && menu_pos < menuMax) {
-		menu_pos = min(menuMax, menu_pos + encValue);
-	} else if (encValue < 0 && menu_pos > 0) {
-		menu_pos = max(0, menu_pos + encValue);
+	if (encvalue > 0 && menu_pos < menuMax) {
+		menu_pos = min(menuMax, menu_pos + encvalue);
+	}
+	else if (encvalue < 0 && menu_pos > 0) {
+		menu_pos = max(0, menu_pos + encvalue);
 	}
 
 	return !(menu_pos == oldMenuPos);
-}
-
-int Interface::getInputEnc() const {
-	auto value = enc_input.read() / 4;
-	if (abs(value) > 0) {
-		enc_input.write(0);
-	}
-	// Skip acceleration if not editing (i.e. navigate menus at sensible speed)
-	if (editing) {
-		if (abs(value) > 4) {
-			value = value * 2;
-		}
-		if (abs(value) > 6) {
-			value = value * 3;
-		}
-	}
-	return -value;
-}
-
-void Interface::updateKeypad() {
-	auto newKey = keypad.getKey();
-	if (newKey) {
-		key = newKey;  // Holds last pressed key - reset to zero when read
-		currentKey = newKey;  // Current key being pressed (if any)
-	}
-
-	// Enable keypad input
-	if (!usingKeypad && key) {
-		usingKeypad = 1;
-	}
-
-	// Reset currentKey if key released
-	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
-		currentKey = key;
-	} else {
-		currentKey = 0;
-	}
-}
-
-void Interface::resetKeypad() {
-	key = 0;
-	currentKey = 0;
-	usingKeypad = 0;
-	keypadValue = 0;
-}
-
-// Returns value of last pressed key, then resets key
-char Interface::getKey() {
-	auto returnKey = key;
-	key = 0;
-	return returnKey;
 }
 
 void Interface::setupSwitches() {
@@ -271,21 +188,9 @@ void Interface::setupSwitches() {
 	pinMode(ESTOPNO, INPUT_PULLUP);
 
 	// Setup debouncers
-	select.attach(SELECT);
-	select.interval(10);
+	input.select.attach(SELECT);
+	input.select.interval(10);
 
-	back.attach(BACK);
-	back.interval(10);
-}
-
-void Interface::waitSelectRelease() {
-	while (select.read() == LOW) {
-		select.update();
-	}
-}
-
-void Interface::waitBackRelease() {
-	while (back.read()) {
-		back.update();
-	}
+	input.back.attach(BACK);
+	input.back.interval(10);
 }

@@ -64,5 +64,4 @@ void setup() {
 void loop() {
 	stage.step();
 	displays.step();
-	return;
 }

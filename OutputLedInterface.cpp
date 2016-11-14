@@ -1,11 +1,10 @@
-#include "LedInterface.h"
-#include "utils.h"
+#include "OutputLedInterface.h"
 
-LedInterface::LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
+OutputLedInterface::OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 }
 
-void LedInterface::setupLeds() {
+void OutputLedInterface::setupLeds() {
 	pinMode(ENCR, OUTPUT);
 	pinMode(ENCG, OUTPUT);
 	pinMode(ENCB, OUTPUT);
@@ -13,9 +12,7 @@ void LedInterface::setupLeds() {
 	pinMode(SELECTLED, OUTPUT);
 
 	// Encoder LEDS are common anode
-	digitalWrite(ENCR, HIGH);
-	digitalWrite(ENCG, LOW);
-	digitalWrite(ENCB, HIGH);
+	encoderLedColor(false, true, false);
 
 	ringLeds.begin();
 	pauseLeds.begin();
@@ -35,7 +32,7 @@ void LedInterface::setupLeds() {
 	digitalWrite(SELECTLED, HIGH);
 }
 
-void LedInterface::flashLed(int led, int interval) {
+void OutputLedInterface::flashLed(int led, int interval) {
 	auto currentState = digitalRead(led);
 
 	if (flashCounter == 0) {
@@ -48,32 +45,32 @@ void LedInterface::flashLed(int led, int interval) {
 	}
 }
 
-void LedInterface::encoderLedColor(bool r, bool g, bool b) const {
+void OutputLedInterface::encoderLedColor(bool r, bool g, bool b) const {
 	digitalWrite(ENCR, r ? LOW : HIGH);
 	digitalWrite(ENCG, g ? LOW : HIGH);
 	digitalWrite(ENCB, b ? LOW : HIGH);
 }
 
-void LedInterface::ringLedsColor(int r, int g, int b) const {
+void OutputLedInterface::ringLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 24; i++) {
 		ringLeds.setPixelColor(i, r, g, b);
 	}
 	ringLeds.show();
 }
 
-void LedInterface::pauseLedsColor(int r, int g, int b) const {
+void OutputLedInterface::pauseLedsColor(int r, int g, int b) const {
 	pauseLeds.setPixelColor(0, r, g, b);
 	pauseLeds.setPixelColor(1, r, g, b);
 	pauseLeds.show();
 }
 
-void LedInterface::keypadLedsColor(int r, int g, int b) const {
+void OutputLedInterface::keypadLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 4; i++)
 		keypadLeds.setPixelColor(i, r, g, b);
 	keypadLeds.show();
 }
 
-void LedInterface::updatePauseLeds() const {
+void OutputLedInterface::updatePauseLeds() const {
 	if (digitalRead(PAUSE) == LOW) {
 		pauseLedsColor(0, 255, 0);
 	} else {

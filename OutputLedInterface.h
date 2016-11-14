@@ -2,12 +2,10 @@
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
-#include <Encoder.h>
-#include <Keypad.h>
 
-class LedInterface {
+class OutputLedInterface {
 public:
-	LedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
+	OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
 	void setupLeds();
 
 	void flashLed(int led, int interval);
