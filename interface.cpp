@@ -1,26 +1,24 @@
 #include "interface.h"
-#include "utils.h"
+#include "utils.h" 
 #include <EEPROM.h>
 
 Interface::Interface(
-    Cuestack* cuestack,
-    Encoder* enc_input,
-    Keypad* keypad,
-    Adafruit_NeoPixel* ringLeds,
-    Adafruit_NeoPixel* pauseLeds,
-    Adafruit_NeoPixel* keypadLeds,
-    Buttons* buttons)
-      : cuestack(cuestack),
-        input(InputInterface(enc_input, keypad)),
-        leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)),
-        buttons(buttons) {
+	Cuestack& cuestack,
+	Encoder& enc_input,
+	Keypad& keypad,
+	Adafruit_NeoPixel& ringLeds,
+	Adafruit_NeoPixel& pauseLeds,
+	Adafruit_NeoPixel& keypadLeds)
+	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
+
+	buttons = InputButtonsInterface();
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
 
 	EEPROM.get(EEDEFAULT_VALUES, defaultValues);
 	EEPROM.get(EEDEFAULT_VALUES, currentMovements);
-	cuestack->updateDefaultValues();
+	cuestack.updateDefaultValues();
 
 	EEPROM.get(EEINNER_ENC_RATIO, encSettings[2]);
 	EEPROM.get(EEOUTER_ENC_RATIO, encSettings[3]);
@@ -46,7 +44,8 @@ bool Interface::editVars(int mode) {
 
 	auto delta = false, change = false;
 
-	if (input.usingKeypad) {
+	if (input.usingKeypad)
+	{
 		auto pressedKey = input.getKey();
 		delta = false;
 
@@ -54,20 +53,25 @@ bool Interface::editVars(int mode) {
 			change = true;
 			if (pressedKey == '#' || pressedKey == '*') {
 				input.value = 0;
-			} else if (String(input.value).length() < 4) {
+			}
+			else if (String(input.value).length() < 4)
+			{
 				input.value = input.value * 10 + atoi(&pressedKey);
 			}
 		}
-	} else  // using encoder
+	}
+	else // using encoder
 	{
 		delta = true;
 		input.value = input.getInputEncoder();
-		if (input.value) {
+		if (input.value)
+		{
 			change = true;
 		}
 	}
 
-	if (change) {
+	if (change)
+	{
 		switch (mode) {
 		case MAN:
 			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + input.value : input.value;
@@ -78,22 +82,22 @@ bool Interface::editVars(int mode) {
 		case ENCSETTINGS:
 			if (menu_pos < 2) {
 				encSettings[menu_pos] = input.value > 0 ? 1 : 0;
-			} else {
-				encSettings[menu_pos] =
-				    delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
+			}
+			else {
+				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
 			}
 			break;
 		case DEFAULTVALUES:
 			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + input.value : input.value;
 			break;
 		case KPSETTINGS:
-			kpSettings[menu_pos] =
-			    delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
+			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
 			break;
 		case PROGRAM_MOVEMENTS:
 			if (cueParams[1] == 0) {  // If inner disabled
 				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + input.value : input.value;
-			} else {
+			}
+			else {
 				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + input.value : input.value;
 			}
 			break;
@@ -109,17 +113,17 @@ bool Interface::editVars(int mode) {
 	return false;
 }
 
-void Interface::limitMovements(int (*movements)[10]) const {
-	*movements[0] = clamp(*movements[0], 0, 359);
-	*movements[1] = clamp(*movements[1], MINSPEED, 100);
-	*movements[2] = clamp(*movements[2], 1, MAXACCEL);
-	*movements[3] = clamp(*movements[3], 0, 1);
-	*movements[4] = clamp(*movements[4], 0, 50);
-	*movements[5] = clamp(*movements[5], 0, 359);
-	*movements[6] = clamp(*movements[6], MINSPEED, 100);
-	*movements[7] = clamp(*movements[7], 1, MAXACCEL);
-	*movements[8] = clamp(*movements[8], 0, 1);
-	*movements[9] = clamp(*movements[9], 0, 50);
+void Interface::limitMovements(int(&movements)[10]) const {
+	movements[0] = clamp(movements[0], 0, 359);
+	movements[1] = clamp(movements[1], MINSPEED, 100);
+	movements[2] = clamp(movements[2], 1, MAXACCEL);
+	movements[3] = clamp(movements[3], 0, 1);
+	movements[4] = clamp(movements[4], 0, 50);
+	movements[5] = clamp(movements[5], 0, 359);
+	movements[6] = clamp(movements[6], MINSPEED, 100);
+	movements[7] = clamp(movements[7], 1, MAXACCEL);
+	movements[8] = clamp(movements[8], 0, 1);
+	movements[9] = clamp(movements[9], 0, 50);
 }
 
 void Interface::limitEncSettings() {
@@ -143,18 +147,18 @@ void Interface::limitCueParams() {
 }
 
 void Interface::loadCurrentCue() {
-	cuestack->getMovements(cueMovements);
-	cuestack->getNumber(cueNumber);
-	cuestack->getParams(cueParams);
+	cuestack.getMovements(cueMovements);
+	cuestack.getNumber(cueNumber);
+	cuestack.getParams(cueParams);
 }
 
 void Interface::loadCue(int number) {
-	auto currentCue = cuestack->currentCue;
-	cuestack->currentCue = number;
-	cuestack->getMovements(cueMovements);
-	cuestack->getNumber(cueNumber);
-	cuestack->getParams(cueParams);
-	cuestack->currentCue = currentCue;
+	auto currentCue = cuestack.currentCue;
+	cuestack.currentCue = number;
+	cuestack.getMovements(cueMovements);
+	cuestack.getNumber(cueNumber);
+	cuestack.getParams(cueParams);
+	cuestack.currentCue = currentCue;
 }
 
 bool Interface::updateMenu(int menuMax) {
@@ -163,9 +167,32 @@ bool Interface::updateMenu(int menuMax) {
 
 	if (encvalue > 0 && menu_pos < menuMax) {
 		menu_pos = min(menuMax, menu_pos + encvalue);
-	} else if (encvalue < 0 && menu_pos > 0) {
+	}
+	else if (encvalue < 0 && menu_pos > 0) {
 		menu_pos = max(0, menu_pos + encvalue);
 	}
 
 	return !(menu_pos == oldMenuPos);
+}
+
+void Interface::setupSwitches() {
+	pinMode(GO, INPUT_PULLUP);
+	pinMode(BACK, INPUT);
+	pinMode(DMH, INPUT_PULLUP);
+	pinMode(SELECT, INPUT_PULLUP);  // Connects to +5v when pressed
+
+	pinMode(INNERHOME, INPUT_PULLUP);
+	pinMode(OUTERHOME, INPUT_PULLUP);
+
+	pinMode(ESTOPNC1, INPUT_PULLUP);
+	pinMode(ESTOPNC2, INPUT_PULLUP);
+	pinMode(ESTOPNC3, INPUT_PULLUP);
+	pinMode(ESTOPNO, INPUT_PULLUP);
+
+	// Setup debouncers
+	buttons.back.attach(SELECT);
+	buttons.back.interval(10);
+
+	buttons.inputEncoder.attach(BACK);
+	buttons.inputEncoder.interval(10);
 }

@@ -3,39 +3,38 @@
 #include <EEPROM.h>
 
 Stage::Stage(
-    State* state, Revolve* inner, Revolve* outer, Interface* interface, Adafruit_NeoPixel* ringLeds, Buttons* buttons)
-      : state(state), inner(inner), outer(outer), interface(interface), ringLeds(ringLeds), buttons(buttons) {
+    State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
+      : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
 
-void Stage::loop() {
+void Stage::step() {
+	checkEstops();
 
-	switch (state->get_state()) {
+	switch (state->state) {
+
 	case STATE_RUN_READY:
-		checkEstops();
 		ready();
 		break;
 
 	case STATE_RUN_DRIVE:
-		checkEstops();
 		drive();
 		break;
 
 	case STATE_RUN_BRAKE:
-		checkEstops();
 		brake();
 		break;  // but not break the brake. Because that'd be bad. Probably...
-
-	case STATE_RUN_ESTOP:
-		if (!buttons->e_stop.engaged()) {
-			state->set_run_ready();
-		}
-		break;
 
 	default:
 		break;
 	}
+}
+
+/***** Set stage states **********/
+void Stage::setStateReady() {
+	state->state = STATE_RUN_READY;
+	state->data.run_ready = {};
 }
 
 void Stage::setupDrive(
@@ -60,23 +59,31 @@ void Stage::setupDrive(
 	setupPid(speed, kp, data, wheel);
 }
 
+void Stage::setStateDrive() {
+	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
+	state->state = STATE_RUN_DRIVE;
+	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
+	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
+	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
+}
+
+void Stage::setStateBrake() {
+	state->state = STATE_RUN_BRAKE;
+	state->data.run_brake = { millis(), inner->getSpeed(), outer->getSpeed(), false, false };
+}
+
 /***** Stage states *******/
 
 void Stage::ready() {
-	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
-		state->set_run_drive();
-		auto cue = interface->cuestack->stack[interface->cuestack->currentCue];
-		setupDrive(
-		    cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
-		setupDrive(
-		    cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
+		setStateDrive();
 		return;
 	}
 }
 
 void Stage::drive() {
-	if (!buttons->dmh.engaged()) {
-		state->set_run_brake(millis(), inner->getSpeed(), outer->getSpeed(), false, false);
+	if (!InputButtonsInterface::dmhEngaged()) {
+		setStateBrake();
 		return;
 	}
 
@@ -89,7 +96,7 @@ void Stage::drive() {
 	    outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
 	if (inner_done && outer_done) {
-		state->set_run_ready();
+		setStateReady();
 		return;
 	}
 
@@ -117,8 +124,8 @@ void Stage::drive() {
 }
 
 void Stage::brake() {
-	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
-		state->set_run_ready();
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
+		setStateDrive();
 		return;
 	}
 
@@ -134,7 +141,7 @@ void Stage::brake() {
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
 
 	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
-		state->set_run_ready();
+		setStateReady();
 	}
 
 	inner->setSpeed(inner_speed);
@@ -143,12 +150,26 @@ void Stage::brake() {
 
 /***** Emergency Stop *****/
 
-void Stage::checkEstops() {
-	if (buttons->e_stop.engaged()) {
-		inner->setSpeed(0);
-		outer->setSpeed(0);
-		state->set_run_estop();
+bool Stage::checkEstops() {
+	if (InputButtonsInterface::eStopsEngaged()) {
+		emergencyStop();
+		return true;
+	} else {
+		return false;
 	}
+}
+
+void Stage::emergencyStop() {
+	inner->setSpeed(0);
+	outer->setSpeed(0);
+
+	displays->setMode(ESTOP);  // TODO
+
+	// hold until we're ready to go again
+	while (InputButtonsInterface::eStopsEngaged()) {
+	}
+
+	state->state = STATE_RUN_READY;
 }
 
 /**** Drive functions *****/
@@ -201,16 +222,19 @@ void Stage::runCurrentCue() {
 	}
 
 	// Increment cue to currently selected cue with menu_pos, and increase menu_pos to automatically select next one
-	interface->cuestack->currentCue = interface->menu_pos;
-	if (interface->menu_pos < (interface->cuestack->totalCues - 1))
+	interface->cuestack.currentCue = interface->menu_pos;
+	if (interface->menu_pos < (interface->cuestack.totalCues - 1))
 		interface->menu_pos++;
 
 	// Load next cue data
 	interface->loadCue(interface->menu_pos);
 
+	// Update displays
+	displays->forceUpdateDisplays(1, 1, 1, 1);
+
 	// Recursively call runCurrentCue whilst previous cue had autofollow enabled, unless we are at last cue (where
 	// menu_pos = currentCue as it won't have been incremented)
-	if (auto_follow && interface->cuestack->currentCue != interface->menu_pos)
+	if (auto_follow && interface->cuestack.currentCue != interface->menu_pos)
 		runCurrentCue();
 
 	// Turn on switch leds
@@ -221,6 +245,8 @@ void Stage::runCurrentCue() {
 /***** Wheel homing *****/
 
 void Stage::gotoHome() {
+	displays->setMode(HOMING);
+
 	home_wheel(inner, INNERHOME);
 	// Set inner ring green
 	for (int i = 12; i < 24; i++) {
@@ -230,8 +256,11 @@ void Stage::gotoHome() {
 
 	home_wheel(outer, OUTERHOME);
 
+	displays->setMode(HOMED);
 	// Move back to calibrated home (will have overshot)
 	// gotoPos(); // TODO get parameters from git history
+
+	displays->setMode(NORMAL);
 }
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin) {
@@ -243,7 +272,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (!buttons->dmh.engaged() || buttons->e_stop.engaged()) {
+		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
 			emergencyStop();
 
 			// Restart

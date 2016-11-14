@@ -1,13 +1,14 @@
 #include "InputInterface.h"
 
-InputInterface::InputInterface(Encoder* encoder, Keypad* keypad) : enc_input(encoder), keypad(keypad) {
+InputInterface::InputInterface(Encoder& encoder, Keypad& keypad) : enc_input(encoder), keypad(keypad)
+{
 }
 
 int InputInterface::getInputEncoder() {
-	auto value = enc_input->read() / 4;
-
+	auto value = enc_input.read() / 4;
+	
 	if (abs(value) > 0) {
-		enc_input->write(0);
+		enc_input.write(0);
 	}
 
 	// Skip acceleration if not editing (i.e. navigate menus at sensible speed)
@@ -24,7 +25,7 @@ int InputInterface::getInputEncoder() {
 }
 
 void InputInterface::updateKeypad() {
-	auto newKey = keypad->getKey();
+	auto newKey = keypad.getKey();
 	if (newKey) {
 		key = newKey;  // Holds last pressed key - reset to zero when read
 		currentKey = newKey;  // Current key being pressed (if any)
@@ -35,9 +36,10 @@ void InputInterface::updateKeypad() {
 	}
 
 	// Reset currentKey if key released
-	if (keypad->getState() == HOLD || keypad->getState() == PRESSED) {
+	if (keypad.getState() == HOLD || keypad.getState() == PRESSED) {
 		currentKey = key;
-	} else {
+	}
+	else {
 		currentKey = 0;
 	}
 }

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <PID_v1.h>
 #include <stdbool.h>
-#include "buttons.h"
 
 typedef struct DriveData {
 	double currentPosition;
@@ -15,24 +13,18 @@ typedef struct DriveData {
 	PID* pid;
 } DriveData;
 
-typedef enum StateEnum {
+enum StateEnum {
 	STATE_MAINMENU,
 	STATE_RUN_READY,
 	STATE_RUN_DRIVE,
 	STATE_RUN_BRAKE,
-	STATE_RUN_ESTOP,
-	STATE_ABOUT,
-	STATE_DEBUG,
-} StateEnum;
+};
 
-class State {
-private:
-	StateEnum state;
+typedef struct State {
+	enum StateEnum state;
 
-public:
 	union {
 		struct {
-			int selected_item_index;
 		} mainmenu;
 		struct {
 		} run_ready;
@@ -47,34 +39,5 @@ public:
 			bool inner_at_speed;
 			bool outer_at_speed;
 		} run_brake;
-		struct {
-		} run_estop;
-		struct {
-		} about;
-		struct {
-		} debug;
 	} data;
-
-public:
-	State(Buttons *buttons);
-
-	void set_mainmenu();
-	void set_run_ready();
-	void set_run_drive();
-	void set_run_brake(
-	    unsigned long start_time,
-	    long inner_start_speed,
-	    long outer_start_speed,
-	    bool inner_at_speed,
-	    bool outer_at_speed);
-	void set_run_estop();
-	void set_about();
-	void set_debug();
-
-	void set_DANGEROUS_MUST_SET_DATA(StateEnum state);
-
-	StateEnum get_state();
-
-private:
-	Buttons *buttons;
-};
+} State;

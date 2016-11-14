@@ -1,8 +1,5 @@
 #pragma once
-#include "buttons.h"
 #include "displays.h"
-#include "interface.h"
-#include "revolve.h"
 #include "state_machine.h"
 
 #define INNER 0
@@ -12,13 +9,13 @@ class Stage {
 public:
 	// Constructor
 	Stage(
-	    State* state,
-	    Revolve* inner,
-	    Revolve* outer,
-	    Interface* interface,
-	    Adafruit_NeoPixel* ringLeds,
-	    Buttons* buttons);
-	void loop();
+		State* state,
+		Revolve* inner,
+		Revolve* outer,
+		Displays* displays,
+		Interface* interface,
+		Adafruit_NeoPixel* ringLeds);
+	void step();
 
 	// Settings updating
 	void updateEncRatios() const;
@@ -31,11 +28,11 @@ public:
 	void ready();
 	void brake();
 	void drive();
-	void checkEstops();
+	bool checkEstops();
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
 	void setupDrive(
-	    int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel);
+		int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel);
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
@@ -45,9 +42,9 @@ public:
 	int acceleration = 10;  // TODO check for sanity
 
 private:
+	Displays* displays;
 	Interface* interface;
 	Adafruit_NeoPixel* ringLeds;
-	Buttons* buttons;
 
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
 
