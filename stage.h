@@ -18,7 +18,7 @@ public:
 	    Interface* interface,
 	    Adafruit_NeoPixel* ringLeds,
 	    Buttons* buttons);
-	void step();
+	void loop();
 
 	// Settings updating
 	void updateEncRatios() const;

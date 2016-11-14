@@ -14,7 +14,7 @@ typedef struct DriveData {
 	PID* pid;
 } DriveData;
 
-enum StateEnum {
+typedef enum StateEnum {
 	STATE_MAINMENU,
 	STATE_RUN_READY,
 	STATE_RUN_DRIVE,
@@ -22,11 +22,13 @@ enum StateEnum {
 	STATE_RUN_ESTOP,
 	STATE_ABOUT,
 	STATE_DEBUG,
-};
+} StateEnum;
 
-typedef struct State {
-	enum StateEnum state;
+class State {
+private:
+	StateEnum state;
 
+public:
 	union {
 		struct {
 			int selected_item_index;
@@ -51,4 +53,24 @@ typedef struct State {
 		struct {
 		} debug;
 	} data;
-} State;
+
+public:
+	State();
+
+	void set_mainmenu();
+	void set_run_ready();
+	void set_run_drive();
+	void set_run_brake(
+	    unsigned long start_time,
+	    long inner_start_speed,
+	    long outer_start_speed,
+	    bool inner_at_speed,
+	    bool outer_at_speed);
+	void set_run_estop();
+	void set_about();
+	void set_debug();
+
+	void set_DANGEROUS_MUST_SET_DATA(StateEnum state);
+
+	StateEnum get_state();
+};

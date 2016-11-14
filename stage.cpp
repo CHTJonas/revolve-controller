@@ -9,10 +9,10 @@ Stage::Stage(
 	updateKpSettings();
 }
 
-void Stage::step() {
+void Stage::loop() {
 	checkEstops();
 
-	switch (state->state) {
+	switch (state->get_state()) {
 	case STATE_RUN_READY:
 		ready();
 		break;
@@ -26,22 +26,14 @@ void Stage::step() {
 		break;  // but not break the brake. Because that'd be bad. Probably...
 
 	case STATE_RUN_ESTOP:
-		inner->setSpeed(0);
-		outer->setSpeed(0);
 		if (!buttons->e_stop.engaged()) {
-			state->state = STATE_RUN_READY;
-			state->data.run_ready = {};
+			state->set_run_ready();
 		}
+		break;
 
 	default:
 		break;
 	}
-}
-
-/***** Set stage states **********/
-void Stage::setStateReady() {
-	state->state = STATE_RUN_READY;
-	state->data.run_ready = {};
 }
 
 void Stage::setupDrive(
@@ -66,31 +58,23 @@ void Stage::setupDrive(
 	setupPid(speed, kp, data, wheel);
 }
 
-void Stage::setStateDrive() {
-	auto cue = interface->cuestack->stack[interface->cuestack->currentCue];
-	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
-	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
-	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
-}
-
-void Stage::setStateBrake() {
-	state->state = STATE_RUN_BRAKE;
-	state->data.run_brake = { millis(), inner->getSpeed(), outer->getSpeed(), false, false };
-}
-
 /***** Stage states *******/
 
 void Stage::ready() {
 	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
-		setStateDrive();
+		state->set_run_drive();
+		auto cue = interface->cuestack->stack[interface->cuestack->currentCue];
+		setupDrive(
+		    cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
+		setupDrive(
+		    cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
 		return;
 	}
 }
 
 void Stage::drive() {
 	if (!buttons->dmh.engaged()) {
-		setStateBrake();
+		state->set_run_brake(millis(), inner->getSpeed(), outer->getSpeed(), false, false);
 		return;
 	}
 
@@ -103,7 +87,7 @@ void Stage::drive() {
 	    outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
 	if (inner_done && outer_done) {
-		setStateReady();
+		state->set_run_ready();
 		return;
 	}
 
@@ -132,7 +116,7 @@ void Stage::drive() {
 
 void Stage::brake() {
 	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
-		setStateDrive();
+		state->set_run_ready();
 		return;
 	}
 
@@ -148,7 +132,7 @@ void Stage::brake() {
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
 
 	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
-		setStateReady();
+		state->set_run_ready();
 	}
 
 	inner->setSpeed(inner_speed);
@@ -161,8 +145,7 @@ void Stage::checkEstops() {
 	if (buttons->e_stop.engaged()) {
 		inner->setSpeed(0);
 		outer->setSpeed(0);
-		state->state = STATE_RUN_ESTOP;
-		state->data.run_estop = {};
+		state->set_run_estop();
 	}
 }
 

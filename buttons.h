@@ -1,5 +1,6 @@
 #pragma once
 #include "constants.h"
+#include <Encoder.h>
 
 typedef enum ButtonState { BUTTON_STATE_LOW, BUTTON_STATE_HIGH, BUTTON_STATE_UNKNOWN } ButtonState;
 
@@ -10,7 +11,7 @@ public:
 	bool engaged();
 	bool had_rising_edge();
 
-	void step();
+	void state_changed();
 
 private:
 	int pin;
@@ -31,13 +32,14 @@ private:
 
 class Buttons {
 public:
-	void step();
+	void state_changed();
 
 	Button dmh = Button(DMH, true);
 	Button go = Button(GO, true);
 	EStopButton e_stop = EStopButton(ESTOPNC1, ESTOPNO);
 	Button back = Button(SELECT, true);
-	Button inputEncoder = Button(BACK, false);
+	Button input_encoder_button = Button(BACK, false);
 	Button inner_home = Button(INNERHOME, true);
 	Button outer_home = Button(OUTERHOME, true);
+	Encoder input_encoder = Encoder(INPUTENC1, INPUTENC2);
 };

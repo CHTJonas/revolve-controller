@@ -10,7 +10,7 @@ bool Button::engaged() {
 	return (digitalRead(pin) == HIGH) ^ toggle;
 }
 
-void Button::step() {
+void Button::state_changed() {
 	old_state = BUTTON_STATE_UNKNOWN;
 }
 
@@ -41,11 +41,12 @@ bool EStopButton::engaged() {
 	return !digitalRead(nc_pin) == LOW || !digitalRead(no_pin) == HIGH;
 }
 
-void Buttons::step() {
-	dmh.step();
-	go.step();
-	back.step();
-	inputEncoder.step();
-	inner_home.step();
-	outer_home.step();
+void Buttons::state_changed() {
+	dmh.state_changed();
+	go.state_changed();
+	back.state_changed();
+	input_encoder_button.state_changed();
+	inner_home.state_changed();
+	outer_home.state_changed();
+	input_encoder.write(0);
 }

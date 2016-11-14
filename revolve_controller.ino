@@ -27,7 +27,7 @@ Screen left(22, 24, 26);
 Screen centre(22, 25, 27);
 Screen right(32, 34, 36);
 
-State state = State{.state = STATE_MAINMENU, .data = {} };
+State state;
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
@@ -65,7 +65,6 @@ void setup() {
 }
 
 void loop() {
-	stage.step();
-	displays.step();
-	buttons.step();
+	stage.loop();
+	displays.loop();
 }

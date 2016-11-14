@@ -9,10 +9,10 @@ Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right, Bu
       : state(state), left(left), centre(centre), right(right), buttons(buttons) {
 }
 
-void Displays::step() {
+void Displays::loop() {
 	update_output_screen();
 
-	switch (state->state) {
+	switch (state->get_state()) {
 	case STATE_MAINMENU:
 		draw_mainmenu();
 		break;
@@ -44,7 +44,6 @@ void Displays::step() {
 }
 
 const MenuItem main_menu_items[] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT }, { "debug", STATE_DEBUG } };
-
 const int main_menu_count = sizeof(main_menu_items) / sizeof(*main_menu_items);
 
 void Displays::update_output_screen() {
@@ -53,7 +52,7 @@ void Displays::update_output_screen() {
 	right->write_text(0, 0, buffer);
 	snprintf(buffer, 16, "Output: v_i: %i", 13);
 	right->write_text(0, 1, buffer);
-	snprintf(buffer, 16, "DBG: s%ie%i", state->state, buttons->e_stop.engaged());
+	snprintf(buffer, 16, "DBG: s%ie%i", state->get_state(), buttons->e_stop.engaged());
 	right->write_text(0, 1, buffer);
 }
 
@@ -92,33 +91,36 @@ void Displays::draw_debug() {
 
 	snprintf(
 	    buffer,
-	    16,
-	    "dmh%i,go%i,e_stop%i,back%i,"
-	    "inputEncoder%i,inner_home%i,outer_home%i",
+	    sizeof(buffer) / sizeof(*buffer),
+	    "dmh%i,go%i,e_stop%i,back%i",
 	    buttons->dmh.engaged(),
 	    buttons->go.engaged(),
 	    buttons->e_stop.engaged(),
-	    buttons->back.engaged(),
-	    buttons->inputEncoder.engaged(),
+	    buttons->back.engaged());
+	left->write_text(0, 0, buffer);
+
+	snprintf(
+	    buffer,
+	    sizeof(buffer) / sizeof(*buffer),
+	    "in_enc_b%i,i_home%i,o_home%i",
+	    buttons->input_encoder_button.engaged(),
 	    buttons->inner_home.engaged(),
 	    buttons->outer_home.engaged());
-	left->write_text(0, 0, buffer);
+	left->write_text(0, 1, buffer);
+
+	snprintf(buffer, sizeof(buffer) / sizeof(*buffer), "in_enc%li", buttons->input_encoder.read());
+	left->write_text(0, 2, buffer);
 
 #ifndef GIT_VERSION
 #define GIT_VERSION "UNKNOWN"
 #define GIT_VERSION_UNKNOWN
 #endif
 
-	snprintf(
-			buffer,
-			16,
-			"version: %s",
-			GIT_VERSION);
+	snprintf(buffer, 16, "version: %s", GIT_VERSION);
 	centre->write_text(0, 0, buffer);
 
 #ifdef GIT_VERSION_UNKNOWN
 #undef GIT_VERSION
 #undef GIT_VERSION_UNKNOWN
 #endif
-
 }

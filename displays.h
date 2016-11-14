@@ -5,14 +5,14 @@
 
 typedef struct MenuItem {
 	const char* text;
-	StateEnum new_state;
+	StateEnum state;
 } MenuItem;
 
 class Displays {
 public:
 	Displays(State* state, Screen* left, Screen* centre, Screen* right, Buttons* buttons);
 
-	void step();
+	void loop();
 
 private:
 	State* state;
