@@ -104,11 +104,21 @@ void Displays::draw_debug() {
 	    buttons->outer_home.engaged());
 	left->write_text(0, 0, buffer);
 
+#ifndef GIT_VERSION
+#define GIT_VERSION "UNKNOWN"
+#define GIT_VERSION_UNKNOWN
+#endif
+
 	snprintf(
 			buffer,
 			16,
 			"version: %s",
 			GIT_VERSION);
 	centre->write_text(0, 0, buffer);
+
+#ifdef GIT_VERSION_UNKNOWN
+#undef GIT_VERSION
+#undef GIT_VERSION_UNKNOWN
+#endif
 
 }
