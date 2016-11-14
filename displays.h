@@ -27,6 +27,7 @@ private:
 	void draw_run_brake();
 	void draw_run_estop();
 	void draw_about();
+	void draw_debug();
 
 	void write_menu(const MenuItem items[], const int count, const int index);
 	void update_output_screen();

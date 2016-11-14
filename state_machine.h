@@ -21,6 +21,7 @@ enum StateEnum {
 	STATE_RUN_BRAKE,
 	STATE_RUN_ESTOP,
 	STATE_ABOUT,
+	STATE_DEBUG,
 };
 
 typedef struct State {
@@ -47,5 +48,7 @@ typedef struct State {
 		} run_estop;
 		struct {
 		} about;
+		struct {
+		} debug;
 	} data;
 } State;

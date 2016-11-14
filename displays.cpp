@@ -36,10 +36,14 @@ void Displays::step() {
 	case STATE_ABOUT:
 		draw_about();
 		break;
+
+	case STATE_DEBUG:
+		draw_debug();
+		break;
 	}
 }
 
-const MenuItem main_menu_items[2] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT } };
+const MenuItem main_menu_items[2] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT }, { "debug", STATE_DEBUG } };
 
 const int main_menu_count = sizeof(main_menu_items) / sizeof(*main_menu_items);
 
@@ -81,4 +85,22 @@ void Displays::draw_about() {
 	left->draw_image(screen_logo);
 	centre->write_text(0, 0, "Panto revolve controller 2016");
 	centre->write_text(0, 1, "By many people");
+}
+
+void Displays::draw_debug() {
+	char buffer[16];
+
+	snprintf(
+	    buffer,
+	    16,
+	    "dmh%i,go%i,e_stop%i,back%i,"
+	    "inputEncoder%i,inner_home%i,outer_home%i",
+	    buttons->dmh.engaged(),
+	    buttons->go.engaged(),
+	    buttons->e_stop.engaged(),
+	    buttons->back.engaged(),
+	    buttons->inputEncoder.engaged(),
+	    buttons->inner_home.engaged(),
+	    buttons->outer_home.engaged());
+	left->write_text(0, 0, buffer);
 }
