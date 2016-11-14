@@ -1,6 +1,5 @@
 #pragma once
 #include "constants.h"
-#include <Bounce2.h>
 
 typedef enum ButtonState { BUTTON_STATE_LOW, BUTTON_STATE_HIGH, BUTTON_STATE_UNKNOWN } ButtonState;
 

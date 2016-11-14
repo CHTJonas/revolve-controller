@@ -1,7 +1,6 @@
 #pragma once
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
-#include <Bounce2.h>
 
 class OutputLedInterface {
 public:
