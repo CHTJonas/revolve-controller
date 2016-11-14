@@ -1,9 +1,10 @@
 #pragma once
 #include <U8glib.h>
+#include <stdint.h>
 
 class Screen {
 public:
-	Screen(int a, int b, int c);
+	Screen(uint8_t sck, uint8_t mosi, uint8_t cs);
 
 	void clear();
 	void write_text(int x, int y, const char* text);

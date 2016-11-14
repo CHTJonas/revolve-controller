@@ -1,7 +1,8 @@
 #include "screen.h"
 #include <U8glib.h>
+#include <stdint.h>
 
-Screen::Screen(int a, int b, int c) : screen(U8GLIB_ST7920_128X64(a, b, c, U8G_PIN_NONE)) {
+Screen::Screen(uint8_t sck, uint8_t mosi, uint8_t cs) : screen(U8GLIB_ST7920_128X64(sck, mosi, cs)) {
 }
 void Screen::clear() {
 }
