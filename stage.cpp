@@ -3,8 +3,8 @@
 #include <EEPROM.h>
 
 Stage::Stage(
-    State* state, Revolve* inner, Revolve* outer, Interface* interface, Adafruit_NeoPixel* ringLeds)
-      : state(state), inner(inner), outer(outer), interface(interface), ringLeds(ringLeds) {
+    State* state, Revolve* inner, Revolve* outer, Interface* interface, Adafruit_NeoPixel* ringLeds, Buttons* buttons)
+      : state(state), inner(inner), outer(outer), interface(interface), ringLeds(ringLeds), buttons(buttons) {
 	updateEncRatios();
 	updateKpSettings();
 }
@@ -13,7 +13,6 @@ void Stage::step() {
 	checkEstops();
 
 	switch (state->state) {
-
 	case STATE_RUN_READY:
 		ready();
 		break;
@@ -25,6 +24,14 @@ void Stage::step() {
 	case STATE_RUN_BRAKE:
 		brake();
 		break;  // but not break the brake. Because that'd be bad. Probably...
+
+	case STATE_RUN_ESTOP:
+		inner->setSpeed(0);
+		outer->setSpeed(0);
+		if (!buttons->e_stop.engaged()) {
+			state->state = STATE_RUN_READY;
+			state->data.run_ready = {};
+		}
 
 	default:
 		break;
@@ -75,14 +82,14 @@ void Stage::setStateBrake() {
 /***** Stage states *******/
 
 void Stage::ready() {
-	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
+	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
 		setStateDrive();
 		return;
 	}
 }
 
 void Stage::drive() {
-	if (!InputButtonsInterface::dmhEngaged()) {
+	if (!buttons->dmh.engaged()) {
 		setStateBrake();
 		return;
 	}
@@ -124,7 +131,7 @@ void Stage::drive() {
 }
 
 void Stage::brake() {
-	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
+	if (buttons->dmh.engaged() && buttons->go.had_rising_edge()) {
 		setStateDrive();
 		return;
 	}
@@ -150,24 +157,13 @@ void Stage::brake() {
 
 /***** Emergency Stop *****/
 
-bool Stage::checkEstops() {
-	if (InputButtonsInterface::eStopsEngaged()) {
-		emergencyStop();
-		return true;
-	} else {
-		return false;
+void Stage::checkEstops() {
+	if (buttons->e_stop.engaged()) {
+		inner->setSpeed(0);
+		outer->setSpeed(0);
+		state->state = STATE_RUN_ESTOP;
+		state->data.run_estop = {};
 	}
-}
-
-void Stage::emergencyStop() {
-	inner->setSpeed(0);
-	outer->setSpeed(0);
-
-	// hold until we're ready to go again
-	while (InputButtonsInterface::eStopsEngaged()) {
-	}
-
-	state->state = STATE_RUN_READY;
 }
 
 /**** Drive functions *****/
@@ -262,7 +258,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
+		if (!buttons->dmh.engaged() || buttons->e_stop.engaged()) {
 			emergencyStop();
 
 			// Restart

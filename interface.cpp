@@ -1,5 +1,5 @@
 #include "interface.h"
-#include "utils.h" 
+#include "utils.h"
 #include <EEPROM.h>
 
 Interface::Interface(
@@ -8,10 +8,9 @@ Interface::Interface(
 	Keypad& keypad,
 	Adafruit_NeoPixel& ringLeds,
 	Adafruit_NeoPixel& pauseLeds,
-	Adafruit_NeoPixel& keypadLeds)
-	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
-
-	buttons = InputButtonsInterface();
+	Adafruit_NeoPixel& keypadLeds,
+	Buttons* buttons)
+	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)), buttons(buttons) {
 
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
@@ -173,26 +172,4 @@ bool Interface::updateMenu(int menuMax) {
 	}
 
 	return !(menu_pos == oldMenuPos);
-}
-
-void Interface::setupSwitches() {
-	pinMode(GO, INPUT_PULLUP);
-	pinMode(BACK, INPUT);
-	pinMode(DMH, INPUT_PULLUP);
-	pinMode(SELECT, INPUT_PULLUP);  // Connects to +5v when pressed
-
-	pinMode(INNERHOME, INPUT_PULLUP);
-	pinMode(OUTERHOME, INPUT_PULLUP);
-
-	pinMode(ESTOPNC1, INPUT_PULLUP);
-	pinMode(ESTOPNC2, INPUT_PULLUP);
-	pinMode(ESTOPNC3, INPUT_PULLUP);
-	pinMode(ESTOPNO, INPUT_PULLUP);
-
-	// Setup debouncers
-	buttons.back.attach(SELECT);
-	buttons.back.interval(10);
-
-	buttons.inputEncoder.attach(BACK);
-	buttons.inputEncoder.interval(10);
 }

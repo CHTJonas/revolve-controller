@@ -16,7 +16,8 @@ public:
 		Keypad& keypad,
 		Adafruit_NeoPixel& ringLeds,
 		Adafruit_NeoPixel& pauseLeds,
-		Adafruit_NeoPixel& keypadLeds);
+		Adafruit_NeoPixel& keypadLeds,
+		Buttons* buttons);
 
 	// Navigation and editing
 	bool updateMenu(int menuMax);
@@ -34,7 +35,7 @@ public:
 	// Cuestack
 	Cuestack& cuestack;
 
-	InputButtonsInterface buttons;
+	Buttons* buttons;
 	InputInterface input;
 	OutputLedInterface leds;
 

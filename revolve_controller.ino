@@ -6,6 +6,7 @@
 #include <Keypad.h>
 #include <PID_v1.h>
 #include "interface.h"
+#include "InputButtonsInterface.h"
 
 char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
 byte ROWS[4] = { KEY1, KEY2, KEY3, KEY4 };
@@ -15,6 +16,8 @@ Keypad keypad = Keypad(makeKeymap(keys), ROWS, COLS, 4, 3);
 Adafruit_NeoPixel pauseLeds = Adafruit_NeoPixel(2, PAUSELEDS, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel ringLeds = Adafruit_NeoPixel(24, RINGLEDS, NEO_RGB + NEO_KHZ800);
 Adafruit_NeoPixel keypadLeds = Adafruit_NeoPixel(4, KEYPADLEDS, NEO_GRB + NEO_KHZ800);
+
+Buttons buttons;
 
 Encoder enc_inner(INNERENC1, INNERENC2);
 Encoder enc_outer(OUTERENC1, OUTERENC2);
@@ -28,9 +31,9 @@ State state = State{.state = STATE_MAINMENU, .data = {} };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
-Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
+Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds, &buttons);
 Displays displays(&state, &left, &right, &centre);
-Stage stage(&state, &inner, &outer, &interface, &ringLeds);
+Stage stage(&state, &inner, &outer, &interface, &ringLeds, &buttons);
 
 void setup();
 void loop();
@@ -64,4 +67,5 @@ void setup() {
 void loop() {
 	stage.step();
 	displays.step();
+	buttons.step();
 }

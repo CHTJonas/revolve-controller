@@ -3,6 +3,7 @@
 #include "state_machine.h"
 #include "revolve.h"
 #include "interface.h"
+#include "InputButtonsInterface.h"
 
 #define INNER 0
 #define OUTER 1
@@ -15,7 +16,8 @@ public:
 	    Revolve* inner,
 	    Revolve* outer,
 	    Interface* interface,
-	    Adafruit_NeoPixel* ringLeds);
+	    Adafruit_NeoPixel* ringLeds,
+		Buttons* buttons);
 	void step();
 
 	// Settings updating
@@ -29,7 +31,7 @@ public:
 	void ready();
 	void brake();
 	void drive();
-	bool checkEstops();
+	void checkEstops();
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
 	void setupDrive(
@@ -45,6 +47,7 @@ public:
 private:
 	Interface* interface;
 	Adafruit_NeoPixel* ringLeds;
+	Buttons* buttons;
 
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
 
