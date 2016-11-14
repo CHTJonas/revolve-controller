@@ -30,6 +30,10 @@ Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds
 Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
 Stage stage(inner, outer, displays, interface, ringLeds);
 
+void setup();
+void loop();
+void updateFlags();
+char * encodeCue(Cue cue);
 
 void setup() {
   Timer1.initialize(100000);
