@@ -32,7 +32,7 @@ Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(&cuestack, &enc_input, &keypad, &ringLeds, &pauseLeds, &keypadLeds, &buttons);
-Displays displays(&state, &left, &right, &centre, buttons);
+Displays displays(&state, &left, &right, &centre, &buttons);
 Stage stage(&state, &inner, &outer, &interface, &ringLeds, &buttons);
 
 void setup();

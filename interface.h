@@ -35,9 +35,9 @@ public:
 	// Cuestack
 	Cuestack* cuestack;
 
-	Buttons* buttons;
 	InputInterface input;
 	OutputLedInterface leds;
+	Buttons* buttons;
 
 	// Current manual values
 	int currentMovements[10];
