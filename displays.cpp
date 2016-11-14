@@ -4,12 +4,28 @@
 #include "screen.h"
 #include "state_machine.h"
 #include "utils.h"
+#include "menus.h"
+#include <Arduino.h>
 
 Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right, Buttons* buttons)
       : state(state), left(left), centre(centre), right(right), buttons(buttons) {
 }
 
 void Displays::loop() {
+	// This is a bit of a bodge - there's not guarantee that each screen has
+	// the same number of lines
+	// left->firstPage();
+	// centre->firstPage();
+	// right->firstPage();
+	// do {
+	// 	left->clear();
+	// 	centre->clear();
+	// 	right->clear();
+		draw();
+	// } while (left->nextPage(), centre->nextPage(), right->nextPage());
+}
+
+void Displays::draw() {
 	update_output_screen();
 
 	switch (state->get_state()) {
@@ -43,26 +59,34 @@ void Displays::loop() {
 	}
 }
 
-const MenuItem main_menu_items[] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT }, { "debug", STATE_DEBUG } };
-const int main_menu_count = sizeof(main_menu_items) / sizeof(*main_menu_items);
-
 void Displays::update_output_screen() {
 	char buffer[16];
 	snprintf(buffer, 16, "Target: v_i: %i", 12);
 	right->write_text(0, 0, buffer);
 	snprintf(buffer, 16, "Output: v_i: %i", 13);
 	right->write_text(0, 1, buffer);
-	snprintf(buffer, 16, "DBG: s%ie%i", state->get_state(), buttons->e_stop.engaged());
-	right->write_text(0, 1, buffer);
+	if (buttons->e_stop.engaged()) {
+		right->write_text(0, 6, "!ESTOPS!");
+	}
+	if (!buttons->dmh.engaged()) {
+		right->write_text(11, 6, "!DMH!");
+	}
 }
 
 void Displays::write_menu(const MenuItem items[], const int count, const int index) {
-	if (index != 0) {
-		centre->write_text(0, 0, items[index - 1].text);
+	if (index > 1) {
+		centre->write_text(0, 0, items[index - 2].text);
 	}
-	centre->write_text(0, 1, items[index].text);
-	if (index != count - 1) {
-		centre->write_text(0, 2, items[index + 1].text);
+	if (index > 0) {
+		centre->write_text(0, 1, items[index - 1].text);
+	}
+	centre->write_text(0, 2, "->");
+	centre->write_text(2, 2, items[index].text);
+	if (index < count - 1) {
+		centre->write_text(0, 3, items[index + 1].text);
+	}
+	if (index < count - 2) {
+		centre->write_text(0, 4, items[index + 2].text);
 	}
 }
 
@@ -92,31 +116,25 @@ void Displays::draw_debug() {
 	snprintf(
 	    buffer,
 	    sizeof(buffer) / sizeof(*buffer),
-	    "dmh%i,go%i,e_stop%i,back%i",
+	    "%i,%i,%i,%i,%i,%i,%i",
 	    buttons->dmh.engaged(),
 	    buttons->go.engaged(),
 	    buttons->e_stop.engaged(),
-	    buttons->back.engaged());
-	left->write_text(0, 0, buffer);
-
-	snprintf(
-	    buffer,
-	    sizeof(buffer) / sizeof(*buffer),
-	    "in_enc_b%i,i_home%i,o_home%i",
+	    buttons->back.engaged(),
 	    buttons->input_encoder_button.engaged(),
 	    buttons->inner_home.engaged(),
 	    buttons->outer_home.engaged());
-	left->write_text(0, 1, buffer);
+	left->write_text(0, 0, buffer);
 
-	snprintf(buffer, sizeof(buffer) / sizeof(*buffer), "in_enc%li", buttons->input_encoder.read());
-	left->write_text(0, 2, buffer);
+	snprintf(buffer, sizeof(buffer) / sizeof(*buffer), "%li", buttons->input_encoder.read());
+	left->write_text(0, 1, buffer);
 
 #ifndef GIT_VERSION
 #define GIT_VERSION "UNKNOWN"
 #define GIT_VERSION_UNKNOWN
 #endif
 
-	snprintf(buffer, 16, "version: %s", GIT_VERSION);
+	snprintf(buffer, 16, "v %s", GIT_VERSION);
 	centre->write_text(0, 0, buffer);
 
 #ifdef GIT_VERSION_UNKNOWN

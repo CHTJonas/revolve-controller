@@ -10,18 +10,20 @@ Stage::Stage(
 }
 
 void Stage::loop() {
-	checkEstops();
 
 	switch (state->get_state()) {
 	case STATE_RUN_READY:
+		checkEstops();
 		ready();
 		break;
 
 	case STATE_RUN_DRIVE:
+		checkEstops();
 		drive();
 		break;
 
 	case STATE_RUN_BRAKE:
+		checkEstops();
 		brake();
 		break;  // but not break the brake. Because that'd be bad. Probably...
 

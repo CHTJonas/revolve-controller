@@ -2,6 +2,7 @@
 
 #include <PID_v1.h>
 #include <stdbool.h>
+#include "buttons.h"
 
 typedef struct DriveData {
 	double currentPosition;
@@ -55,7 +56,7 @@ public:
 	} data;
 
 public:
-	State();
+	State(Buttons *buttons);
 
 	void set_mainmenu();
 	void set_run_ready();
@@ -73,4 +74,7 @@ public:
 	void set_DANGEROUS_MUST_SET_DATA(StateEnum state);
 
 	StateEnum get_state();
+
+private:
+	Buttons *buttons;
 };

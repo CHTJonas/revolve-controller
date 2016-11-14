@@ -4,6 +4,7 @@
 #include "revolve.h"
 #include "stage.h"
 #include "state_machine.h"
+#include "navigation.h"
 #include <Keypad.h>
 #include <PID_v1.h>
 #include <TimerOne.h>
@@ -17,7 +18,6 @@ Adafruit_NeoPixel pauseLeds = Adafruit_NeoPixel(2, PAUSELEDS, NEO_GRB + NEO_KHZ8
 Adafruit_NeoPixel ringLeds = Adafruit_NeoPixel(24, RINGLEDS, NEO_RGB + NEO_KHZ800);
 Adafruit_NeoPixel keypadLeds = Adafruit_NeoPixel(4, KEYPADLEDS, NEO_GRB + NEO_KHZ800);
 
-Buttons buttons;
 
 Encoder enc_inner(INNERENC1, INNERENC2);
 Encoder enc_outer(OUTERENC1, OUTERENC2);
@@ -27,33 +27,26 @@ Screen left(22, 24, 26);
 Screen centre(22, 25, 27);
 Screen right(32, 34, 36);
 
-State state;
+Buttons buttons;
+State state(&buttons);
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(&cuestack, &enc_input, &keypad, &ringLeds, &pauseLeds, &keypadLeds, &buttons);
 Displays displays(&state, &left, &right, &centre, &buttons);
 Stage stage(&state, &inner, &outer, &interface, &ringLeds, &buttons);
+Navigation navigation(&state, &buttons);
 
 void setup();
 void loop();
-
-char* encodeCue(Cue cue);
-void updateFlags();
-void goToCurrentCue(int target_mode);
-void updateSetting(void (*settingLimiter)(void), int mode);
-void brightnessLimiter();
-void encoderLimiter();
-void eepromLimiter();
-void kpLimiter();
-void manualLimiter();
-void movementLimiter();
 
 void setup() {
 	// Timer1.initialize(100000);
 	// Timer1.attachInterrupt(updateFlags);
 
-	// Serial.begin(1200);
+	Serial.begin(38400);
+	while (!Serial) {
+	}
 
 	// interface.leds.setupLeds();
 	// interface.setupSwitches();
@@ -64,7 +57,18 @@ void setup() {
 	// displays.setMode(NORMAL);
 }
 
+int i = 0;
+
 void loop() {
+	Serial.write("\033[2J");
+	Serial.write("\033[10;0H");
+	char buffer[16];
+	snprintf(buffer, 16, "...%i...%i...", state.get_state(), i++);
+	Serial.write(buffer);
+
 	stage.loop();
 	displays.loop();
+	navigation.loop();
+
+	delay(200);
 }

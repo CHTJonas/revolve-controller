@@ -2,11 +2,7 @@
 #include "buttons.h"
 #include "screen.h"
 #include "state_machine.h"
-
-typedef struct MenuItem {
-	const char* text;
-	StateEnum state;
-} MenuItem;
+#include "menus.h"
 
 class Displays {
 public:
@@ -20,6 +16,8 @@ private:
 	Screen* centre;
 	Screen* right;
 	Buttons* buttons;
+
+	void draw();
 
 	void draw_mainmenu();
 	void draw_run_ready();

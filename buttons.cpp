@@ -29,16 +29,18 @@ bool Button::had_rising_edge() {
 	}
 }
 
-EStopButton::EStopButton(int nc_pin, int no_pin) : nc_pin(nc_pin), no_pin(no_pin) {
-	pinMode(nc_pin, INPUT_PULLUP);
+EStopButton::EStopButton(int no_pin, int nc_pin1, int nc_pin2, int nc_pin3)
+      : no_pin(no_pin), nc_pin1(nc_pin1), nc_pin2(nc_pin2), nc_pin3(nc_pin3) {
 	pinMode(no_pin, INPUT_PULLUP);
+	pinMode(nc_pin1, INPUT_PULLUP);
+	pinMode(nc_pin2, INPUT_PULLUP);
+	pinMode(nc_pin3, INPUT_PULLUP);
 }
 
 bool EStopButton::engaged() {
-	// Commented out line for non-conencted external esstop testing
-	// return !(digitalRead(nc_pin1)==LOW && digitalRead(nc_pin2)==LOW && digitalRead(nc_pin3)==LOW &&
-	// digitalRead(no_pin)==HIGH)
-	return !digitalRead(nc_pin) == LOW || !digitalRead(no_pin) == HIGH;
+	return !(
+	    digitalRead(nc_pin1) == LOW && digitalRead(nc_pin2) == LOW && digitalRead(nc_pin3) == LOW &&
+	    digitalRead(no_pin) == HIGH);
 }
 
 void Buttons::state_changed() {

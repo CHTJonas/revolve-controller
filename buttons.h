@@ -21,13 +21,15 @@ private:
 
 class EStopButton {
 public:
-	EStopButton(int nc_pin, int no_pin);
+	EStopButton(int no_pin, int nc_pin1, int nc_pin2, int nc_pin3);
 
 	bool engaged();
 
 private:
-	int nc_pin;
 	int no_pin;
+	int nc_pin1;
+	int nc_pin2;
+	int nc_pin3;
 };
 
 class Buttons {
@@ -36,7 +38,7 @@ public:
 
 	Button dmh = Button(DMH, true);
 	Button go = Button(GO, true);
-	EStopButton e_stop = EStopButton(ESTOPNC1, ESTOPNO);
+	EStopButton e_stop = EStopButton(ESTOPNO, ESTOPNC1, ESTOPNC2, ESTOPNC3);
 	Button back = Button(SELECT, true);
 	Button input_encoder_button = Button(BACK, false);
 	Button inner_home = Button(INNERHOME, true);
