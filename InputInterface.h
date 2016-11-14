@@ -2,8 +2,7 @@
 #include <Encoder.h>
 #include <Keypad.h>
 
-class InputInterface
-{
+class InputInterface {
 public:
 	InputInterface(Encoder* encoder, Keypad* keypad);
 
@@ -23,5 +22,3 @@ public:
 
 	bool editing;
 };
-
-

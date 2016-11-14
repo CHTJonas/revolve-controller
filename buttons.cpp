@@ -1,6 +1,6 @@
 #include "buttons.h"
-#include <Arduino.h>
 #include "constants.h"
+#include <Arduino.h>
 
 Button::Button(int pin, bool toggle) : pin(pin), toggle(toggle), old_state(BUTTON_STATE_UNKNOWN) {
 	pinMode(pin, toggle ? INPUT_PULLUP : INPUT);

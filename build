@@ -4,8 +4,8 @@ arduino-builder \
 	-tools /usr/local/bin \
 	-libraries ./libraries \
 	-hardware ~/Devel/Arduino/hardware \
-	-prefs=build.extra_flags="-Wall" \
 	-prefs=runtime.tools.avr-gcc.path=/usr/local \
+	-prefs=build.extra_flags="-Wall" \
 	-prefs=runtime.tools.ctags.path=/usr/local/bin \
 	-prefs=tools.ctags.path=/usr/local/bin \
 	-prefs=tools.ctags.cmd.path=/usr/local/bin/ctags \

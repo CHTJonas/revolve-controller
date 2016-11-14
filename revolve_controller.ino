@@ -1,12 +1,12 @@
-#include "stage.h"
-#include "revolve.h"
-#include "state_machine.h"
+#include "buttons.h"
 #include "cuestack.h"
-#include <TimerOne.h>
+#include "interface.h"
+#include "revolve.h"
+#include "stage.h"
+#include "state_machine.h"
 #include <Keypad.h>
 #include <PID_v1.h>
-#include "interface.h"
-#include "buttons.h"
+#include <TimerOne.h>
 
 char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
 byte ROWS[4] = { KEY1, KEY2, KEY3, KEY4 };

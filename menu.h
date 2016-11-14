@@ -2,10 +2,9 @@
 #include "constants.h"
 
 class Menu {
-    public:
+public:
 	// Constructor
 	Menu();
 
 private:
-    
 };

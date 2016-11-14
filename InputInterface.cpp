@@ -1,12 +1,11 @@
 #include "InputInterface.h"
 
-InputInterface::InputInterface(Encoder *encoder, Keypad *keypad) : enc_input(encoder), keypad(keypad)
-{
+InputInterface::InputInterface(Encoder* encoder, Keypad* keypad) : enc_input(encoder), keypad(keypad) {
 }
 
 int InputInterface::getInputEncoder() {
 	auto value = enc_input->read() / 4;
-	
+
 	if (abs(value) > 0) {
 		enc_input->write(0);
 	}
@@ -38,8 +37,7 @@ void InputInterface::updateKeypad() {
 	// Reset currentKey if key released
 	if (keypad->getState() == HOLD || keypad->getState() == PRESSED) {
 		currentKey = key;
-	}
-	else {
+	} else {
 		currentKey = 0;
 	}
 }

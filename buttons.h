@@ -1,12 +1,8 @@
 #pragma once
-#include <Bounce2.h>
 #include "constants.h"
+#include <Bounce2.h>
 
-typedef enum ButtonState {
-	BUTTON_STATE_LOW,
-	BUTTON_STATE_HIGH,
-	BUTTON_STATE_UNKNOWN
-} ButtonState;
+typedef enum ButtonState { BUTTON_STATE_LOW, BUTTON_STATE_HIGH, BUTTON_STATE_UNKNOWN } ButtonState;
 
 class Button {
 public:
@@ -34,8 +30,7 @@ private:
 	int no_pin;
 };
 
-class Buttons
-{
+class Buttons {
 public:
 	void step();
 

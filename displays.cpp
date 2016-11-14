@@ -1,50 +1,47 @@
 #include "displays.h"
+#include "buttons.h"
+#include "logo.h"
 #include "screen.h"
 #include "state_machine.h"
 #include "utils.h"
-#include "logo.h"
-#include "buttons.h"
 
-Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right, Buttons* buttons) :
-	state(state), left(left), centre(centre), right(right), buttons(buttons) {
+Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right, Buttons* buttons)
+      : state(state), left(left), centre(centre), right(right), buttons(buttons) {
 }
 
 void Displays::step() {
 	update_output_screen();
 
 	switch (state->state) {
-		case STATE_MAINMENU:
-			draw_mainmenu();
-			break;
+	case STATE_MAINMENU:
+		draw_mainmenu();
+		break;
 
-		case STATE_RUN_READY:
-			draw_run_ready();
-			break;
+	case STATE_RUN_READY:
+		draw_run_ready();
+		break;
 
-		case STATE_RUN_DRIVE:
-			draw_run_drive();
-			break;
+	case STATE_RUN_DRIVE:
+		draw_run_drive();
+		break;
 
-		case STATE_RUN_BRAKE:
-			draw_run_brake();
-			break;
+	case STATE_RUN_BRAKE:
+		draw_run_brake();
+		break;
 
-		case STATE_RUN_ESTOP:
-			draw_run_estop();
-			break;
+	case STATE_RUN_ESTOP:
+		draw_run_estop();
+		break;
 
-		case STATE_ABOUT:
-			draw_about();
-			break;
+	case STATE_ABOUT:
+		draw_about();
+		break;
 	}
 }
 
-const MenuItem main_menu_items[2] = {
-	{"run", STATE_RUN_READY},
-	{"about", STATE_ABOUT}
-};
+const MenuItem main_menu_items[2] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT } };
 
-const int main_menu_count = sizeof(main_menu_items)/sizeof(*main_menu_items);
+const int main_menu_count = sizeof(main_menu_items) / sizeof(*main_menu_items);
 
 void Displays::update_output_screen() {
 	char buffer[16];
@@ -70,11 +67,14 @@ void Displays::draw_mainmenu() {
 	left->draw_image(screen_logo);
 	write_menu(main_menu_items, main_menu_count, state->data.mainmenu.selected_item_index);
 }
-void Displays::draw_run_ready() { }
-void Displays::draw_run_drive() { }
-void Displays::draw_run_brake() { }
+void Displays::draw_run_ready() {
+}
+void Displays::draw_run_drive() {
+}
+void Displays::draw_run_brake() {
+}
 void Displays::draw_run_estop() {
-	left->write_text(0, 1,   "     ESTOPPED    ");
+	left->write_text(0, 1, "     ESTOPPED    ");
 	centre->write_text(0, 1, "Emergency Stopped");
 }
 void Displays::draw_about() {

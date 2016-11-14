@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
 #include <PID_v1.h>
+#include <stdbool.h>
 
 typedef struct DriveData {
 	double currentPosition;
