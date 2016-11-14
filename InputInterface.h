@@ -1,5 +1,4 @@
 #pragma once
-#include <Bounce2.h>
 #include <Encoder.h>
 #include <Keypad.h>
 
@@ -12,13 +11,8 @@ public:
 
 	void updateKeypad();
 	char getKey();
-	void resetKeypad();
+	void resetKeypad();	
 
-	void waitSelectRelease();
-	void waitBackRelease();
-	
-	Bounce select = Bounce();
-	Bounce back = Bounce();
 	Encoder& enc_input;
 	Keypad& keypad;
 

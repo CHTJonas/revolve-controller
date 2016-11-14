@@ -10,7 +10,7 @@
 // Pins
 #define GO 16
 #define BACK 53
-#define PAUSE 13
+#define DMH 13
 #define SELECT 14
 
 #define ENCR 51

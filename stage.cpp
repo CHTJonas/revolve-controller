@@ -75,14 +75,14 @@ void Stage::setStateBrake() {
 /***** Stage states *******/
 
 void Stage::ready() {
-	if (dmhEngaged() && goEngaged()) {
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		setStateDrive();
 		return;
 	}
 }
 
 void Stage::drive() {
-	if (!dmhEngaged()) {
+	if (!InputButtonsInterface::dmhEngaged()) {
 		setStateBrake();
 		return;
 	}
@@ -124,7 +124,7 @@ void Stage::drive() {
 }
 
 void Stage::brake() {
-	if (dmhEngaged() && goEngaged()) {
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		setStateDrive();
 		return;
 	}
@@ -148,20 +148,10 @@ void Stage::brake() {
 	outer->setSpeed(outer_speed);
 }
 
-/***** Key switches *****/
-
-bool Stage::dmhEngaged() {
-	return !digitalRead(PAUSE);
-}
-
-bool Stage::goEngaged() {
-	return !digitalRead(GO);
-}
-
 /***** Emergency Stop *****/
 
 bool Stage::checkEstops() {
-	if (eStopsEngaged()) {
+	if (InputButtonsInterface::eStopsEngaged()) {
 		emergencyStop();
 		return true;
 	} else {
@@ -174,7 +164,7 @@ void Stage::emergencyStop() {
 	outer->setSpeed(0);
 
 	// hold until we're ready to go again
-	while (eStopsEngaged()) {
+	while (InputButtonsInterface::eStopsEngaged()) {
 	}
 
 	state->state = STATE_RUN_READY;
@@ -272,7 +262,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (digitalRead(PAUSE) || eStopsEngaged()) {
+		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
 			emergencyStop();
 
 			// Restart
@@ -281,7 +271,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 
 			// TODO check this
 			// below code was origianlly only in E-Stops
-			if (digitalRead(PAUSE) == LOW && digitalRead(GO) == LOW) {
+			if (digitalRead(DMH) == LOW && digitalRead(GO) == LOW) {
 				wheel->setSpeed(HOMESPEED);
 			}
 		}

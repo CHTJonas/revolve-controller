@@ -11,6 +11,8 @@ Interface::Interface(
 	Adafruit_NeoPixel& keypadLeds)
 	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
+	buttons = InputButtonsInterface();
+
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
 
@@ -176,7 +178,7 @@ bool Interface::updateMenu(int menuMax) {
 void Interface::setupSwitches() {
 	pinMode(GO, INPUT_PULLUP);
 	pinMode(BACK, INPUT);
-	pinMode(PAUSE, INPUT_PULLUP);
+	pinMode(DMH, INPUT_PULLUP);
 	pinMode(SELECT, INPUT_PULLUP);  // Connects to +5v when pressed
 
 	pinMode(INNERHOME, INPUT_PULLUP);
@@ -188,9 +190,9 @@ void Interface::setupSwitches() {
 	pinMode(ESTOPNO, INPUT_PULLUP);
 
 	// Setup debouncers
-	input.select.attach(SELECT);
-	input.select.interval(10);
+	buttons.back.attach(SELECT);
+	buttons.back.interval(10);
 
-	input.back.attach(BACK);
-	input.back.interval(10);
+	buttons.inputEncoder.attach(BACK);
+	buttons.inputEncoder.interval(10);
 }
