@@ -6,7 +6,7 @@
 #include <Keypad.h>
 #include <PID_v1.h>
 #include "interface.h"
-#include "InputButtonsInterface.h"
+#include "buttons.h"
 
 char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
 byte ROWS[4] = { KEY1, KEY2, KEY3, KEY4 };
@@ -32,7 +32,7 @@ Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(&cuestack, &enc_input, &keypad, &ringLeds, &pauseLeds, &keypadLeds, &buttons);
-Displays displays(&state, &left, &right, &centre);
+Displays displays(&state, &left, &right, &centre, buttons);
 Stage stage(&state, &inner, &outer, &interface, &ringLeds, &buttons);
 
 void setup();

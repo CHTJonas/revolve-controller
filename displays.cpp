@@ -3,16 +3,14 @@
 #include "state_machine.h"
 #include "utils.h"
 #include "logo.h"
+#include "buttons.h"
 
-Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right) :
-	state(state), left(left), centre(centre), right(right) {
+Displays::Displays(State* state, Screen* left, Screen* centre, Screen* right, Buttons* buttons) :
+	state(state), left(left), centre(centre), right(right), buttons(buttons) {
 }
 
 void Displays::step() {
-	if (eStopsEngaged()) {
-		draw_estopped();
-		return;
-	}
+	update_output_screen();
 
 	switch (state->state) {
 		case STATE_MAINMENU:
@@ -31,12 +29,14 @@ void Displays::step() {
 			draw_run_brake();
 			break;
 
+		case STATE_RUN_ESTOP:
+			draw_run_estop();
+			break;
+
 		case STATE_ABOUT:
 			draw_about();
 			break;
 	}
-
-	update_output_screen();
 }
 
 const MenuItem main_menu_items[2] = {
@@ -48,8 +48,12 @@ const int main_menu_count = sizeof(main_menu_items)/sizeof(*main_menu_items);
 
 void Displays::update_output_screen() {
 	char buffer[16];
-	snprintf(buffer, 16, "Inner speed: %i", 12);
+	snprintf(buffer, 16, "Target: v_i: %i", 12);
 	right->write_text(0, 0, buffer);
+	snprintf(buffer, 16, "Output: v_i: %i", 13);
+	right->write_text(0, 1, buffer);
+	snprintf(buffer, 16, "DBG: s%ie%i", state->state, buttons->e_stop.engaged());
+	right->write_text(0, 1, buffer);
 }
 
 void Displays::write_menu(const MenuItem items[], const int count, const int index) {
@@ -69,9 +73,12 @@ void Displays::draw_mainmenu() {
 void Displays::draw_run_ready() { }
 void Displays::draw_run_drive() { }
 void Displays::draw_run_brake() { }
+void Displays::draw_run_estop() {
+	left->write_text(0, 1,   "     ESTOPPED    ");
+	centre->write_text(0, 1, "Emergency Stopped");
+}
 void Displays::draw_about() {
 	left->draw_image(screen_logo);
 	centre->write_text(0, 0, "Panto revolve controller 2016");
 	centre->write_text(0, 1, "By many people");
 }
-void Displays::draw_estopped() { }

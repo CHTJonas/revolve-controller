@@ -1,6 +1,6 @@
 #pragma once
 #include "InputInterface.h"
-#include "InputButtonsInterface.h"
+#include "buttons.h"
 #include "OutputLedInterface.h"
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>

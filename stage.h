@@ -3,7 +3,7 @@
 #include "state_machine.h"
 #include "revolve.h"
 #include "interface.h"
-#include "InputButtonsInterface.h"
+#include "buttons.h"
 
 #define INNER 0
 #define OUTER 1
