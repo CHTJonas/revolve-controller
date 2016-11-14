@@ -10,5 +10,6 @@ arduino-builder \
 	-prefs=tools.ctags.path=/usr/local/bin \
 	-prefs=tools.ctags.cmd.path=/usr/local/bin/ctags \
 	-prefs=tools.ctags.pattern='"{cmd.path}" -u --language-force=c++ -f - --c++-kinds=svpf --fields=KSTtzns --line-directives "{source_file}"' \
+	-build-path `pwd`/build \
 	$@ \
 	revolve_controller.ino
