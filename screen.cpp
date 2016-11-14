@@ -3,10 +3,18 @@
 #include <U8glib.h>
 #include <stdint.h>
 
-Screen::Screen(uint8_t sck, uint8_t mosi, uint8_t cs) : screen(U8GLIB_ST7920_128X64(sck, mosi, cs)), mosi(mosi) {
+Screen::Screen(State *state, uint8_t sck, uint8_t mosi, uint8_t cs) : screen(U8GLIB_ST7920_128X64(sck, mosi, cs)), mosi(mosi), state(state) {
 }
 
+int i = 0;
+
 void Screen::clear() {
+	Serial.write("\033[2J");
+	Serial.write("\033[10;0H");
+	char buffer[16];
+	snprintf(buffer, 16, "...%i...%i...", state->get_state(), i++);
+	Serial.write(buffer);
+	screen.setColorIndex(1);
 	screen.begin();
 	screen.setFont(u8g_font_unifont);
 }

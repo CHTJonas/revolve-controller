@@ -23,12 +23,11 @@ Encoder enc_inner(INNERENC1, INNERENC2);
 Encoder enc_outer(OUTERENC1, OUTERENC2);
 Encoder enc_input(INPUTENC1, INPUTENC2);
 
-Screen left(22, 24, 26);
-Screen centre(22, 25, 27);
-Screen right(32, 34, 36);
-
 Buttons buttons;
 State state(&buttons);
+Screen left(&state, 22, 24, 26);
+Screen centre(&state, 22, 25, 27);
+Screen right(&state, 32, 34, 36);
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
@@ -57,18 +56,10 @@ void setup() {
 	// displays.setMode(NORMAL);
 }
 
-int i = 0;
-
 void loop() {
-	Serial.write("\033[2J");
-	Serial.write("\033[10;0H");
-	char buffer[16];
-	snprintf(buffer, 16, "...%i...%i...", state.get_state(), i++);
-	Serial.write(buffer);
-
 	stage.loop();
 	displays.loop();
 	navigation.loop();
 
-	delay(200);
+	delay(1000);
 }

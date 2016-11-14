@@ -18,9 +18,9 @@ void Displays::loop() {
 	// centre->firstPage();
 	// right->firstPage();
 	// do {
-	// 	left->clear();
-	// 	centre->clear();
-	// 	right->clear();
+		left->clear();
+		centre->clear();
+		right->clear();
 		draw();
 	// } while (left->nextPage(), centre->nextPage(), right->nextPage());
 }
