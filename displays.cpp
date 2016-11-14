@@ -43,7 +43,7 @@ void Displays::step() {
 	}
 }
 
-const MenuItem main_menu_items[2] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT }, { "debug", STATE_DEBUG } };
+const MenuItem main_menu_items[] = { { "run", STATE_RUN_READY }, { "about", STATE_ABOUT }, { "debug", STATE_DEBUG } };
 
 const int main_menu_count = sizeof(main_menu_items) / sizeof(*main_menu_items);
 
