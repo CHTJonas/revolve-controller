@@ -1,6 +1,6 @@
 #include "OutputLedInterface.h"
 
-OutputLedInterface::OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
+OutputLedInterface::OutputLedInterface(Adafruit_NeoPixel* ringLeds, Adafruit_NeoPixel* pauseLeds, Adafruit_NeoPixel* keypadLeds)
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 }
 
@@ -14,17 +14,17 @@ void OutputLedInterface::setupLeds() {
 	// Encoder LEDS are common anode
 	encoderLedColor(false, true, false);
 
-	ringLeds.begin();
-	pauseLeds.begin();
-	keypadLeds.begin();
+	ringLeds->begin();
+	pauseLeds->begin();
+	keypadLeds->begin();
 
-	ringLeds.setBrightness(ledSettings[0]);
-	ringLeds.show();
+	ringLeds->setBrightness(ledSettings[0]);
+	ringLeds->show();
 
-	pauseLeds.setBrightness(ledSettings[0]);
+	pauseLeds->setBrightness(ledSettings[0]);
 	pauseLedsColor(0, 0, 0);
 
-	keypadLeds.setBrightness(ledSettings[0]);
+	keypadLeds->setBrightness(ledSettings[0]);
 	keypadLedsColor(ledSettings[1], ledSettings[2], ledSettings[3]);
 
 	// Set initial LED values
@@ -53,21 +53,21 @@ void OutputLedInterface::encoderLedColor(bool r, bool g, bool b) const {
 
 void OutputLedInterface::ringLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 24; i++) {
-		ringLeds.setPixelColor(i, r, g, b);
+		ringLeds->setPixelColor(i, r, g, b);
 	}
-	ringLeds.show();
+	ringLeds->show();
 }
 
 void OutputLedInterface::pauseLedsColor(int r, int g, int b) const {
-	pauseLeds.setPixelColor(0, r, g, b);
-	pauseLeds.setPixelColor(1, r, g, b);
-	pauseLeds.show();
+	pauseLeds->setPixelColor(0, r, g, b);
+	pauseLeds->setPixelColor(1, r, g, b);
+	pauseLeds->show();
 }
 
 void OutputLedInterface::keypadLedsColor(int r, int g, int b) const {
 	for (auto i = 0; i < 4; i++)
-		keypadLeds.setPixelColor(i, r, g, b);
-	keypadLeds.show();
+		keypadLeds->setPixelColor(i, r, g, b);
+	keypadLeds->show();
 }
 
 void OutputLedInterface::updatePauseLeds() const {

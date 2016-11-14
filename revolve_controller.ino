@@ -31,7 +31,7 @@ State state = State{.state = STATE_MAINMENU, .data = {} };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
-Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds, &buttons);
+Interface interface(&cuestack, &enc_input, &keypad, &ringLeds, &pauseLeds, &keypadLeds, &buttons);
 Displays displays(&state, &left, &right, &centre);
 Stage stage(&state, &inner, &outer, &interface, &ringLeds, &buttons);
 

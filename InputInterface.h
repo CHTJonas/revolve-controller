@@ -5,16 +5,16 @@
 class InputInterface
 {
 public:
-	InputInterface(Encoder& encoder, Keypad& keypad);
+	InputInterface(Encoder* encoder, Keypad* keypad);
 
 	int getInputEncoder();
 
 	void updateKeypad();
 	char getKey();
-	void resetKeypad();	
+	void resetKeypad();
 
-	Encoder& enc_input;
-	Keypad& keypad;
+	Encoder* enc_input;
+	Keypad* keypad;
 
 	char key;
 	char currentKey;

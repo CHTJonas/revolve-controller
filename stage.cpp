@@ -67,7 +67,7 @@ void Stage::setupDrive(
 }
 
 void Stage::setStateDrive() {
-	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
+	auto cue = interface->cuestack->stack[interface->cuestack->currentCue];
 	state->state = STATE_RUN_DRIVE;
 	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
 	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
@@ -216,8 +216,8 @@ void Stage::runCurrentCue() {
 	}
 
 	// Increment cue to currently selected cue with menu_pos, and increase menu_pos to automatically select next one
-	interface->cuestack.currentCue = interface->menu_pos;
-	if (interface->menu_pos < (interface->cuestack.totalCues - 1))
+	interface->cuestack->currentCue = interface->menu_pos;
+	if (interface->menu_pos < (interface->cuestack->totalCues - 1))
 		interface->menu_pos++;
 
 	// Load next cue data
@@ -225,7 +225,7 @@ void Stage::runCurrentCue() {
 
 	// Recursively call runCurrentCue whilst previous cue had autofollow enabled, unless we are at last cue (where
 	// menu_pos = currentCue as it won't have been incremented)
-	if (auto_follow && interface->cuestack.currentCue != interface->menu_pos)
+	if (auto_follow && interface->cuestack->currentCue != interface->menu_pos)
 		runCurrentCue();
 
 	// Turn on switch leds
