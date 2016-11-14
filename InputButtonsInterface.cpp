@@ -18,6 +18,17 @@ bool InputButtonsInterface::eStopsEngaged() {
 	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
 }
 
+bool InputButtonsInterface::inputEncoderPressed()
+{
+	inputEncoder.update();
+	return inputEncoder.read() == LOW;
+}
+
+bool InputButtonsInterface::backPressed()
+{
+	back.update();
+	return back.read();
+}
 
 void InputButtonsInterface::waitSelectRelease() {
 	while (back.read() == LOW) {

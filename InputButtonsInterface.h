@@ -9,8 +9,9 @@ public:
 	static bool dmhEngaged();
 	static bool goEngaged();
 	static bool eStopsEngaged();
-	bool inputEncoderEngaged();
-	bool backEngaged();
+
+	bool inputEncoderPressed();
+	bool backPressed();
 
 	Bounce back = Bounce();
 	Bounce inputEncoder = Bounce();
