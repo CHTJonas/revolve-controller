@@ -103,4 +103,12 @@ void Displays::draw_debug() {
 	    buttons->inner_home.engaged(),
 	    buttons->outer_home.engaged());
 	left->write_text(0, 0, buffer);
+
+	snprintf(
+			buffer,
+			16,
+			"version: %s",
+			GIT_VERSION);
+	centre->write_text(0, 0, buffer);
+
 }
