@@ -163,13 +163,12 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	displays->setMode(ESTOP);  // TODO
-
 	// hold until we're ready to go again
 	while (InputButtonsInterface::eStopsEngaged()) {
 	}
 
 	state->state = STATE_RUN_READY;
+	state->data = {};
 }
 
 /**** Drive functions *****/
@@ -245,7 +244,9 @@ void Stage::runCurrentCue() {
 /***** Wheel homing *****/
 
 void Stage::gotoHome() {
-	displays->setMode(HOMING);
+	state->state = STATE_HOMING_INPROGRESS;
+	state->data.homing_inprogress = {};
+	displays->setMode();
 
 	home_wheel(inner, INNERHOME);
 	// Set inner ring green
@@ -256,11 +257,15 @@ void Stage::gotoHome() {
 
 	home_wheel(outer, OUTERHOME);
 
-	displays->setMode(HOMED);
+	state->state = STATE_HOMING_COMPLETE;
+	state->data.homing_complete = {};
+	displays->setMode();
 	// Move back to calibrated home (will have overshot)
 	// gotoPos(); // TODO get parameters from git history
 
-	displays->setMode(NORMAL);
+	state->state = STATE_MAINMENU;
+	state->data.mainmenu = {};
+	displays->setMode();
 }
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin) {

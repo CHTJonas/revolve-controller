@@ -1,6 +1,7 @@
 #pragma once
 #include "interface.h"
 #include "revolve.h"
+#include "state_machine.h"
 #include "strings.h"
 #include <U8glib.h>
 
@@ -8,6 +9,7 @@ class Displays {
 public:
 	// Constructor
 	Displays(
+	    State* state,
 	    U8GLIB_ST7920_128X64& cue,
 	    U8GLIB_ST7920_128X64& menu,
 	    U8GLIB_ST7920_128X64& info,
@@ -21,7 +23,7 @@ public:
 
 	// Initialisation
 	void begin();
-	void setMode(int newMode);
+	void setMode();
 
 	// Screen Drawing
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
@@ -45,7 +47,6 @@ public:
 	    const char* revolveName) const;
 
 	int update;
-	int mode;
 	int ledOuter;
 	int ledInner;
 
@@ -73,6 +74,7 @@ private:
 	U8GLIB_ST7920_128X64& displayCenter;
 	U8GLIB_ST7920_128X64& displayRight;
 
+	State* state;
 	Adafruit_NeoPixel& ringLeds;
 
 	Revolve& inner;

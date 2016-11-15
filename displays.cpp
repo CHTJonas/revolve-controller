@@ -1,9 +1,11 @@
 #include "displays.h"
 #include "logo.h"
+#include "state_machine.h"
 #include "strings.h"
 
 // Constructor
 Displays::Displays(
+    State* state,
     U8GLIB_ST7920_128X64& cue,
     U8GLIB_ST7920_128X64& menu,
     U8GLIB_ST7920_128X64& info,
@@ -13,7 +15,8 @@ Displays::Displays(
     Keypad& keypad,
     Interface& interface,
     Cuestack& cuestack)
-      : displayLeft(cue),
+      : state(state),
+        displayLeft(cue),
         displayCenter(menu),
         displayRight(info),
         ringLeds(ringLeds),
@@ -22,7 +25,6 @@ Displays::Displays(
         keypad(keypad),
         interface(interface),
         cuestack(cuestack) {
-	mode = STARTUP;
 }
 
 void Displays::step() {
@@ -38,15 +40,13 @@ void Displays::begin() {
 	displayRight.begin();
 	displayRight.setColorIndex(1);
 
-	mode = STARTUP;
 	interface.menu_pos = 0;
 	updateDisplays(1, 1, 1, 1);
 }
 
-void Displays::setMode(int newMode) {
+void Displays::setMode() {
 	// Reset input encoder in case value has accrued
 	interface.input.getInputEncoder();
-	mode = newMode;
 	forceUpdateDisplays(1, 1, 1, 1);
 }
 
@@ -133,18 +133,18 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 	lcd.setFont(font);
 
 	auto menu_pos_shift = interface.menu_pos;
-	if (mode != MAN && interface.cueParams[1] == 0) {
+	if (state->state != STATE_MANUAL && interface.cueParams[1] == 0) {
 		// Shift menu_pos by 5 if inner disabled
 		menu_pos_shift += 5;
 	}
 
 	// Only draw if enabled
-	if (mode == MAN || (mode != MAN && interface.cueParams[1] == 1)) {
+	if (state->state == STATE_MANUAL || (state->state != MAN && interface.cueParams[1] == 1)) {
 		drawWheelCueDetails(lcd, &(values[0]), cursorEnable, menu_pos_shift, 0, "INNER");
 	}
 
 	// Only draw if enabled
-	if (mode == MAN || (mode != MAN && interface.cueParams[2] == 1)) {
+	if (state->state == STATE_MANUAL || (state->state != STATE_MANUAL && interface.cueParams[2] == 1)) {
 		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 32, "OUTER");
 	}
 }
@@ -278,9 +278,9 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 void Displays::drawLeftDisplay() const {
 	displayLeft.setFont(font);
 
-	switch (mode) {
-	case STARTUP:
-	case HOMING:
+	switch (state->state) {
+	case STATE_STARTUP:
+	case STATE_HOMING_INPROGRESS:
 		displayLeft.setFont(large_font);
 		drawStrCenter(displayLeft, 15, TITLE);
 		drawStrCenter(displayLeft, 30, SUBTITLE);
@@ -290,18 +290,18 @@ void Displays::drawLeftDisplay() const {
 		drawStrCenter(displayLeft, 55, DATE);
 		break;
 
-	case SHOW:
+	case STATE_SHOW:
 		drawCueLayout(displayLeft, interface.cueMovements, 0);
 		break;
 
-	case PROGRAM:
-	case PROGRAM_PARAMS:
-	case PROGRAM_CUELIST:
-	case PROGRAM_DELETE:
-	case PROGRAM_GOTOCUE:
-	case PROGRAM_SAVED:
+	case STATE_PROGRAM_MAIN:
+	case STATE_PROGRAM_PARAMS:
+	case STATE_PROGRAM_CUELIST:
+	case STATE_PROGRAM_DELETE:
+	case STATE_PROGRAM_GOTOCUE:
+	case STATE_PROGRAM_SAVED:
 		// Add box if screen selected in PROGRAM
-		if (interface.menu_pos == 0 && mode == PROGRAM) {
+		if (interface.menu_pos == 0 && state->state == STATE_PROGRAM_MAIN) {
 			displayLeft.setDefaultForegroundColor();
 			displayLeft.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			displayLeft.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
@@ -310,11 +310,11 @@ void Displays::drawLeftDisplay() const {
 		drawCueLayout(displayLeft, interface.cueMovements, 0);
 		break;
 
-	case PROGRAM_MOVEMENTS:
+	case STATE_PROGRAM_MOVEMENTS:
 		drawCueLayout(displayLeft, interface.cueMovements, 1);
 		break;
 
-	case ESTOP:
+	case STATE_ESTOP:
 		displayLeft.setFont(xlarge_font);
 		drawStrCenter(displayLeft, 16, "ESTOP");
 		displayLeft.setFont(large_font);
@@ -331,12 +331,12 @@ void Displays::drawLeftDisplay() const {
 void Displays::drawCenterDisplay() const {
 	displayCenter.setFont(font);
 
-	switch (mode) {
-	case STARTUP:
-	case HOMING:
+	switch (state->state) {
+	case STATE_STARTUP:
+	case STATE_HOMING_INPROGRESS:
 		displayCenter.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
-	case NORMAL:
+	case STATE_MAINMENU:
 		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
@@ -351,20 +351,20 @@ void Displays::drawCenterDisplay() const {
 		}
 		break;
 
-	case MAN:
+	case STATE_MANUAL:
 		drawCueLayout(displayCenter, interface.currentMovements, 1);
 		break;
 
-	case SHOW:
+	case STATE_SHOW:
 		drawCuelistLayout(displayCenter, interface.menu_pos, 1);
 		break;
 
-	case PROGRAM:
-	case PROGRAM_MOVEMENTS:
-	case PROGRAM_CUELIST:
-	case PROGRAM_GOTOCUE:
+	case STATE_PROGRAM_MAIN:
+	case STATE_PROGRAM_MOVEMENTS:
+	case STATE_PROGRAM_CUELIST:
+	case STATE_PROGRAM_GOTOCUE:
 		// Add box if screen selected in PROGRAM
-		if (interface.menu_pos == 1 && mode == PROGRAM) {
+		if (interface.menu_pos == 1 && state->state == STATE_PROGRAM_MAIN) {
 			displayCenter.setDefaultForegroundColor();
 			displayCenter.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			displayCenter.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
@@ -373,23 +373,23 @@ void Displays::drawCenterDisplay() const {
 		drawParamsLayout(displayCenter, 0);
 		break;
 
-	case PROGRAM_DELETE:
+	case STATE_PROGRAM_DELETE:
 		displayCenter.setFont(large_font);
 		drawStrCenter(displayCenter, 35, "Delete Cue?");
 		displayCenter.setFont(font);
 		break;
 
-	case PROGRAM_SAVED:
+	case STATE_PROGRAM_SAVED:
 		displayCenter.setFont(large_font);
 		drawStrCenter(displayCenter, 35, "Cuestack Saved");
 		displayCenter.setFont(font);
 		break;
 
-	case PROGRAM_PARAMS:
+	case STATE_PROGRAM_PARAMS:
 		drawParamsLayout(displayCenter, 1);
 		break;
 
-	case SETTINGS:
+	case STATE_SETTINGS:
 		displayCenter.setFont(large_font);
 		if (interface.menu_pos < 4) {
 			for (int i = 0; i < 4; i++) {
@@ -417,7 +417,7 @@ void Displays::drawCenterDisplay() const {
 
 		break;
 
-	case HARDWARETEST:
+	case STATE_HARDWARETEST:
 		displayCenter.setFont(large_font);
 		drawStrCenter(displayCenter, 16, "Hardware Test");
 		displayCenter.setFont(font);
@@ -425,7 +425,7 @@ void Displays::drawCenterDisplay() const {
 		drawStrCenter(displayCenter, 48, "Pause to exit");
 		break;
 
-	case BRIGHTNESS:
+	case STATE_BRIGHTNESS:
 		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
@@ -443,7 +443,7 @@ void Displays::drawCenterDisplay() const {
 		displayCenter.setFont(font);
 		break;
 
-	case ENCSETTINGS:
+	case STATE_ENCSETTINGS:
 		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
@@ -466,7 +466,7 @@ void Displays::drawCenterDisplay() const {
 		displayCenter.setFont(font);
 		break;
 
-	case ESTOP:
+	case STATE_ESTOP:
 		displayCenter.setFont(xlarge_font);
 		drawStrCenter(displayCenter, 16, "ESTOP");
 		displayCenter.setFont(large_font);
@@ -474,11 +474,11 @@ void Displays::drawCenterDisplay() const {
 		drawStrCenter(displayCenter, 48, "to continue");
 		break;
 
-	case DEFAULTVALUES:
+	case STATE_DEFAULTVALUES:
 		drawCueLayout(displayCenter, interface.defaultValues, 0);
 		break;
 
-	case KPSETTINGS:
+	case STATE_KPSETTINGS:
 		displayCenter.setFont(font);
 
 		for (int i = 0; i < 6; i++) {
@@ -496,7 +496,7 @@ void Displays::drawCenterDisplay() const {
 		displayCenter.setFont(font);
 		break;
 
-	case RESET_CUESTACK:
+	case STATE_RESET_CUESTACK:
 		displayCenter.setFont(large_font);
 		drawStrCenter(displayCenter, 19, "Reset");
 		drawStrCenter(displayCenter, 35, "ENTIRE CUESTACK?");
@@ -512,21 +512,21 @@ void Displays::drawCenterDisplay() const {
 void Displays::drawRightDisplay() const {
 	displayRight.setFont(font);
 
-	switch (mode) {
-	case STARTUP:
+	switch (state->state) {
+	case STATE_STARTUP:
 		displayRight.setFont(large_font);
 		drawStrCenter(displayRight, 20, "READY TO HOME");
 		displayRight.setFont(font);
 		drawStrCenter(displayRight, 40, "ENSURE REVOLVE CLEAR");
 		drawStrCenter(displayRight, 50, "Press GO to home");
 		break;
-	case HOMING:
+	case STATE_HOMING_INPROGRESS:
 		displayRight.setFont(xlarge_font);
 		drawStrCenter(displayRight, 20, "HOMING");
 		displayRight.setFont(font);
 		drawStrCenter(displayRight, 40, "Please wait");
 		break;
-	case HARDWARETEST:
+	case STATE_HARDWARETEST:
 		displayRight.setFont(xlarge_font);
 
 		if (InputButtonsInterface::goEngaged()) {
@@ -543,7 +543,7 @@ void Displays::drawRightDisplay() const {
 		displayRight.setFont(font);
 		break;
 
-	case ESTOP:
+	case STATE_ESTOP:
 		displayRight.setFont(xlarge_font);
 		drawStrCenter(displayRight, 16, "ESTOP");
 		displayRight.setFont(large_font);
@@ -551,9 +551,9 @@ void Displays::drawRightDisplay() const {
 		drawStrCenter(displayRight, 48, "to continue");
 		break;
 
-	case MAN:
-	case SHOW:
-	case PROGRAM_GOTOCUE:
+	case STATE_MANUAL:
+	case STATE_SHOW:
+	case STATE_PROGRAM_GOTOCUE:
 		displayRight.setFont(large_font);
 		displayRight.drawStr(0, 10, "Inner");
 		displayRight.setFont(font);
@@ -575,13 +575,13 @@ void Displays::drawRightDisplay() const {
 		displayRight.print(outer.getSpeed());
 		break;
 
-	case PROGRAM:
-	case PROGRAM_MOVEMENTS:
-	case PROGRAM_PARAMS:
-	case PROGRAM_DELETE:
-	case PROGRAM_SAVED:
+	case STATE_PROGRAM_MAIN:
+	case STATE_PROGRAM_MOVEMENTS:
+	case STATE_PROGRAM_PARAMS:
+	case STATE_PROGRAM_DELETE:
+	case STATE_PROGRAM_SAVED:
 		// Add box if screen selected in PROGRAM
-		if (interface.menu_pos == 2 && mode == PROGRAM) {
+		if (interface.menu_pos == 2 && state->state == STATE_PROGRAM_MAIN) {
 			displayRight.setDefaultForegroundColor();
 			displayRight.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			displayRight.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
@@ -590,7 +590,7 @@ void Displays::drawRightDisplay() const {
 		drawCuelistLayout(displayRight, cuestack.currentCue, 1);
 		break;
 
-	case PROGRAM_CUELIST:
+	case STATE_PROGRAM_CUELIST:
 		drawCuelistLayout(displayRight, interface.menu_pos, 1);
 		break;
 
@@ -602,29 +602,29 @@ void Displays::drawRightDisplay() const {
 
 void Displays::updateRingLeds() {
 
-	switch (mode) {
-	case STARTUP:
-	case HOMING:
-	case RESET_CUESTACK:
+	switch (state->state) {
+	case STATE_STARTUP:
+	case STATE_HOMING_INPROGRESS:
+	case STATE_RESET_CUESTACK:
 		interface.leds.ringLedsColor(255, 0, 0);
 		break;
 
-	case HARDWARETEST:
+	case STATE_HARDWARETEST:
 		interface.leds.ringLedsColor(255, 255, 255);
 		break;
 
-	case HOMED:
-	case PROGRAM_SAVED:
+	case STATE_HOMING_COMPLETE:
+	case STATE_PROGRAM_SAVED:
 		interface.leds.ringLedsColor(0, 255, 0);
 		break;
 
-	case ESTOP:
+	case STATE_ESTOP:
 		interface.leds.ringLedsColor(255, 0, 0);
 		break;
 
-	case MAN:
-	case SHOW:
-	case PROGRAM_GOTOCUE:
+	case STATE_MANUAL:
+	case STATE_SHOW:
+	case STATE_PROGRAM_GOTOCUE:
 		ledOuter = outer.displayPos();
 		ledInner = inner.displayPos();
 

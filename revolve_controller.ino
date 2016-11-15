@@ -25,7 +25,7 @@ Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
-Displays displays(cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
+Displays displays(&state, cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
 Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
 
 void setup();
@@ -54,7 +54,9 @@ void setup() {
 	cuestack.loadCuestack();
 	// cuestack.loadExampleCues();
 	displays.begin();
-	displays.setMode(NORMAL);
+	state.state = STATE_MAINMENU;
+	state.data.mainmenu = {};
+	displays.setMode();
 }
 
 void loop() {
@@ -62,9 +64,9 @@ void loop() {
 	// displays.step();
 	// return;
 	// Main switch statement for navigating screens
-	switch (displays.mode) {
+	switch (state.state) {
 	// Waits for Pause and GO to be pressed then initiates homing
-	case STARTUP:
+	case STATE_STARTUP:
 
 		// Wait for both switches
 		while (!InputButtonsInterface::dmhEngaged() && !InputButtonsInterface::goEngaged()) {
@@ -76,15 +78,17 @@ void loop() {
 
 		// Reset LEDs, go to NORMAL mode
 		digitalWrite(GOLED, LOW);
-		displays.setMode(NORMAL);
+		state.state = STATE_MAINMENU;
+		state.data.mainmenu = {};
+		displays.setMode();
 		break;
 
 	// During homing everything handled by stage and display classes
-	case HOMING:
+	case STATE_HOMING_INPROGRESS:
 		break;
 
 	// Main Menu
-	case NORMAL:
+	case STATE_MAINMENU:
 		// Update menu with encoder
 		if (interface.updateMenu(3)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -109,12 +113,16 @@ void loop() {
 			}
 
 			// Go to required Mode
-			displays.setMode(menu_pos + 3);
+			// FIXME: OH MY GOD THIS IS HORRIFIC
+			// state.state = STATE_KILLME
+			// state.data.killme = { true };
+			// displays.setMode();
+			// displays.setMode(menu_pos + 3);
 		}
 		break;
 
 	// Manual control
-	case MAN:
+	case STATE_MANUAL:
 		// Update selection screen
 		if (interface.updateMenu(9)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -123,7 +131,9 @@ void loop() {
 		if (InputButtonsInterface::backPressed()) {
 			// Reset menu_pos and change mode
 			interface.menu_pos = 0;
-			displays.setMode(NORMAL);
+			state.state = STATE_MAINMENU;
+			state.data.mainmenu = {};
+			displays.setMode();
 		}
 
 		updateSetting(manualLimiter, MANUAL);
@@ -136,7 +146,7 @@ void loop() {
 		break;
 
 	// Mode to edit cue stack
-	case PROGRAM:
+	case STATE_PROGRAM_MAIN:
 		// Update menu and displays
 		if (interface.updateMenu(2)) {
 			displays.forceUpdateDisplays(1, 1, 1, 0);
@@ -147,13 +157,17 @@ void loop() {
 			cuestack.saveCuestack();
 
 			// Show saved message (without using delay)
-			displays.setMode(PROGRAM_SAVED);
+			state.state = STATE_PROGRAM_SAVED;
+			state.data.program_saved = {};
+			displays.setMode();
 			auto startTime = millis();
 			while (millis() < startTime + 1000) {
 			}
 
 			interface.menu_pos = 0;
-			displays.setMode(NORMAL);
+			state.state = STATE_MAINMENU;
+			state.data.mainmenu = {};
+			displays.setMode();
 		}
 
 		// If select pressed move into corresponding setting
@@ -162,15 +176,21 @@ void loop() {
 			switch (interface.menu_pos) {
 			case 0:
 				interface.menu_pos = 0;
-				displays.setMode(PROGRAM_MOVEMENTS);
+				state.state = STATE_PROGRAM_MOVEMENTS;
+				state.data.program_movements = {};
+				displays.setMode();
 				break;
 			case 1:
 				interface.menu_pos = 0;
-				displays.setMode(PROGRAM_PARAMS);
+				state.state = STATE_PROGRAM_PARAMS;
+				state.data.program_params = {};
+				displays.setMode();
 				break;
 			case 2:
 				interface.menu_pos = cuestack.currentCue;
-				displays.setMode(PROGRAM_CUELIST);
+				state.state = STATE_PROGRAM_CUELIST;
+				state.data.program_cuelist = {};
+				displays.setMode();
 				break;
 			}
 		}
@@ -178,7 +198,7 @@ void loop() {
 		goToCurrentCue(PROGRAM);
 		break;
 
-	case PROGRAM_MOVEMENTS:
+	case STATE_PROGRAM_MOVEMENTS:
 		if (interface.cueParams[1] == 0 ||
 		    interface.cueParams[2] == 0) {  // If either half disabled for this cue
 			if (interface.updateMenu(4)) {
@@ -195,13 +215,15 @@ void loop() {
 		// Back one level only
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 0;
-			displays.setMode(PROGRAM);
+			state.state = STATE_PROGRAM_MAIN;
+			state.data.program_main = {};
+			displays.setMode();
 		}
 
 		goToCurrentCue(PROGRAM_MOVEMENTS);
 		break;
 
-	case PROGRAM_PARAMS:
+	case STATE_PROGRAM_PARAMS:
 		if (interface.updateMenu(5)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
 		}
@@ -286,13 +308,17 @@ void loop() {
 				cuestack.totalCues++;
 				interface.loadCurrentCue();
 				interface.menu_pos = 0;
-				displays.setMode(PROGRAM_MOVEMENTS);
+				state.state = STATE_PROGRAM_MOVEMENTS;
+				state.data.program_movements = {};
+				displays.setMode();
 			}
 
 			// Delete cue
 			if (interface.menu_pos == 5) {
 				// Bring up warning dialog
-				displays.setMode(PROGRAM_DELETE);
+				state.state = STATE_PROGRAM_DELETE;
+				state.data.program_delete = {};
+				displays.setMode();
 				auto decision = false;
 
 				while (!decision) {
@@ -311,14 +337,18 @@ void loop() {
 						interface.menu_pos = cuestack.currentCue;
 						// Sort cues to remove blank line
 						cuestack.sortCues();
-						displays.setMode(PROGRAM_CUELIST);
+						state.state = STATE_PROGRAM_CUELIST;
+						state.data.program_cuelist = {};
+						displays.setMode();
 						decision = true;
 					}
 
 					// If back pressed, don't
 					if (InputButtonsInterface::backPressed()) {
 						interface.menu_pos = 5;
-						displays.setMode(PROGRAM_PARAMS);
+						state.state = STATE_PROGRAM_PARAMS;
+						state.data.program_params = {};
+						displays.setMode();
 						decision = true;
 					}
 				}
@@ -329,13 +359,15 @@ void loop() {
 
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 1;
-			displays.setMode(PROGRAM);
+			state.state = STATE_PROGRAM_MAIN;
+			state.data.program_main = {};
+			displays.setMode();
 		}
 
 		goToCurrentCue(PROGRAM_PARAMS);
 		break;
 
-	case PROGRAM_CUELIST:
+	case STATE_PROGRAM_CUELIST:
 		if (interface.updateMenu(cuestack.totalCues - 1)) {
 			displays.forceUpdateDisplays(0, 0, 1, 0);
 		}
@@ -348,18 +380,22 @@ void loop() {
 
 			// Back to PROGRAM
 			interface.menu_pos = 0;
-			displays.setMode(PROGRAM);
+			state.state = STATE_PROGRAM_MAIN;
+			state.data.program_main = {};
+			displays.setMode();
 		}
 
 		// Back one level only
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 2;
-			displays.setMode(PROGRAM);
+			state.state = STATE_PROGRAM_MAIN;
+			state.data.program_main = {};
+			displays.setMode();
 		}
 		break;
 
 	// Run mode for during show - cannot edit cues
-	case SHOW:
+	case STATE_SHOW:
 
 		// Only allow cue position jogging if select pressed
 		if (InputButtonsInterface::inputEncoderPressed()) {
@@ -390,12 +426,14 @@ void loop() {
 		// Back one level only
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 2;
-			displays.setMode(NORMAL);
+			state.state = STATE_MAINMENU;
+			state.data.mainmenu = {};
+			displays.setMode();
 		}
 		break;
 
 	// Change system settings
-	case SETTINGS:
+	case STATE_SETTINGS:
 		// Update menu position
 		if (interface.updateMenu(7)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -404,7 +442,9 @@ void loop() {
 		// Back to main menu if back pressed
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 0;
-			displays.setMode(NORMAL);
+			state.state = STATE_MAINMENU;
+			state.data.mainmenu = {};
+			displays.setMode();
 		}
 
 		// If select pressed move into corresponding setting
@@ -414,7 +454,9 @@ void loop() {
 			case 0:
 
 				// Homing Mode
-				displays.setMode(STARTUP);
+				state.state = STATE_STARTUP;
+				state.data.startup = {};
+				displays.setMode();
 
 				while (true) {
 					// Exit (1 level only, back to settings) if back pressed, reset LEDs
@@ -431,61 +473,79 @@ void loop() {
 				}
 
 				// Back to settings mode
-				displays.setMode(SETTINGS);
+				state.state = STATE_SETTINGS;
+				state.data.settings = {};
+				displays.setMode();
 				break;
 
 			// Edit PID Constants
 			case 1:
 				interface.menu_pos = 0;
-				displays.setMode(KPSETTINGS);
+				state.state = STATE_KPSETTINGS;
+				state.data.kpsettings = {};
+				displays.setMode();
 				break;
 
 			// Edit default cue values
 			case 2:
 				interface.menu_pos = 0;
-				displays.setMode(DEFAULTVALUES);
+				state.state = STATE_DEFAULTVALUES;
+				state.data.defaultvalues = {};
+				displays.setMode();
 				break;
 
 			case 3:
 				interface.menu_pos = 0;
-				displays.setMode(CUESTACK_BACKUP);
+				state.state = STATE_CUESTACK_BACKUP;
+				state.data.cuestack_backup = {};
+				displays.setMode();
 				break;
 
 			// Reset cuestack
 			case 4:
 				interface.menu_pos = 0;
-				displays.setMode(NORMAL);
+				state.state = STATE_MAINMENU;
+				state.data.mainmenu = {};
+				displays.setMode();
 				break;
 
 			// Edit encoder settings
 			case 5:
 				interface.menu_pos = 0;
-				displays.setMode(ENCSETTINGS);
+				state.state = STATE_ENCSETTINGS;
+				state.data.encsettings = {};
+				displays.setMode();
 				break;
 
 			// Edit LED settings
 			case 6:
 				interface.menu_pos = 0;
-				displays.setMode(BRIGHTNESS);
+				state.state = STATE_BRIGHTNESS;
+				state.data.brightness = {};
+				displays.setMode();
 				break;
 
 			// Hardware test mode
 			case 7:
 				// All encoder lights on prevents switch from reading properly due to voltage
 				interface.leds.encoderLedColor(false, false, true);
-				displays.setMode(HARDWARETEST);
+				state.state = STATE_HARDWARETEST;
+				state.data.hardwaretest = {};
+				displays.setMode();
 				break;
 
 			default:
 				interface.menu_pos = 0;
-				displays.setMode(NORMAL);
+				state.state = STATE_MAINMENU;
+				state.data.mainmenu = {};
+				displays.setMode();
 				break;
 			}
 		}
 		break;
 
 	// Mode to test all switches and LEDs
-	case HARDWARETEST:
+	case STATE_HARDWARETEST:
 
 		// Read keypad
 		interface.input.updateKeypad();
@@ -499,11 +559,13 @@ void loop() {
 			digitalWrite(SELECTLED, HIGH);
 
 			// Back to settings
-			displays.setMode(SETTINGS);
+			state.state = STATE_SETTINGS;
+			state.data.settings = {};
+			displays.setMode();
 		}
 		break;
 
-	case BRIGHTNESS:
+	case STATE_BRIGHTNESS:
 
 		// Update menu_pos
 		if (interface.updateMenu(3)) {
@@ -517,13 +579,15 @@ void loop() {
 
 			// Back to settings
 			interface.menu_pos = 5;
-			displays.setMode(SETTINGS);
+			state.state = STATE_SETTINGS;
+			state.data.settings = {};
+			displays.setMode();
 		}
 
 		updateSetting(brightnessLimiter, BRIGHTNESS);
 		break;
 
-	case ENCSETTINGS:
+	case STATE_ENCSETTINGS:
 
 		// Update menu_pos
 		if (interface.updateMenu(3)) {
@@ -542,14 +606,16 @@ void loop() {
 
 			// Back to settings
 			interface.menu_pos = 4;
-			displays.setMode(SETTINGS);
+			state.state = STATE_SETTINGS;
+			state.data.settings = {};
+			displays.setMode();
 		}
 
 		updateSetting(encoderLimiter, ENCSETTINGS);
 		break;
 
 	// Set default cue values
-	case DEFAULTVALUES:
+	case STATE_DEFAULTVALUES:
 
 		// Update selection screen
 		if (interface.updateMenu(9)) {
@@ -565,13 +631,15 @@ void loop() {
 
 			// Reset menu_pos and change mode
 			interface.menu_pos = 2;
-			displays.setMode(SETTINGS);
+			state.state = STATE_SETTINGS;
+			state.data.settings = {};
+			displays.setMode();
 		}
 
 		updateSetting(eepromLimiter, DEFAULTVALUES);
 		break;
 
-	case KPSETTINGS:
+	case STATE_KPSETTINGS:
 
 		// Update menu_pos
 		if (interface.updateMenu(5)) {
@@ -589,13 +657,15 @@ void loop() {
 
 			// Back to settings
 			interface.menu_pos = 1;
-			displays.setMode(SETTINGS);
+			state.state = STATE_SETTINGS;
+			state.data.settings = {};
+			displays.setMode();
 		}
 
 		updateSetting(kpLimiter, KPSETTINGS);
 		break;
 
-	case CUESTACK_BACKUP:
+	case STATE_CUESTACK_BACKUP:
 		for (int i = 0; i < 100; i++) {
 			char* encoding = encodeCue(cuestack.stack[i]);
 			Serial.write(encoding);
@@ -603,7 +673,9 @@ void loop() {
 			delay(100);
 			delete[] encoding;
 		}
-		displays.setMode(NORMAL);
+		state.state = STATE_MAINMENU;
+		state.data.mainmenu = {};
+		displays.setMode();
 
 		break;
 	}
@@ -613,7 +685,9 @@ void goToCurrentCue(int target_mode) {
 	// Goto current cue if Go and Pause pressed
 	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		// Update displays to show realtime position
-		displays.setMode(PROGRAM_GOTOCUE);
+		state.state = STATE_PROGRAM_GOTOCUE;
+		state.data.program_gotocue = {};
+		displays.setMode();
 
 		// Move - both enabled
 		if (interface.cueParams[1] && interface.cueParams[2]) {
@@ -629,7 +703,7 @@ void goToCurrentCue(int target_mode) {
 		}
 
 		// Reset mode
-		displays.setMode(target_mode);
+		// displays.setMode(target_mode); FIXME
 	}
 }
 
