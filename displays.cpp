@@ -1,7 +1,7 @@
 #include "displays.h"
 #include "logo.h"
-#include "state.h"
 #include "pins.h"
+#include "state.h"
 #include "strings.h"
 
 // Constructor

@@ -1,8 +1,8 @@
 #include "navigation.h"
-#include "revolve_controller.h"
-#include "state.h"
 #include "constants.h"
 #include "pins.h"
+#include "revolve_controller.h"
+#include "state.h"
 #include <EEPROM.h>
 
 Navigation::Navigation(State* state, Cuestack* cuestack, Interface* interface, Displays* displays, Stage* stage)
@@ -90,7 +90,7 @@ void Navigation::loop() {
 			interface->menu_pos = 0;
 
 			state->state = STATE_PROGRAM_SAVED;
-			state->data.program_saved = {millis()};
+			state->data.program_saved = { millis() };
 			displays->setMode();
 		}
 

@@ -1,8 +1,8 @@
 #include "stage.h"
-#include "utils.h"
 #include "pins.h"
-#include <EEPROM.h>
 #include "revolve_controller.h"
+#include "utils.h"
+#include <EEPROM.h>
 
 Stage::Stage(
     State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
@@ -103,12 +103,12 @@ void Stage::setStateManualReady() {
 
 void Stage::setStateManualDrive() {
 	state->state = STATE_MANUAL_DRIVE;
-	state->data.manual_drive = {}; // FIXME
+	state->data.manual_drive = {};  // FIXME
 }
 
 void Stage::setStateManualBrake() {
 	state->state = STATE_MANUAL_BRAKE;
-	state->data.manual_brake = {}; // FIXME
+	state->data.manual_brake = {};  // FIXME
 }
 
 /***** Stage states *******/
@@ -223,8 +223,8 @@ void Stage::emergencyStop() {
 	outer->setSpeed(0);
 
 	while (Buttons::e_stop.engaged()) {
-        // loop endlessly and do nothing until emergency
-        // stop buttons are all disengaged
+		// loop endlessly and do nothing until emergency
+		// stop buttons are all disengaged
 	}
 
 	state->state = STATE_RUN_READY;
