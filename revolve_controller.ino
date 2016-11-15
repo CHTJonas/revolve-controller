@@ -67,7 +67,7 @@ void loop() {
 	case STARTUP:
 
 		// Wait for both switches
-		while (digitalRead(GO) || digitalRead(DMH)) {
+		while (!InputButtonsInterface::dmhEngaged() && !InputButtonsInterface::goEngaged()) {
 		}
 
 		// Start homing

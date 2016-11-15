@@ -3,8 +3,8 @@
 #include <EEPROM.h>
 
 Stage::Stage(
-    State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
-      : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
+	State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
+	: state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
@@ -38,7 +38,7 @@ void Stage::setStateReady() {
 }
 
 void Stage::setupDrive(
-    int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel) {
+	int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel) {
 	double kp, currentPosition, setPosition, currentSpeed = 0.;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
@@ -46,7 +46,7 @@ void Stage::setupDrive(
 	auto directionBoolean = wheel->getDir() == FORWARDS;
 	revolutions += (directionBoolean == (position < inner->displayPos()));
 	setPosition =
-	    currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
+		currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
 
 	speed = clamp(abs(speed), MINSPEED + 1, 100);
 	acceleration = clamp(abs(acceleration), 1, MAXACCEL);
@@ -62,7 +62,7 @@ void Stage::setupDrive(
 void Stage::setStateDrive() {
 	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
 	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
+	state->data.run_drive = { .innerData = { 0, 0, 0, 0, 0, nullptr },.outerData = { 0, 0, 0, 0, 0, nullptr } };
 	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
 	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
 }
@@ -91,9 +91,9 @@ void Stage::drive() {
 	auto outerDriveData = state->data.run_drive.outerData;
 
 	auto inner_done =
-	    innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
+		innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
 	auto outer_done =
-	    outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
+		outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
 	if (inner_done && outer_done) {
 		setStateReady();
@@ -102,23 +102,25 @@ void Stage::drive() {
 
 	if (!inner_done) {
 		spin_revolve(
-		    &innerDriveData.currentPosition,
-		    &innerDriveData.currentSpeed,
-		    innerDriveData.tenths_accel,
-		    innerDriveData.pid,
-		    inner);
-	} else {
+			&innerDriveData.currentPosition,
+			&innerDriveData.currentSpeed,
+			innerDriveData.tenths_accel,
+			innerDriveData.pid,
+			inner);
+	}
+	else {
 		inner->setSpeed(0);
 	}
 
 	if (!outer_done) {
 		spin_revolve(
-		    &outerDriveData.currentPosition,
-		    &outerDriveData.currentSpeed,
-		    outerDriveData.tenths_accel,
-		    outerDriveData.pid,
-		    outer);
-	} else {
+			&outerDriveData.currentPosition,
+			&outerDriveData.currentSpeed,
+			outerDriveData.tenths_accel,
+			outerDriveData.pid,
+			outer);
+	}
+	else {
 		outer->setSpeed(0);
 	}
 }
@@ -130,12 +132,12 @@ void Stage::brake() {
 	}
 
 	const unsigned long inner_speed = state->data.run_brake.inner_at_speed
-	    ? 0UL
-	    : state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+		? 0UL
+		: state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
 	const unsigned long outer_speed = state->data.run_brake.outer_at_speed
-	    ? 0UL
-	    : state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+		? 0UL
+		: state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
 	state->data.run_brake.inner_at_speed = (inner_speed == 0);
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
@@ -154,7 +156,8 @@ bool Stage::checkEstops() {
 	if (InputButtonsInterface::eStopsEngaged()) {
 		emergencyStop();
 		return true;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
@@ -182,7 +185,7 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 	// Limit acceleration
 	if (wheel->tenths >= 1) {
 		const auto allowedSpeed =
-		    clamp(*currentSpeed, wheel->cur_speed - tenths_accel, wheel->cur_speed + tenths_accel);
+			clamp(*currentSpeed, wheel->cur_speed - tenths_accel, wheel->cur_speed + tenths_accel);
 		wheel->setSpeed(allowedSpeed);
 		wheel->tenths = 0;
 	}
@@ -281,7 +284,7 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 
 			// TODO check this
 			// below code was origianlly only in E-Stops
-			if (digitalRead(DMH) == LOW && digitalRead(GO) == LOW) {
+			if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 				wheel->setSpeed(HOMESPEED);
 			}
 		}

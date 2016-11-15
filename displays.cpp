@@ -594,9 +594,9 @@ void Displays::drawInfo() const {
 	case HARDWARETEST:
 		info.setFont(xlarge_font);
 
-		if (digitalRead(GO) == LOW) {
+		if (InputButtonsInterface::goEngaged()) {
 			drawStrCenter(info, 40, "GO");
-		} else if (digitalRead(DMH) == LOW) {
+		} else if (InputButtonsInterface::dmhEngaged()) {
 			drawStrCenter(info, 40, "DMH");
 		} else if (digitalRead(BACK) == HIGH) {
 			drawStrCenter(info, 40, "BACK");

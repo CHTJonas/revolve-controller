@@ -1,4 +1,5 @@
 #include "OutputLedInterface.h"
+#include "InputButtonsInterface.h"
 
 OutputLedInterface::OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
@@ -71,7 +72,7 @@ void OutputLedInterface::keypadLedsColor(int r, int g, int b) const {
 }
 
 void OutputLedInterface::updatePauseLeds() const {
-	if (digitalRead(DMH) == LOW) {
+	if (InputButtonsInterface::dmhEngaged()) {
 		pauseLedsColor(0, 255, 0);
 	} else {
 		pauseLedsColor(255, 0, 0);
