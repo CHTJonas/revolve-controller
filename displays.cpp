@@ -148,7 +148,7 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 
 	// Only draw if enabled
 	if (mode == MAN || (mode != MAN && interface.cueParams[2] == 1)) {
-		drawWheelCueDetails(lcd, &(values[4]), cursorEnable, menu_pos_shift, 32, "OUTER");
+		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 32, "OUTER");
 	}
 
 }
