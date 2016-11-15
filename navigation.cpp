@@ -30,8 +30,8 @@ void Navigation::loop() {
 
 			switch (menu_pos) {
 			case 0:
-				state->state = STATE_MANUAL;
-				state->data.manual = {};
+				state->state = STATE_MANUAL_READY;
+				state->data.manual_ready = {};
 				displays->setMode();
 				break;
 			case 1:
@@ -58,11 +58,9 @@ void Navigation::loop() {
 		break;
 
 	// Manual control
-	case STATE_MANUAL:
+	case STATE_MANUAL_READY:
 		// Update selection screen
-		if (interface->updateMenu(9)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(9);
 
 		if (Buttons::back.engaged()) {
 			// Reset menu_pos and change mode
@@ -73,12 +71,6 @@ void Navigation::loop() {
 		}
 
 		updateSetting(manualLimiter, MANUAL);
-
-		// Move to required position if Go and Pause pressed
-		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-			// Move
-			// stage->gotoPos();
-		}
 		break;
 
 	// Mode to edit cue stack

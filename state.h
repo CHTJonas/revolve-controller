@@ -17,7 +17,12 @@ enum StateEnum {
 	STATE_MAINMENU,
 	STATE_HOMING_INPROGRESS,
 	STATE_HOMING_COMPLETE,
-	STATE_MANUAL,
+	STATE_MANUAL_READY,
+	STATE_MANUAL_DRIVE,
+	STATE_MANUAL_BRAKE,
+	STATE_RUN_READY,
+	STATE_RUN_DRIVE,
+	STATE_RUN_BRAKE,
 	STATE_SHOW,
 	STATE_PROGRAM_MAIN,
 	STATE_PROGRAM_MOVEMENTS,
@@ -35,9 +40,6 @@ enum StateEnum {
 	STATE_KPSETTINGS,
 	STATE_RESET_CUESTACK,
 	STATE_CUESTACK_BACKUP,
-	STATE_RUN_READY,
-	STATE_RUN_DRIVE,
-	STATE_RUN_BRAKE,
 	STATE_DEBUG,
 };
 
@@ -61,13 +63,15 @@ typedef struct State {
 			bool outer_at_speed;
 		} run_brake;
 		struct {
-		} startup;
+		} manual_ready;
+		struct {
+		} manual_drive;
+		struct {
+		} manual_brake;
 		struct {
 		} homing_inprogress;
 		struct {
 		} homing_complete;
-		struct {
-		} manual;
 		struct {
 		} show;
 		struct {

@@ -22,9 +22,13 @@ public:
 	void home_wheel(Revolve* wheel, int wheelPin);
 	void gotoHome();
 	void emergencyStop();
-	void ready();
-	void brake();
-	void drive();
+	void run_ready();
+	void run_brake();
+	void run_drive();
+	void manual_ready();
+	void manual_drive();
+	void manual_brake();
+
 	bool checkEstops();
 
 	void setupPid(int maxSpeed, double kp, DriveData* data, Revolve* wheel);
@@ -45,7 +49,10 @@ private:
 
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
 
-	void setStateReady();
-	void setStateDrive();
-	void setStateBrake();
+	void setStateRunReady();
+	void setStateRunDrive();
+	void setStateRunBrake();
+	void setStateManualReady();
+	void setStateManualDrive();
+	void setStateManualBrake();
 };
