@@ -3,6 +3,7 @@
 
 class Menu {
 public:
+<<<<<<< HEAD
 	Menu(const char* menuOptionStrings[], int numberOfOptions, U8GLIB_ST7920_128X64& screen);
     ~Menu();
     void draw();

@@ -1,5 +1,5 @@
-#include "pins.h"
 #include "navigation.h"
+#include "pins.h"
 #include "revolve_controller.h"
 #include "stage.h"
 #include "state.h"
@@ -28,10 +28,7 @@ U8GLIB_ST7920_128X64 middlescreen(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 rightscreen(32, 34, 36, U8G_PIN_NONE);
 
 // define the operational state of the machine
-State state = State{
-    .state = STATE_MAINMENU,
-    .data = {.mainmenu = {} }
-};
+State state = State{.state = STATE_MAINMENU, .data = {.mainmenu = {} } };
 
 // define the revolves
 Revolve inner(4, 5, 6, enc_inner);
@@ -51,6 +48,20 @@ Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
 
 // define the navigation
 Navigation navigation(&state, &cuestack, &interface, &displays, &stage);
+
+// Please leave these here, they are to work around a bug in arduino-builder
+void setup();
+void loop();
+char* encodeCue(Cue cue);
+void updateFlags();
+void goToCurrentCue(int target_mode);
+void updateSetting(void (*settingLimiter)(void), int mode);
+void brightnessLimiter();
+void encoderLimiter();
+void eepromLimiter();
+void kpLimiter();
+void manualLimiter();
+void movementLimiter();
 
 void setup() {
 	Timer1.initialize(100000);

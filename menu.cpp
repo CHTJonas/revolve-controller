@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "constants.h"
 
+<<<<<<< HEAD
 #include "interface.h"
 #include "revolve.h"
 #include "state.h"
@@ -23,7 +24,7 @@ Menu::Menu(const char* menuOptionStrings[], int numberOfOptions, U8GLIB_ST7920_1
 }
 
 Menu::~Menu() {
-    delete[] m_menuOptionStrings;
+	delete[] m_menuOptionStrings;
 }
 
 void Menu::draw() {

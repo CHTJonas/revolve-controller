@@ -1,8 +1,8 @@
 #include "navigation.h"
-#include "revolve_controller.h"
-#include "state.h"
 #include "constants.h"
 #include "pins.h"
+#include "revolve_controller.h"
+#include "state.h"
 #include <EEPROM.h>
 
 Navigation::Navigation(State* state, Cuestack* cuestack, Interface* interface, Displays* displays, Stage* stage)
@@ -21,47 +21,29 @@ void Navigation::loop() {
 
 	// Main Menu
 	case STATE_MAINMENU:
-		// Update menu with encoder
-		if (interface->updateMenu(3)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(3);
 
 		// If select is pressed, move into appropriate mode
 		if (Buttons::select.engaged()) {
-			// Reset menu position
 			int menu_pos = interface->menu_pos;
 			interface->menu_pos = 0;
 
-			// Load current cue if required, set cursor to cuelist screen
-			if (menu_pos == 1) {
-				interface->loadCurrentCue();
-				interface->menu_pos = 2;
-			}
-
-			// Set correct menu_pos for showmode, make sure cue is loaded
-			if (menu_pos == 2) {
-				interface->loadCurrentCue();
-				interface->menu_pos = cuestack->currentCue;
-			}
-
-			// Go to required Mode
-			// FIXME: OH MY GOD THIS IS HORRIFIC
-			// state->state = STATE_KILLME
-			// state->data.killme = { true };
-			// displays->setMode();
-			// displays->setMode(menu_pos + 3);
 			switch (menu_pos) {
 			case 0:
-				state->state = STATE_MANUAL;
-				state->data.manual = {};
+				state->state = STATE_MANUAL_READY;
+				state->data.manual_ready = {};
 				displays->setMode();
 				break;
 			case 1:
+				interface->loadCurrentCue();
+				interface->menu_pos = 2;
 				state->state = STATE_PROGRAM_MAIN;
 				state->data.program_main = {};
 				displays->setMode();
 				break;
 			case 2:
+				interface->loadCurrentCue();
+				interface->menu_pos = cuestack->currentCue;
 				state->state = STATE_SHOW;
 				state->data.show = {};
 				displays->setMode();
@@ -76,11 +58,8 @@ void Navigation::loop() {
 		break;
 
 	// Manual control
-	case STATE_MANUAL:
-		// Update selection screen
-		if (interface->updateMenu(9)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+	case STATE_MANUAL_READY:
+		interface->updateMenu(9);
 
 		if (Buttons::back.engaged()) {
 			// Reset menu_pos and change mode
@@ -91,36 +70,28 @@ void Navigation::loop() {
 		}
 
 		updateSetting(manualLimiter, MANUAL);
+		break;
 
-		// Move to required position if Go and Pause pressed
-		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-			// Move
-			// stage->gotoPos();
+	case STATE_PROGRAM_SAVED:
+		if (millis() > state->data.program_saved.time + 1000) {
+			state->state = STATE_MAINMENU;
+			state->data.mainmenu = {};
+			displays->setMode();
 		}
 		break;
 
 	// Mode to edit cue stack
 	case STATE_PROGRAM_MAIN:
-		// Update menu and displays
-		if (interface->updateMenu(2)) {
-			displays->forceUpdateDisplays(1, 1, 1, 0);
-		}
+		interface->updateMenu(2);
 
 		if (Buttons::back.engaged()) {
 			// Save Cuestack
 			cuestack->saveCuestack();
 
-			// Show saved message (without using delay)
-			state->state = STATE_PROGRAM_SAVED;
-			state->data.program_saved = {};
-			displays->setMode();
-			auto startTime = millis();
-			while (millis() < startTime + 1000) {
-			}
-
 			interface->menu_pos = 0;
-			state->state = STATE_MAINMENU;
-			state->data.mainmenu = {};
+
+			state->state = STATE_PROGRAM_SAVED;
+			state->data.program_saved = { millis() };
 			displays->setMode();
 		}
 
@@ -149,19 +120,14 @@ void Navigation::loop() {
 			}
 		}
 
-		goToCurrentCue(PROGRAM);
 		break;
 
 	case STATE_PROGRAM_MOVEMENTS:
 		if (interface->cueParams[1] == 0 ||
 		    interface->cueParams[2] == 0) {  // If either half disabled for this cue
-			if (interface->updateMenu(4)) {
-				displays->forceUpdateDisplays(1, 0, 0, 0);
-			}
+			interface->updateMenu(4);
 		} else {
-			if (interface->updateMenu(9)) {
-				displays->forceUpdateDisplays(1, 0, 0, 0);
-			}
+			interface->updateMenu(9);
 		}
 
 		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);

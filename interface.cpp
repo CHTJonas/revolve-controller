@@ -1,6 +1,6 @@
 #include "interface.h"
-#include "utils.h"
 #include "pins.h"
+#include "utils.h"
 #include <EEPROM.h>
 
 Interface::Interface(

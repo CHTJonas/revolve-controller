@@ -1,7 +1,7 @@
 #include "displays.h"
 #include "logo.h"
-#include "state.h"
 #include "pins.h"
+#include "state.h"
 #include "strings.h"
 
 // Constructor
@@ -77,7 +77,7 @@ void Displays::drawWheelCueDetails(
 
 	// Position
 	lcd.drawStr(lcd.getStrWidth(revolveName) + 6, yOffset + 9, "Position: ");
-	lcd.setPrintPos(lcd.getStrWidth("INNERPosition:") + 4, yOffset + 9);
+	lcd.setPrintPos(lcd.getStrWidth("INNERPosition: ") + 4, yOffset + 9);
 
 	if (cursorEnable && menu_pos == 0) {
 		lcd.drawBox(lcd.getStrWidth("INNERPosition: ") + 3, yOffset + 1, 19, 9);
@@ -135,18 +135,18 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 	lcd.setFont(font);
 
 	auto menu_pos_shift = interface.menu_pos;
-	if (state->state != STATE_MANUAL && interface.cueParams[1] == 0) {
+	if (state->state != STATE_MANUAL_READY && interface.cueParams[1] == 0) {
 		// Shift menu_pos by 5 if inner disabled
 		menu_pos_shift += 5;
 	}
 
 	// Only draw if enabled
-	if (state->state == STATE_MANUAL || (state->state != MAN && interface.cueParams[1] == 1)) {
+	if (state->state == STATE_MANUAL_READY || (state->state != MAN && interface.cueParams[1] == 1)) {
 		drawWheelCueDetails(lcd, &(values[0]), cursorEnable, menu_pos_shift, 0, "INNER");
 	}
 
 	// Only draw if enabled
-	if (state->state == STATE_MANUAL || (state->state != STATE_MANUAL && interface.cueParams[2] == 1)) {
+	if (state->state == STATE_MANUAL_READY || (state->state != STATE_MANUAL_READY && interface.cueParams[2] == 1)) {
 		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 32, "OUTER");
 	}
 }
@@ -357,7 +357,7 @@ void Displays::drawCentreDisplay() const {
 		}
 		break;
 
-	case STATE_MANUAL:
+	case STATE_MANUAL_READY:
 		drawCueLayout(displayCentre, interface.currentMovements, 1);
 		break;
 
@@ -570,7 +570,7 @@ void Displays::drawRightDisplay() const {
 		drawStrCentre(displayRight, 48, "to continue");
 		break;
 
-	case STATE_MANUAL:
+	case STATE_MANUAL_READY:
 	case STATE_SHOW:
 	case STATE_PROGRAM_GOTOCUE:
 		displayRight.setFont(large_font);
@@ -640,7 +640,7 @@ void Displays::updateRingLeds() {
 		interface.leds.ringLedsColor(255, 0, 0);
 		break;
 
-	case STATE_MANUAL:
+	case STATE_MANUAL_READY:
 	case STATE_SHOW:
 	case STATE_PROGRAM_GOTOCUE:
 		ledOuter = outer.displayPos();

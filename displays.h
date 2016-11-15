@@ -1,9 +1,9 @@
 #pragma once
 #include "interface.h"
+#include "menu.h"
 #include "revolve.h"
 #include "state.h"
 #include "strings.h"
-#include "menu.h"
 #include <U8glib.h>
 
 class Displays {

@@ -1,6 +1,7 @@
 #include "stage.h"
-#include "utils.h"
 #include "pins.h"
+#include "revolve_controller.h"
+#include "utils.h"
 #include <EEPROM.h>
 
 Stage::Stage(
@@ -16,28 +17,42 @@ void Stage::loop() {
 
 	case STATE_RUN_READY:
 		checkEstops();
-		ready();
+		run_ready();
 		break;
 
 	case STATE_RUN_DRIVE:
 		checkEstops();
-		drive();
+		run_drive();
 		break;
 
 	case STATE_RUN_BRAKE:
 		checkEstops();
-		brake();
+		run_brake();
+		break;  // but not break the brake. Because that'd be bad. Probably...
+
+	case STATE_MANUAL_READY:
+		checkEstops();
+		manual_ready();
+		break;
+
+	case STATE_MANUAL_DRIVE:
+		checkEstops();
+		manual_drive();
+		break;
+
+	case STATE_MANUAL_BRAKE:
+		checkEstops();
+		manual_brake();
+		break;
+
+	case STATE_PROGRAM_MAIN:
+		checkEstops();
+		goToCurrentCue(PROGRAM);
 		break;
 
 	default:
 		break;
 	}
-}
-
-/***** Set stage states **********/
-void Stage::setStateReady() {
-	state->state = STATE_RUN_READY;
-	state->data.run_ready = {};
 }
 
 void Stage::setupDrive(
@@ -62,7 +77,13 @@ void Stage::setupDrive(
 	setupPid(speed, kp, data, wheel);
 }
 
-void Stage::setStateDrive() {
+/***** Set stage states **********/
+void Stage::setStateRunReady() {
+	state->state = STATE_RUN_READY;
+	state->data.run_ready = {};
+}
+
+void Stage::setStateRunDrive() {
 	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
 	state->state = STATE_RUN_DRIVE;
 	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
@@ -70,23 +91,38 @@ void Stage::setStateDrive() {
 	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
 }
 
-void Stage::setStateBrake() {
+void Stage::setStateRunBrake() {
 	state->state = STATE_RUN_BRAKE;
 	state->data.run_brake = { millis(), inner->getSpeed(), outer->getSpeed(), false, false };
 }
 
+void Stage::setStateManualReady() {
+	state->state = STATE_MANUAL_READY;
+	state->data.manual_ready = {};
+}
+
+void Stage::setStateManualDrive() {
+	state->state = STATE_MANUAL_DRIVE;
+	state->data.manual_drive = {};  // FIXME
+}
+
+void Stage::setStateManualBrake() {
+	state->state = STATE_MANUAL_BRAKE;
+	state->data.manual_brake = {};  // FIXME
+}
+
 /***** Stage states *******/
 
-void Stage::ready() {
+void Stage::run_ready() {
 	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-		setStateDrive();
+		setStateRunDrive();
 		return;
 	}
 }
 
-void Stage::drive() {
+void Stage::run_drive() {
 	if (!Buttons::dmh.engaged()) {
-		setStateBrake();
+		setStateRunBrake();
 		return;
 	}
 
@@ -99,7 +135,7 @@ void Stage::drive() {
 	    outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
 	if (inner_done && outer_done) {
-		setStateReady();
+		setStateRunReady();
 		return;
 	}
 
@@ -126,9 +162,9 @@ void Stage::drive() {
 	}
 }
 
-void Stage::brake() {
+void Stage::run_brake() {
 	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-		setStateDrive();
+		setStateRunDrive();
 		return;
 	}
 
@@ -144,11 +180,33 @@ void Stage::brake() {
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
 
 	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
-		setStateReady();
+		setStateRunReady();
 	}
 
 	inner->setSpeed(inner_speed);
 	outer->setSpeed(outer_speed);
+}
+
+void Stage::manual_ready() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateManualDrive();
+	}
+}
+
+void Stage::manual_drive() {
+	if (!Buttons::dmh.engaged()) {
+		setStateManualBrake();
+	}
+
+	// FIXME: move
+}
+
+void Stage::manual_brake() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateManualDrive();
+	}
+
+	// FIXME: stop
 }
 
 bool Stage::checkEstops() {
@@ -165,8 +223,8 @@ void Stage::emergencyStop() {
 	outer->setSpeed(0);
 
 	while (Buttons::e_stop.engaged()) {
-        // loop endlessly and do nothing until emergency
-        // stop buttons are all disengaged
+		// loop endlessly and do nothing until emergency
+		// stop buttons are all disengaged
 	}
 
 	state->state = STATE_RUN_READY;
