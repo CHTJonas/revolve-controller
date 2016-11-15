@@ -1,3 +1,4 @@
+#include "pins.h"
 #include "navigation.h"
 #include "revolve_controller.h"
 #include "stage.h"
@@ -5,58 +6,51 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
+// define the keypad
 char keys[4][3] = { { '1', '2', '3' }, { '4', '5', '6' }, { '7', '8', '9' }, { '*', '0', '#' } };
 byte ROWS[4] = { KEY1, KEY2, KEY3, KEY4 };
 byte COLS[3] = { KEY5, KEY6, KEY7 };
 Keypad keypad = Keypad(makeKeymap(keys), ROWS, COLS, 4, 3);
 
+// define the front-panel LEDs
 Adafruit_NeoPixel pauseLeds = Adafruit_NeoPixel(2, PAUSELEDS, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel ringLeds = Adafruit_NeoPixel(24, RINGLEDS, NEO_RGB + NEO_KHZ800);
 Adafruit_NeoPixel keypadLeds = Adafruit_NeoPixel(4, KEYPADLEDS, NEO_GRB + NEO_KHZ800);
 
+// define the inner & outer revolve encoders
 Encoder enc_inner(INNERENC1, INNERENC2);
 Encoder enc_outer(OUTERENC1, OUTERENC2);
 Encoder enc_input(INPUTENC1, INPUTENC2);
 
-U8GLIB_ST7920_128X64 cue1(22, 24, 26, U8G_PIN_NONE);
-U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
-U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
+// define the three LCD screens
+U8GLIB_ST7920_128X64 leftscreen(22, 24, 26, U8G_PIN_NONE);
+U8GLIB_ST7920_128X64 middlescreen(23, 25, 27, U8G_PIN_NONE);
+U8GLIB_ST7920_128X64 rightscreen(32, 34, 36, U8G_PIN_NONE);
 
-State state = State{.state = STATE_MAINMENU, .data = {.mainmenu = {} } };
+// define the operational state of the machine
+State state = State{
+    .state = STATE_MAINMENU,
+    .data = {.mainmenu = {} }
+};
+
+// define the revolves
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
+
+// define the cuestack
 Cuestack cuestack;
+
+// define the control interface
 Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
-Displays displays(&state, cue1, menu, info, ringLeds, inner, outer, keypad, interface, cuestack);
+
+// define the displays
+Displays displays(&state, leftscreen, middlescreen, rightscreen, ringLeds, inner, outer, keypad, interface, cuestack);
+
+// define the stage
 Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
+
+// define the navigation
 Navigation navigation(&state, &cuestack, &interface, &displays, &stage);
-
-void setup();
-void loop();
-
-char* encodeCue(Cue cue);
-void updateFlags();
-void goToCurrentCue(int target_mode);
-void updateSetting(void (*settingLimiter)(void), int mode);
-void brightnessLimiter();
-void encoderLimiter();
-void eepromLimiter();
-void kpLimiter();
-void manualLimiter();
-void movementLimiter();
-void setup();
-void loop();
-
-char* encodeCue(Cue cue);
-void updateFlags();
-void goToCurrentCue(int target_mode);
-void updateSetting(void (*settingLimiter)(void), int mode);
-void brightnessLimiter();
-void encoderLimiter();
-void eepromLimiter();
-void kpLimiter();
-void manualLimiter();
-void movementLimiter();
 
 void setup() {
 	Timer1.initialize(100000);
@@ -78,7 +72,7 @@ void loop() {
 }
 
 void goToCurrentCue(int target_mode) {
-	// Goto current cue if Go and Pause pressed
+	// Goto current cue if Go pressed and dead-man's handle is also pressed
 	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
 		// Update displays to show realtime position
 		state.state = STATE_PROGRAM_GOTOCUE;
@@ -172,13 +166,12 @@ void updateFlags() {
 }
 
 char* encodeCue(Cue cue) {
-	auto cue_bytes = reinterpret_cast<char*>(&cue);
-	auto encoded = new char[(sizeof cue) * 2 + 1];
+	char* cue_bytes = reinterpret_cast<char*>(&cue);
+	char* encoded = new char[(sizeof cue) * 2 + 1];
 	for (size_t i = 0; i < sizeof cue; i++) {
 		encoded[2 * i] = cue_bytes[i] | 0x0f;
 		encoded[2 * i + 1] = cue_bytes[i] | 0xf0;
 	}
-
 	encoded[(sizeof cue) * 2] = '\0';
 	return encoded;
 }

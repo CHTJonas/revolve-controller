@@ -1,5 +1,6 @@
 #include "OutputLedInterface.h"
 #include "buttons.h"
+#include "pins.h"
 
 OutputLedInterface::OutputLedInterface(
     Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)

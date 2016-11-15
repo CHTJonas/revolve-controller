@@ -1,5 +1,6 @@
 #include "interface.h"
 #include "utils.h"
+#include "pins.h"
 #include <EEPROM.h>
 
 Interface::Interface(
@@ -45,7 +46,7 @@ bool Interface::editVars(int mode) {
 	// Check if keypad not in use and if key has been pressed
 	input.updateKeypad();
 
-	auto delta = false, change = false;
+	bool delta = false, change = false;
 
 	if (input.usingKeypad) {
 		auto pressedKey = input.getKey();
@@ -131,7 +132,7 @@ void Interface::limitEncSettings() {
 }
 
 void Interface::limitKpSettings() {
-	for (auto i = 0; i < 6; i++) {
+	for (int i = 0; i < 6; i++) {
 		kpSettings[i] = clamp(kpSettings[i], 0.000, 9.999);
 	}
 }

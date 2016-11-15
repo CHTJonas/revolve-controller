@@ -1,6 +1,8 @@
 #include "navigation.h"
 #include "revolve_controller.h"
 #include "state.h"
+#include "constants.h"
+#include "pins.h"
 #include <EEPROM.h>
 
 Navigation::Navigation(State* state, Cuestack* cuestack, Interface* interface, Displays* displays, Stage* stage)
