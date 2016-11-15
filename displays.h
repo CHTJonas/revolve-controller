@@ -66,7 +66,7 @@ private:
 	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
 
 	// define the actual menus
-	const Menu mainMenu = Menu(menu_strings, 4, displayCentre);
+	const Menu mainMenu = Menu(menu_strings, 4, displayCentre, interface);
 	// const Menu settingsMenu = Menu(settings_strings, 8);
 	// const Menu encoderMenu = Menu(enc_settings_strings, 4);
 	// const Menu ledMenu = Menu(led_settings_strings, 4);

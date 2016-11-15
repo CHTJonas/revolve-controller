@@ -1,17 +1,18 @@
 #pragma once
 #include <U8glib.h>
+#include "interface.h"
 
 class Menu {
 public:
-	Menu(const char* menuOptionStrings[], int numberOfOptions, U8GLIB_ST7920_128X64& screen);
+	Menu(const char* menuOptionStrings[], int numberOfOptions, U8GLIB_ST7920_128X64& screen, Interface& interface);
     ~Menu();
     void draw();
 
 private:
     U8GLIB_ST7920_128X64& m_screen;
+    Interface& m_interface;
     int m_numberOfOptions;
     char** m_menuOptionStrings;
-    Menu& m_nextMenu;
     void drawStrCentre(int y, const char* text);
     void drawStrCentre(int y, char text);
 
