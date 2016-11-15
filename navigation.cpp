@@ -20,9 +20,7 @@ void Navigation::loop() {
 	// Main Menu
 	case STATE_MAINMENU:
 		// Update menu with encoder
-		if (interface->updateMenu(3)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(3);
 
 		// If select is pressed, move into appropriate mode
 		if (Buttons::select.engaged()) {
@@ -30,24 +28,6 @@ void Navigation::loop() {
 			int menu_pos = interface->menu_pos;
 			interface->menu_pos = 0;
 
-			// Load current cue if required, set cursor to cuelist screen
-			if (menu_pos == 1) {
-				interface->loadCurrentCue();
-				interface->menu_pos = 2;
-			}
-
-			// Set correct menu_pos for showmode, make sure cue is loaded
-			if (menu_pos == 2) {
-				interface->loadCurrentCue();
-				interface->menu_pos = cuestack->currentCue;
-			}
-
-			// Go to required Mode
-			// FIXME: OH MY GOD THIS IS HORRIFIC
-			// state->state = STATE_KILLME
-			// state->data.killme = { true };
-			// displays->setMode();
-			// displays->setMode(menu_pos + 3);
 			switch (menu_pos) {
 			case 0:
 				state->state = STATE_MANUAL;
@@ -55,11 +35,15 @@ void Navigation::loop() {
 				displays->setMode();
 				break;
 			case 1:
+				interface->loadCurrentCue();
+				interface->menu_pos = 2;
 				state->state = STATE_PROGRAM_MAIN;
 				state->data.program_main = {};
 				displays->setMode();
 				break;
 			case 2:
+				interface->loadCurrentCue();
+				interface->menu_pos = cuestack->currentCue;
 				state->state = STATE_SHOW;
 				state->data.show = {};
 				displays->setMode();
