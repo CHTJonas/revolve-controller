@@ -1,6 +1,6 @@
 #pragma once
 #include "interface.h"
-
+#include "menu.h"
 #include "revolve.h"
 #include "state.h"
 #include "strings.h"
