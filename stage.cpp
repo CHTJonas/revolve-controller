@@ -1,44 +1,62 @@
 #include "stage.h"
+#include "pins.h"
+#include "revolve_controller.h"
 #include "utils.h"
 #include <EEPROM.h>
 
 Stage::Stage(
-	State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
-	: state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
+    State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)
+      : state(state), inner(inner), outer(outer), displays(displays), interface(interface), ringLeds(ringLeds) {
 	updateEncRatios();
 	updateKpSettings();
 }
 
-void Stage::step() {
-	checkEstops();
+void Stage::loop() {
 
 	switch (state->state) {
 
 	case STATE_RUN_READY:
-		ready();
+		checkEstops();
+		run_ready();
 		break;
 
 	case STATE_RUN_DRIVE:
-		drive();
+		checkEstops();
+		run_drive();
 		break;
 
 	case STATE_RUN_BRAKE:
-		brake();
+		checkEstops();
+		run_brake();
 		break;  // but not break the brake. Because that'd be bad. Probably...
+
+	case STATE_MANUAL_READY:
+		checkEstops();
+		manual_ready();
+		break;
+
+	case STATE_MANUAL_DRIVE:
+		checkEstops();
+		manual_drive();
+		break;
+
+	case STATE_MANUAL_BRAKE:
+		checkEstops();
+		manual_brake();
+		break;
+
+	case STATE_PROGRAM_MAIN:
+		checkEstops();
+		goToCurrentCue(PROGRAM);
+		break;
 
 	default:
 		break;
 	}
 }
 
-/***** Set stage states **********/
-void Stage::setStateReady() {
-	state->state = STATE_RUN_READY;
-	state->data.run_ready = {};
-}
-
 void Stage::setupDrive(
-	int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel) {
+    int position, int speed, int acceleration, int direction, int revolutions, DriveData* data, Revolve* wheel) {
 	double kp, currentPosition, setPosition, currentSpeed = 0.;
 	currentPosition = wheel->getPos();
 	wheel->setDir(direction);
@@ -46,7 +64,7 @@ void Stage::setupDrive(
 	auto directionBoolean = wheel->getDir() == FORWARDS;
 	revolutions += (directionBoolean == (position < inner->displayPos()));
 	setPosition =
-		currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
+	    currentPosition + position - inner->displayPos() + (directionBoolean ? 1 : -1) * 360 * revolutions;
 
 	speed = clamp(abs(speed), MINSPEED + 1, 100);
 	acceleration = clamp(abs(acceleration), 1, MAXACCEL);
@@ -59,31 +77,52 @@ void Stage::setupDrive(
 	setupPid(speed, kp, data, wheel);
 }
 
-void Stage::setStateDrive() {
+/***** Set stage states **********/
+void Stage::setStateRunReady() {
+	state->state = STATE_RUN_READY;
+	state->data.run_ready = {};
+}
+
+void Stage::setStateRunDrive() {
 	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
 	state->state = STATE_RUN_DRIVE;
-	state->data.run_drive = { .innerData = { 0, 0, 0, 0, 0, nullptr },.outerData = { 0, 0, 0, 0, 0, nullptr } };
+	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
 	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
 	setupDrive(cue.pos_o, cue.speed_o, cue.acc_o, cue.dir_o, cue.revs_o, &state->data.run_drive.outerData, outer);
 }
 
-void Stage::setStateBrake() {
+void Stage::setStateRunBrake() {
 	state->state = STATE_RUN_BRAKE;
 	state->data.run_brake = { millis(), inner->getSpeed(), outer->getSpeed(), false, false };
 }
 
+void Stage::setStateManualReady() {
+	state->state = STATE_MANUAL_READY;
+	state->data.manual_ready = {};
+}
+
+void Stage::setStateManualDrive() {
+	state->state = STATE_MANUAL_DRIVE;
+	state->data.manual_drive = {};  // FIXME
+}
+
+void Stage::setStateManualBrake() {
+	state->state = STATE_MANUAL_BRAKE;
+	state->data.manual_brake = {};  // FIXME
+}
+
 /***** Stage states *******/
 
-void Stage::ready() {
-	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
-		setStateDrive();
+void Stage::run_ready() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateRunDrive();
 		return;
 	}
 }
 
-void Stage::drive() {
-	if (!InputButtonsInterface::dmhEngaged()) {
-		setStateBrake();
+void Stage::run_drive() {
+	if (!Buttons::dmh.engaged()) {
+		setStateRunBrake();
 		return;
 	}
 
@@ -91,73 +130,90 @@ void Stage::drive() {
 	auto outerDriveData = state->data.run_drive.outerData;
 
 	auto inner_done =
-		innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
+	    innerDriveData.directionBoolean != (innerDriveData.currentPosition < innerDriveData.setPosition);
 	auto outer_done =
-		outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
+	    outerDriveData.directionBoolean != (outerDriveData.currentPosition < outerDriveData.setPosition);
 
 	if (inner_done && outer_done) {
-		setStateReady();
+		setStateRunReady();
 		return;
 	}
 
 	if (!inner_done) {
 		spin_revolve(
-			&innerDriveData.currentPosition,
-			&innerDriveData.currentSpeed,
-			innerDriveData.tenths_accel,
-			innerDriveData.pid,
-			inner);
-	}
-	else {
+		    &innerDriveData.currentPosition,
+		    &innerDriveData.currentSpeed,
+		    innerDriveData.tenths_accel,
+		    innerDriveData.pid,
+		    inner);
+	} else {
 		inner->setSpeed(0);
 	}
 
 	if (!outer_done) {
 		spin_revolve(
-			&outerDriveData.currentPosition,
-			&outerDriveData.currentSpeed,
-			outerDriveData.tenths_accel,
-			outerDriveData.pid,
-			outer);
-	}
-	else {
+		    &outerDriveData.currentPosition,
+		    &outerDriveData.currentSpeed,
+		    outerDriveData.tenths_accel,
+		    outerDriveData.pid,
+		    outer);
+	} else {
 		outer->setSpeed(0);
 	}
 }
 
-void Stage::brake() {
-	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
-		setStateDrive();
+void Stage::run_brake() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateRunDrive();
 		return;
 	}
 
 	const unsigned long inner_speed = state->data.run_brake.inner_at_speed
-		? 0UL
-		: state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+	    ? 0UL
+	    : state->data.run_brake.inner_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
 	const unsigned long outer_speed = state->data.run_brake.outer_at_speed
-		? 0UL
-		: state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
+	    ? 0UL
+	    : state->data.run_brake.outer_start_speed - (millis() - state->data.run_brake.start_time) * acceleration;
 
 	state->data.run_brake.inner_at_speed = (inner_speed == 0);
 	state->data.run_brake.outer_at_speed = (outer_speed == 0);
 
 	if (state->data.run_brake.inner_at_speed && state->data.run_brake.outer_at_speed) {
-		setStateReady();
+		setStateRunReady();
 	}
 
 	inner->setSpeed(inner_speed);
 	outer->setSpeed(outer_speed);
 }
 
-/***** Emergency Stop *****/
+void Stage::manual_ready() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateManualDrive();
+	}
+}
+
+void Stage::manual_drive() {
+	if (!Buttons::dmh.engaged()) {
+		setStateManualBrake();
+	}
+
+	// FIXME: move
+}
+
+void Stage::manual_brake() {
+	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+		setStateManualDrive();
+	}
+
+	// FIXME: stop
+}
 
 bool Stage::checkEstops() {
-	if (InputButtonsInterface::eStopsEngaged()) {
+	if (Buttons::e_stop.engaged()) {
 		emergencyStop();
 		return true;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
@@ -166,16 +222,14 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	displays->setMode(ESTOP);  // TODO
-
-	// hold until we're ready to go again
-	while (InputButtonsInterface::eStopsEngaged()) {
+	while (Buttons::e_stop.engaged()) {
+		// loop endlessly and do nothing until emergency
+		// stop buttons are all disengaged
 	}
 
 	state->state = STATE_RUN_READY;
+	state->data = {};
 }
-
-/**** Drive functions *****/
 
 void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel) {
 	// Update position and compute PID
@@ -185,7 +239,7 @@ void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double t
 	// Limit acceleration
 	if (wheel->tenths >= 1) {
 		const auto allowedSpeed =
-			clamp(*currentSpeed, wheel->cur_speed - tenths_accel, wheel->cur_speed + tenths_accel);
+		    clamp(*currentSpeed, wheel->cur_speed - tenths_accel, wheel->cur_speed + tenths_accel);
 		wheel->setSpeed(allowedSpeed);
 		wheel->tenths = 0;
 	}
@@ -248,7 +302,9 @@ void Stage::runCurrentCue() {
 /***** Wheel homing *****/
 
 void Stage::gotoHome() {
-	displays->setMode(HOMING);
+	state->state = STATE_HOMING_INPROGRESS;
+	state->data.homing_inprogress = {};
+	displays->setMode();
 
 	home_wheel(inner, INNERHOME);
 	// Set inner ring green
@@ -259,11 +315,15 @@ void Stage::gotoHome() {
 
 	home_wheel(outer, OUTERHOME);
 
-	displays->setMode(HOMED);
+	state->state = STATE_HOMING_COMPLETE;
+	state->data.homing_complete = {};
+	displays->setMode();
 	// Move back to calibrated home (will have overshot)
 	// gotoPos(); // TODO get parameters from git history
 
-	displays->setMode(NORMAL);
+	state->state = STATE_MAINMENU;
+	state->data.mainmenu = {};
+	displays->setMode();
 }
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin) {
@@ -275,10 +335,10 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 	while (digitalRead(wheelPin)) {
 
 		// Check for emergency stop
-		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
+		if (!Buttons::dmh.engaged() || Buttons::e_stop.engaged()) {
 			emergencyStop();
 
-			if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
+			if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
 				wheel->setSpeed(HOMESPEED);
 			}
 		}

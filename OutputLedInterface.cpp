@@ -1,11 +1,13 @@
 #include "OutputLedInterface.h"
-#include "InputButtonsInterface.h"
+#include "buttons.h"
+#include "pins.h"
 
-OutputLedInterface::OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
+OutputLedInterface::OutputLedInterface(
+    Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds)
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 }
 
-void OutputLedInterface::setupLeds() {
+void OutputLedInterface::setup() {
 	pinMode(ENCR, OUTPUT);
 	pinMode(ENCG, OUTPUT);
 	pinMode(ENCB, OUTPUT);
@@ -72,7 +74,7 @@ void OutputLedInterface::keypadLedsColor(int r, int g, int b) const {
 }
 
 void OutputLedInterface::updatePauseLeds() const {
-	if (InputButtonsInterface::dmhEngaged()) {
+	if (Buttons::dmh.engaged()) {
 		pauseLedsColor(0, 255, 0);
 	} else {
 		pauseLedsColor(255, 0, 0);

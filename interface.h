@@ -1,7 +1,7 @@
 #pragma once
 #include "InputInterface.h"
-#include "InputButtonsInterface.h"
 #include "OutputLedInterface.h"
+#include "buttons.h"
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
 
@@ -11,17 +11,18 @@ class Interface {
 public:
 	// Constructor
 	Interface(
-		Cuestack& cuestack,
-		Encoder& enc_input,
-		Keypad& keypad,
-		Adafruit_NeoPixel& ringLeds,
-		Adafruit_NeoPixel& pauseLeds,
-		Adafruit_NeoPixel& keypadLeds);
+	    Cuestack& cuestack,
+	    Encoder& enc_input,
+	    Keypad& keypad,
+	    Adafruit_NeoPixel& ringLeds,
+	    Adafruit_NeoPixel& pauseLeds,
+	    Adafruit_NeoPixel& keypadLeds);
+	void setup();
 
 	// Navigation and editing
 	bool updateMenu(int menuMax);
 	bool editVars(int mode);
-	void limitMovements(int(&movements)[10]) const;
+	void limitMovements(int (&movements)[10]) const;
 	void limitEncSettings();
 	void limitKpSettings();
 	void limitCueParams();
@@ -34,7 +35,6 @@ public:
 	// Cuestack
 	Cuestack& cuestack;
 
-	InputButtonsInterface buttons;
 	InputInterface input;
 	OutputLedInterface leds;
 

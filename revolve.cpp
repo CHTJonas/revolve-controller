@@ -1,5 +1,6 @@
 #include "revolve.h"
-#include "InputButtonsInterface.h"
+#include "buttons.h"
+#include "pins.h"
 
 // Constructor
 Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc) : enc(enc) {
@@ -47,7 +48,7 @@ void Revolve::waitForStop() const {
 	auto startTime = millis();  // Don't use delay so encoders catch final position
 	while (millis() < (startTime + em_stop_time)) {
 		// Break out if pause button released (revolve won't come to full stop if button briefly released)
-		if (InputButtonsInterface::dmhEngaged()) {
+		if (Buttons::dmh.engaged()) {
 			break;
 		}
 	}

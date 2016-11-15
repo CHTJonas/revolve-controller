@@ -6,7 +6,7 @@
 class OutputLedInterface {
 public:
 	OutputLedInterface(Adafruit_NeoPixel& ringLeds, Adafruit_NeoPixel& pauseLeds, Adafruit_NeoPixel& keypadLeds);
-	void setupLeds();
+	void setup();
 
 	void flashLed(int led, int interval);
 	void updatePauseLeds() const;
