@@ -615,31 +615,20 @@ void Displays::updateRingLeds() {
 	case STARTUP:
 	case HOMING:
 	case RESET_CUESTACK:
-		for (int i = 0; i < 24; i++) {
-			ringLeds.setPixelColor(i, 255, 0, 0);
-		}
-		ringLeds.show();
+		interface.leds.ringLedsColor(255, 0, 0);
 		break;
 
 	case HARDWARETEST:
-		for (int i = 0; i < 24; i++) {
-			ringLeds.setPixelColor(i, 255, 255, 255);
-		}
-		ringLeds.show();
+		interface.leds.ringLedsColor(255, 255, 255);
 		break;
+
 	case HOMED:
 	case PROGRAM_SAVED:
-		for (int i = 0; i < 24; i++) {
-			ringLeds.setPixelColor(i, 0, 255, 0);
-		}
-		ringLeds.show();
+		interface.leds.ringLedsColor(0, 255, 0);
 		break;
 
 	case ESTOP:
-		for (int i = 0; i < 24; i++) {
-			ringLeds.setPixelColor(i, 255, 0, 0);
-		}
-		ringLeds.show();
+		interface.leds.ringLedsColor(255, 0, 0);
 		break;
 
 	case MAN:
