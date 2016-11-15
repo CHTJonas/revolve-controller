@@ -24,7 +24,6 @@ public:
 	void setMode(int newMode);
 
 	// Screen Drawing
-	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, int text);
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text);
 	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const;
