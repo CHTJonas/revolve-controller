@@ -343,18 +343,7 @@ void Displays::drawCentreDisplay() const {
 		displayCentre.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	case STATE_MAINMENU:
-		displayCentre.setFont(large_font);
-
-		for (int i = 0; i < 4; i++) {
-			if (i == interface.menu_pos) {
-				// Position highlight box from top left corner
-				displayCentre.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
-				displayCentre.setDefaultBackgroundColor();
-				drawStrCentre(displayCentre, (i * 16) + 12, menu_strings[i]);
-			}
-			drawStrCentre(displayCentre, (i * 16) + 12, menu_strings[i]);
-			displayCentre.setDefaultForegroundColor();
-		}
+		mainMenu.draw();
 		break;
 
 	case STATE_MANUAL_READY:

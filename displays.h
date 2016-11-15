@@ -66,13 +66,13 @@ private:
 	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
 
 	// define the actual menus
-	const Menu mainMenu = Menu(menu_strings, 4, displayCentre, interface);
-	// const Menu settingsMenu = Menu(settings_strings, 8);
-	// const Menu encoderMenu = Menu(enc_settings_strings, 4);
-	// const Menu ledMenu = Menu(led_settings_strings, 4);
-	// const Menu pidMenu = Menu(kp_settings_strings, 6);
-	// const Menu programMenu = Menu(program_strings, 4);
-	// const Menu paramMenu = Menu(param_strings, 3);
+	Menu mainMenu = Menu(menu_strings, 4, displayCentre, interface);
+	Menu settingsMenu = Menu(settings_strings, 8, displayCentre, interface);
+	Menu encoderMenu = Menu(enc_settings_strings, 4, displayCentre, interface);
+	Menu ledMenu = Menu(led_settings_strings, 4, displayCentre, interface);
+	Menu pidMenu = Menu(kp_settings_strings, 6, displayCentre, interface);
+	Menu programMenu = Menu(program_strings, 4, displayCentre, interface);
+	Menu paramMenu = Menu(param_strings, 3, displayCentre, interface);
 
 	const u8g_fntpgm_uint8_t* font = u8g_font_profont11;  // 8px high row
 	const u8g_fntpgm_uint8_t* xlarge_font = u8g_font_profont22;  // 16px high row
