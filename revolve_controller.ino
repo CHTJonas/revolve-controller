@@ -115,19 +115,12 @@ void loop() {
 
 		// Manual control
 	case MAN:
-		// Turn on GO and Pause LEDS
-		digitalWrite(GOLED, HIGH);
-
 		// Update selection screen
 		if (interface.updateMenu(9)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
 		}
 
-		// Exit to main menu if back pressed
-		if (digitalRead(BACK)) {
-			// Turn off GO and Pause
-			digitalWrite(GOLED, LOW);
-
+		if (InputButtonsInterface::backPressed()) {
 			// Reset menu_pos and change mode
 			interface.menu_pos = 0;
 			displays.setMode(NORMAL);
@@ -136,44 +129,29 @@ void loop() {
 		updateSetting(manualLimiter, MANUAL);
 
 		// Move to required position if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
-
-			// Turn off switch leds
-			digitalWrite(SELECTLED, LOW);
-			digitalWrite(GOLED, LOW);
-
+		if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 			// Move
 			// stage.gotoPos();
-
-			// Turn on switch leds
-			digitalWrite(SELECTLED, HIGH);
-			digitalWrite(GOLED, HIGH);
 		}
 		break;
 
 		// Mode to edit cue stack
 	case PROGRAM:
-		// Turn on GO and Pause LEDS
-		digitalWrite(GOLED, HIGH);
-
 		// Update menu and displays
 		if (interface.updateMenu(2)) {
 			displays.forceUpdateDisplays(1, 1, 1, 0);
 		}
 
-		// Back to main menu if back pressed
-		if (digitalRead(BACK)) {
+		if (InputButtonsInterface::backPressed()) {
 			// Save Cuestack
 			cuestack.saveCuestack();
 
 			// Show saved message (without using delay)
 			displays.setMode(PROGRAM_SAVED);
-			unsigned long startTime = millis();
+			auto startTime = millis();
 			while (millis() < startTime + 1000) {
 			}
 
-			// Turn off GO and Pause LEDS
-			digitalWrite(GOLED, LOW);
 			interface.menu_pos = 0;
 			displays.setMode(NORMAL);
 		}
@@ -201,9 +179,6 @@ void loop() {
 		break;
 
 	case PROGRAM_MOVEMENTS:
-		// Turn on GO and Pause LEDS
-		digitalWrite(GOLED, HIGH);
-
 		if (interface.cueParams[1] == 0 ||
 			interface.cueParams[2] == 0) {  // If either half disabled for this cue
 			if (interface.updateMenu(4)) {
@@ -228,14 +203,10 @@ void loop() {
 		break;
 
 	case PROGRAM_PARAMS:
-		// Turn on GO and Pause LEDS
-		digitalWrite(GOLED, HIGH);
-
 		if (interface.updateMenu(5)) {
 			displays.forceUpdateDisplays(0, 1, 0, 0);
 		}
 
-		// If select pressed, edit appropriate parameter
 		if (InputButtonsInterface::inputEncoderPressed()) {
 			if (interface.menu_pos < 4) {
 
@@ -268,10 +239,7 @@ void loop() {
 					}
 
 					// If select pressed to confirm value, exit editing mode
-
 					if (InputButtonsInterface::inputEncoderPressed()) {
-
-
 						// Limit variables from keypad
 						interface.limitCueParams();
 
@@ -325,19 +293,13 @@ void loop() {
 
 			// Delete cue
 			if (interface.menu_pos == 5) {
-				// Turn of GO and Pause LEDS
-				digitalWrite(GOLED, LOW);
-
 				// Bring up warning dialog
 				displays.setMode(PROGRAM_DELETE);
-				int decision = 0;
+				auto decision = false;
 
 				while (!decision) {
-
 					// If select pressed, delete cue
-
 					if (InputButtonsInterface::inputEncoderPressed()) {
-
 						// Reset current cue
 						cuestack.resetCue(cuestack.currentCue);
 						// Decrement currentCue so we don't fall off end of active part of array
@@ -352,17 +314,14 @@ void loop() {
 						// Sort cues to remove blank line
 						cuestack.sortCues();
 						displays.setMode(PROGRAM_CUELIST);
-						decision = 1;
+						decision = true;
 					}
 
-					// If back pressed, don't!
-
+					// If back pressed, don't
 					if (InputButtonsInterface::backPressed()) {
-
-						// Go back into PROGRAM_PARAMS
 						interface.menu_pos = 5;
 						displays.setMode(PROGRAM_PARAMS);
-						decision = 1;
+						decision = true;
 					}
 				}
 			}
@@ -379,9 +338,6 @@ void loop() {
 		break;
 
 	case PROGRAM_CUELIST:
-		// Turn of GO and Pause LEDS
-		digitalWrite(GOLED, LOW);
-
 		if (interface.updateMenu(cuestack.totalCues - 1)) {
 			displays.forceUpdateDisplays(0, 0, 1, 0);
 		}
@@ -406,16 +362,9 @@ void loop() {
 
 		// Run mode for during show - cannot edit cues
 	case SHOW:
-		// Turn on GO and Pause LEDS
-		digitalWrite(GOLED, HIGH);
-		digitalWrite(SELECTLED, HIGH);
 
 		// Only allow cue position jogging if select pressed
-
 		if (InputButtonsInterface::inputEncoderPressed()) {
-			// Update LEDs
-			digitalWrite(GOLED, LOW);
-
 			// Reset input encoder before start of edit
 			interface.input.getInputEncoder();
 			while (true) {
@@ -429,8 +378,6 @@ void loop() {
 					displays.forceUpdateDisplays(0, 1, 0, 0);
 				}
 			}
-			// Update LEDs
-			digitalWrite(GOLED, HIGH);
 
 			// Load cue data for highlighted cue
 			interface.loadCue(interface.menu_pos);
@@ -438,12 +385,11 @@ void loop() {
 		}
 
 		// Goto current cue if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
+		if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 			stage.runCurrentCue();
 		}
 
 		// Back one level only
-
 		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 2;
 			displays.setMode(NORMAL);
@@ -458,7 +404,7 @@ void loop() {
 		}
 
 		// Back to main menu if back pressed
-		if (digitalRead(BACK)) {
+		if (InputButtonsInterface::backPressed()) {
 			interface.menu_pos = 0;
 			displays.setMode(NORMAL);
 		}
@@ -480,14 +426,8 @@ void loop() {
 					}
 
 					// Run homing sequence if Pause and Go pressed
-					if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
-
-						// Update LEDS
-						digitalWrite(GOLED, HIGH);
+					if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 						stage.gotoHome();
-
-						// Reset LEDS
-						digitalWrite(GOLED, LOW);
 						break;
 					}
 				}
@@ -556,8 +496,7 @@ void loop() {
 		displays.updateDisplays(0, 0, 1, 0);
 
 		// Exit if Go and Pause pressed
-		if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
-
+		if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 			// Reset LEDs to settings state
 			digitalWrite(SELECTLED, HIGH);
 
@@ -620,7 +559,7 @@ void loop() {
 		}
 
 		// Exit to main menu if back pressed
-		if (digitalRead(BACK)) {
+		if (InputButtonsInterface::backPressed()) {
 			// Store values back into EEPROM
 			EEPROM.put(EEDEFAULT_VALUES, interface.defaultValues);
 			EEPROM.get(EEDEFAULT_VALUES, interface.currentMovements);
@@ -674,13 +613,9 @@ void loop() {
 
 void goToCurrentCue(int target_mode) {
 	// Goto current cue if Go and Pause pressed
-	if (digitalRead(GO) == LOW && digitalRead(DMH) == LOW) {
+	if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 		// Update displays to show realtime position
 		displays.setMode(PROGRAM_GOTOCUE);
-
-		// Turn off switch leds
-		digitalWrite(SELECTLED, LOW);
-		digitalWrite(GOLED, LOW);
 
 		// Move - both enabled
 		if (interface.cueParams[1] && interface.cueParams[2]) {
@@ -694,10 +629,6 @@ void goToCurrentCue(int target_mode) {
 		else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
 			// stage.gotoPos();
 		}
-
-		// Turn on switch leds
-		digitalWrite(SELECTLED, HIGH);
-		digitalWrite(GOLED, HIGH);
 
 		// Reset mode
 		displays.setMode(target_mode);
