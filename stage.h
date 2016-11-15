@@ -2,9 +2,6 @@
 #include "displays.h"
 #include "state_machine.h"
 
-#define INNER 0
-#define OUTER 1
-
 class Stage {
 public:
 	// Constructor
