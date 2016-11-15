@@ -113,12 +113,7 @@ void Displays::drawWheelCueDetails(U8GLIB_ST7920_128X64& lcd, int(values)[5], in
 		lcd.drawBox(lcd.getStrWidth("Speed: ") - 1, yOffset + 29, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
-	if (values[3]) {
-		lcd.print("ACW");
-	}
-	else {
-		lcd.print("CW");
-	}
+	lcd.print(values[3] ? "CCW" : "CW");
 	lcd.setDefaultForegroundColor();
 
 	// Extra Revolutions
