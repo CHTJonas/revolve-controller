@@ -1,5 +1,6 @@
 #include "revolve.h"
 #include "buttons.h"
+#include "pins.h"
 
 // Constructor
 Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc) : enc(enc) {

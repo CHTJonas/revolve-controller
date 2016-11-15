@@ -1,5 +1,6 @@
 #include "stage.h"
 #include "utils.h"
+#include "pins.h"
 #include <EEPROM.h>
 
 Stage::Stage(
