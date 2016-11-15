@@ -7,8 +7,6 @@ class Menu {
 	Menu(int size);
 
 	int menu_position;
-	char* elements[];
-
 
 private:
     
