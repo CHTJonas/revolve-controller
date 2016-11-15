@@ -385,32 +385,7 @@ void Displays::drawCentreDisplay() const {
 		break;
 
 	case STATE_SETTINGS:
-		displayCentre.setFont(large_font);
-		if (interface.menu_pos < 4) {
-			for (int i = 0; i < 4; i++) {
-				if (i == interface.menu_pos) {
-					// Position highlight box from top left corner
-					displayCentre.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
-					displayCentre.setDefaultBackgroundColor();
-					drawStrCentre(displayCentre, (i * 16) + 12, settings_strings[i]);
-				}
-				drawStrCentre(displayCentre, (i * 16) + 12, settings_strings[i]);
-				displayCentre.setDefaultForegroundColor();
-			}
-		}
-		else if (interface.menu_pos < 8) {
-			for (int i = 0; i < 4; i++) {
-				if ((i + 4) == interface.menu_pos) {
-					// Position highlight box from top left corner
-					displayCentre.drawBox(0, (i * 16), SCREEN_WIDTH, 16);
-					displayCentre.setDefaultBackgroundColor();
-					drawStrCentre(displayCentre, (i * 16) + 12, settings_strings[i + 4]);
-				}
-				drawStrCentre(displayCentre, (i * 16) + 12, settings_strings[i + 4]);
-				displayCentre.setDefaultForegroundColor();
-			}
-		}
-
+		settingsMenu.draw();
 		break;
 
 	case STATE_HARDWARETEST:
