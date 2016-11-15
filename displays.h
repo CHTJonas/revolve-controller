@@ -61,9 +61,9 @@ private:
 	const u8g_fntpgm_uint8_t* large_font = u8g_font_profont15;  // 10px high row
 	const u8g_fntpgm_uint8_t* small_font = u8g_font_5x7;  // 7px high row
 
-	U8GLIB_ST7920_128X64& cue;
-	U8GLIB_ST7920_128X64& menu;
-	U8GLIB_ST7920_128X64& info;
+	U8GLIB_ST7920_128X64& displayLeft;
+	U8GLIB_ST7920_128X64& displayCenter;
+	U8GLIB_ST7920_128X64& displayRight;
 
 	Adafruit_NeoPixel& ringLeds;
 

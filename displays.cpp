@@ -13,9 +13,9 @@ Displays::Displays(
     Keypad& keypad,
     Interface& interface,
     Cuestack& cuestack)
-      : cue(cue),
-        menu(menu),
-        info(info),
+      : displayLeft(cue),
+        displayCenter(menu),
+        displayRight(info),
         ringLeds(ringLeds),
         inner(inner),
         outer(outer),
@@ -29,14 +29,14 @@ void Displays::step() {
 }
 
 void Displays::begin() {
-	cue.begin();
-	cue.setColorIndex(1);
+	displayLeft.begin();
+	displayLeft.setColorIndex(1);
 
-	menu.begin();
-	menu.setColorIndex(1);
+	displayCenter.begin();
+	displayCenter.setColorIndex(1);
 
-	info.begin();
-	info.setColorIndex(1);
+	displayRight.begin();
+	displayRight.setColorIndex(1);
 
 	mode = STARTUP;
 	interface.menu_pos = 0;
@@ -215,50 +215,50 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int c
 }
 
 void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const {
-	menu.setFont(font);
-	menu.drawStr(4, 10, "Cue Number:");
-	menu.setPrintPos(90, 10);
+	displayCenter.setFont(font);
+	displayCenter.drawStr(4, 10, "Cue Number:");
+	displayCenter.setPrintPos(90, 10);
 	if (interface.menu_pos == 0 && cursorEnable) {
-		menu.drawBox(88, 1, 27, 11);
-		menu.setDefaultBackgroundColor();
+		displayCenter.drawBox(88, 1, 27, 11);
+		displayCenter.setDefaultBackgroundColor();
 	}
 
 	if (interface.cueNumber - floor(interface.cueNumber) ==
 	    0)  // Don't display something like 1.0 (but do display 2.4)
-		menu.print(interface.cueNumber, 0);
+		displayCenter.print(interface.cueNumber, 0);
 	else
-		menu.print(interface.cueNumber, 1);
-	menu.setDefaultForegroundColor();
+		displayCenter.print(interface.cueNumber, 1);
+	displayCenter.setDefaultForegroundColor();
 
 	for (int i = 0; i < 3; i++) {
-		menu.drawStr(4, ((i + 2) * 10), param_strings[i]);
-		menu.setPrintPos(90, ((i + 2) * 10));
+		displayCenter.drawStr(4, ((i + 2) * 10), param_strings[i]);
+		displayCenter.setPrintPos(90, ((i + 2) * 10));
 
 		if ((interface.menu_pos - 1) == i && cursorEnable) {
-			menu.drawBox(88, 1 + (i + 1) * 10, 21, 11);
-			menu.setDefaultBackgroundColor();
+			displayCenter.drawBox(88, 1 + (i + 1) * 10, 21, 11);
+			displayCenter.setDefaultBackgroundColor();
 		}
 
 		if (interface.cueParams[i] == 0)
-			menu.print("NO");
+			displayCenter.print("NO");
 		else
-			menu.print("YES");
-		menu.setDefaultForegroundColor();
+			displayCenter.print("YES");
+		displayCenter.setDefaultForegroundColor();
 	}
 
 	if (interface.menu_pos == 4 && cursorEnable) {
-		menu.drawBox(0, 41, SCREEN_WIDTH, 11);
-		menu.setDefaultBackgroundColor();
+		displayCenter.drawBox(0, 41, SCREEN_WIDTH, 11);
+		displayCenter.setDefaultBackgroundColor();
 	}
-	drawStrCenter(menu, 50, "Add Cue");
-	menu.setDefaultForegroundColor();
+	drawStrCenter(displayCenter, 50, "Add Cue");
+	displayCenter.setDefaultForegroundColor();
 
 	if (interface.menu_pos == 5 && cursorEnable) {
-		menu.drawBox(0, 51, SCREEN_WIDTH, 11);
-		menu.setDefaultBackgroundColor();
+		displayCenter.drawBox(0, 51, SCREEN_WIDTH, 11);
+		displayCenter.setDefaultBackgroundColor();
 	}
-	drawStrCenter(menu, 60, "Delete Cue");
-	menu.setDefaultForegroundColor();
+	drawStrCenter(displayCenter, 60, "Delete Cue");
+	displayCenter.setDefaultForegroundColor();
 }
 
 void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const {
@@ -341,22 +341,22 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 }
 
 void Displays::drawCue() const {
-	cue.setFont(font);
+	displayLeft.setFont(font);
 
 	switch (mode) {
 	case STARTUP:
 	case HOMING:
-		cue.setFont(large_font);
-		drawStrCenter(cue, 15, TITLE);
-		drawStrCenter(cue, 30, SUBTITLE);
-		cue.setFont(font);
-		drawStrCenter(cue, 45, NAME);
-		cue.setFont(small_font);
-		drawStrCenter(cue, 55, DATE);
+		displayLeft.setFont(large_font);
+		drawStrCenter(displayLeft, 15, TITLE);
+		drawStrCenter(displayLeft, 30, SUBTITLE);
+		displayLeft.setFont(font);
+		drawStrCenter(displayLeft, 45, NAME);
+		displayLeft.setFont(small_font);
+		drawStrCenter(displayLeft, 55, DATE);
 		break;
 
 	case SHOW:
-		drawCueLayout(cue, interface.cueMovements, 0);
+		drawCueLayout(displayLeft, interface.cueMovements, 0);
 		break;
 
 	case PROGRAM:
@@ -367,61 +367,61 @@ void Displays::drawCue() const {
 	case PROGRAM_SAVED:
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 0 && mode == PROGRAM) {
-			cue.setDefaultForegroundColor();
-			cue.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			cue.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
-			cue.setDefaultForegroundColor();
+			displayLeft.setDefaultForegroundColor();
+			displayLeft.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+			displayLeft.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
+			displayLeft.setDefaultForegroundColor();
 		}
-		drawCueLayout(cue, interface.cueMovements, 0);
+		drawCueLayout(displayLeft, interface.cueMovements, 0);
 		break;
 
 	case PROGRAM_MOVEMENTS:
-		drawCueLayout(cue, interface.cueMovements, 1);
+		drawCueLayout(displayLeft, interface.cueMovements, 1);
 		break;
 
 	case ESTOP:
-		cue.setFont(xlarge_font);
-		drawStrCenter(cue, 16, "ESTOP");
-		cue.setFont(large_font);
-		drawStrCenter(cue, 32, "Reset all Estops");
-		drawStrCenter(cue, 48, "to continue");
+		displayLeft.setFont(xlarge_font);
+		drawStrCenter(displayLeft, 16, "ESTOP");
+		displayLeft.setFont(large_font);
+		drawStrCenter(displayLeft, 32, "Reset all Estops");
+		drawStrCenter(displayLeft, 48, "to continue");
 		break;
 
 	default:
-		menu.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
+		displayCenter.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	}
 }
 
 void Displays::drawMenu() const {
-	menu.setFont(font);
+	displayCenter.setFont(font);
 
 	switch (mode) {
 	case STARTUP:
 	case HOMING:
-		menu.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
+		displayCenter.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	case NORMAL:
-		menu.setFont(large_font);
+		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
 			if (i == interface.menu_pos) {
 				// Position highlight box from top left corner
-				menu.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
-				menu.setDefaultBackgroundColor();
-				drawStrCenter(menu, (i * 16) + 12, menu_strings[i]);
+				displayCenter.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
+				displayCenter.setDefaultBackgroundColor();
+				drawStrCenter(displayCenter, (i * 16) + 12, menu_strings[i]);
 			}
-			drawStrCenter(menu, (i * 16) + 12, menu_strings[i]);
-			menu.setDefaultForegroundColor();
+			drawStrCenter(displayCenter, (i * 16) + 12, menu_strings[i]);
+			displayCenter.setDefaultForegroundColor();
 		}
 		break;
 
 	case MAN:
-		drawCueLayout(menu, interface.currentMovements, 1);
+		drawCueLayout(displayCenter, interface.currentMovements, 1);
 		break;
 
 	case SHOW:
-		drawCuelistLayout(menu, interface.menu_pos, 1);
+		drawCuelistLayout(displayCenter, interface.menu_pos, 1);
 		break;
 
 	case PROGRAM:
@@ -430,144 +430,144 @@ void Displays::drawMenu() const {
 	case PROGRAM_GOTOCUE:
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 1 && mode == PROGRAM) {
-			menu.setDefaultForegroundColor();
-			menu.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			menu.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
-			menu.setDefaultForegroundColor();
+			displayCenter.setDefaultForegroundColor();
+			displayCenter.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+			displayCenter.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
+			displayCenter.setDefaultForegroundColor();
 		}
-		drawParamsLayout(menu, 0);
+		drawParamsLayout(displayCenter, 0);
 		break;
 
 	case PROGRAM_DELETE:
-		menu.setFont(large_font);
-		drawStrCenter(menu, 35, "Delete Cue?");
-		menu.setFont(font);
+		displayCenter.setFont(large_font);
+		drawStrCenter(displayCenter, 35, "Delete Cue?");
+		displayCenter.setFont(font);
 		break;
 
 	case PROGRAM_SAVED:
-		menu.setFont(large_font);
-		drawStrCenter(menu, 35, "Cuestack Saved");
-		menu.setFont(font);
+		displayCenter.setFont(large_font);
+		drawStrCenter(displayCenter, 35, "Cuestack Saved");
+		displayCenter.setFont(font);
 		break;
 
 	case PROGRAM_PARAMS:
-		drawParamsLayout(menu, 1);
+		drawParamsLayout(displayCenter, 1);
 		break;
 
 	case SETTINGS:
-		menu.setFont(large_font);
+		displayCenter.setFont(large_font);
 		if (interface.menu_pos < 4) {
 			for (int i = 0; i < 4; i++) {
 				if (i == interface.menu_pos) {
 					// Position highlight box from top left corner
-					menu.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
-					menu.setDefaultBackgroundColor();
-					drawStrCenter(menu, (i * 16) + 12, settings_strings[i]);
+					displayCenter.drawBox(0, (interface.menu_pos * 16), SCREEN_WIDTH, 16);
+					displayCenter.setDefaultBackgroundColor();
+					drawStrCenter(displayCenter, (i * 16) + 12, settings_strings[i]);
 				}
-				drawStrCenter(menu, (i * 16) + 12, settings_strings[i]);
-				menu.setDefaultForegroundColor();
+				drawStrCenter(displayCenter, (i * 16) + 12, settings_strings[i]);
+				displayCenter.setDefaultForegroundColor();
 			}
 		} else if (interface.menu_pos < 8) {
 			for (int i = 0; i < 4; i++) {
 				if ((i + 4) == interface.menu_pos) {
 					// Position highlight box from top left corner
-					menu.drawBox(0, (i * 16), SCREEN_WIDTH, 16);
-					menu.setDefaultBackgroundColor();
-					drawStrCenter(menu, (i * 16) + 12, settings_strings[i + 4]);
+					displayCenter.drawBox(0, (i * 16), SCREEN_WIDTH, 16);
+					displayCenter.setDefaultBackgroundColor();
+					drawStrCenter(displayCenter, (i * 16) + 12, settings_strings[i + 4]);
 				}
-				drawStrCenter(menu, (i * 16) + 12, settings_strings[i + 4]);
-				menu.setDefaultForegroundColor();
+				drawStrCenter(displayCenter, (i * 16) + 12, settings_strings[i + 4]);
+				displayCenter.setDefaultForegroundColor();
 			}
 		}
 
 		break;
 
 	case HARDWARETEST:
-		menu.setFont(large_font);
-		drawStrCenter(menu, 16, "Hardware Test");
-		menu.setFont(font);
-		drawStrCenter(menu, 40, "Hold Go and");
-		drawStrCenter(menu, 48, "Pause to exit");
+		displayCenter.setFont(large_font);
+		drawStrCenter(displayCenter, 16, "Hardware Test");
+		displayCenter.setFont(font);
+		drawStrCenter(displayCenter, 40, "Hold Go and");
+		drawStrCenter(displayCenter, 48, "Pause to exit");
 		break;
 
 	case BRIGHTNESS:
-		menu.setFont(large_font);
+		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
-			menu.drawStr(0, 13 + (i * 16), led_settings_strings[i]);
-			menu.setPrintPos(90, 13 + (i * 16));
+			displayCenter.drawStr(0, 13 + (i * 16), led_settings_strings[i]);
+			displayCenter.setPrintPos(90, 13 + (i * 16));
 
 			if (interface.menu_pos == i) {
-				menu.drawBox(88, i * 16, 24, 16);
-				menu.setDefaultBackgroundColor();
+				displayCenter.drawBox(88, i * 16, 24, 16);
+				displayCenter.setDefaultBackgroundColor();
 			}
 
-			menu.print(interface.leds.ledSettings[i]);
-			menu.setDefaultForegroundColor();
+			displayCenter.print(interface.leds.ledSettings[i]);
+			displayCenter.setDefaultForegroundColor();
 		}
-		menu.setFont(font);
+		displayCenter.setFont(font);
 		break;
 
 	case ENCSETTINGS:
-		menu.setFont(large_font);
+		displayCenter.setFont(large_font);
 
 		for (int i = 0; i < 4; i++) {
-			menu.drawStr(0, 13 + (i * 16), enc_settings_strings[i]);
-			menu.setPrintPos(90, 13 + (i * 16));
+			displayCenter.drawStr(0, 13 + (i * 16), enc_settings_strings[i]);
+			displayCenter.setPrintPos(90, 13 + (i * 16));
 
 			if (interface.menu_pos == i) {
-				menu.drawBox(88, i * 16, 40, 16);
-				menu.setDefaultBackgroundColor();
+				displayCenter.drawBox(88, i * 16, 40, 16);
+				displayCenter.setDefaultBackgroundColor();
 			}
 
 			if (interface.encSettings[i] == 0 && (i == 0 || i == 1))
-				menu.print("FWD");
+				displayCenter.print("FWD");
 			else if (interface.encSettings[i] == 1 && (i == 0 || i == 1))
-				menu.print("REV");
+				displayCenter.print("REV");
 			else
-				menu.print(interface.encSettings[i]);
-			menu.setDefaultForegroundColor();
+				displayCenter.print(interface.encSettings[i]);
+			displayCenter.setDefaultForegroundColor();
 		}
-		menu.setFont(font);
+		displayCenter.setFont(font);
 		break;
 
 	case ESTOP:
-		menu.setFont(xlarge_font);
-		drawStrCenter(menu, 16, "ESTOP");
-		menu.setFont(large_font);
-		drawStrCenter(menu, 32, "Reset all Estops");
-		drawStrCenter(menu, 48, "to continue");
+		displayCenter.setFont(xlarge_font);
+		drawStrCenter(displayCenter, 16, "ESTOP");
+		displayCenter.setFont(large_font);
+		drawStrCenter(displayCenter, 32, "Reset all Estops");
+		drawStrCenter(displayCenter, 48, "to continue");
 		break;
 
 	case DEFAULTVALUES:
-		drawCueLayout(menu, interface.defaultValues, 0);
+		drawCueLayout(displayCenter, interface.defaultValues, 0);
 		break;
 
 	case KPSETTINGS:
-		menu.setFont(font);
+		displayCenter.setFont(font);
 
 		for (int i = 0; i < 6; i++) {
-			menu.drawStr(0, 10 + (i * 10), kp_settings_strings[i]);
-			menu.setPrintPos(90, 10 + (i * 10));
+			displayCenter.drawStr(0, 10 + (i * 10), kp_settings_strings[i]);
+			displayCenter.setPrintPos(90, 10 + (i * 10));
 
 			if (interface.menu_pos == i) {
-				menu.drawBox(88, (i * 10) + 2, 34, 10);
-				menu.setDefaultBackgroundColor();
+				displayCenter.drawBox(88, (i * 10) + 2, 34, 10);
+				displayCenter.setDefaultBackgroundColor();
 			}
 
-			menu.print(interface.kpSettings[i], 3);
-			menu.setDefaultForegroundColor();
+			displayCenter.print(interface.kpSettings[i], 3);
+			displayCenter.setDefaultForegroundColor();
 		}
-		menu.setFont(font);
+		displayCenter.setFont(font);
 		break;
 
 	case RESET_CUESTACK:
-		menu.setFont(large_font);
-		drawStrCenter(menu, 19, "Reset");
-		drawStrCenter(menu, 35, "ENTIRE CUESTACK?");
-		menu.setFont(font);
-		drawStrCenter(menu, 50, "Press Go, Pause and");
-		drawStrCenter(menu, 60, "Select to Continue");
+		displayCenter.setFont(large_font);
+		drawStrCenter(displayCenter, 19, "Reset");
+		drawStrCenter(displayCenter, 35, "ENTIRE CUESTACK?");
+		displayCenter.setFont(font);
+		drawStrCenter(displayCenter, 50, "Press Go, Pause and");
+		drawStrCenter(displayCenter, 60, "Select to Continue");
 		break;
 	default:
 		break;
@@ -575,69 +575,69 @@ void Displays::drawMenu() const {
 }
 
 void Displays::drawInfo() const {
-	info.setFont(font);
+	displayRight.setFont(font);
 
 	switch (mode) {
 	case STARTUP:
-		info.setFont(large_font);
-		drawStrCenter(info, 20, "READY TO HOME");
-		info.setFont(font);
-		drawStrCenter(info, 40, "ENSURE REVOLVE CLEAR");
-		drawStrCenter(info, 50, "Press GO to home");
+		displayRight.setFont(large_font);
+		drawStrCenter(displayRight, 20, "READY TO HOME");
+		displayRight.setFont(font);
+		drawStrCenter(displayRight, 40, "ENSURE REVOLVE CLEAR");
+		drawStrCenter(displayRight, 50, "Press GO to home");
 		break;
 	case HOMING:
-		info.setFont(xlarge_font);
-		drawStrCenter(info, 20, "HOMING");
-		info.setFont(font);
-		drawStrCenter(info, 40, "Please wait");
+		displayRight.setFont(xlarge_font);
+		drawStrCenter(displayRight, 20, "HOMING");
+		displayRight.setFont(font);
+		drawStrCenter(displayRight, 40, "Please wait");
 		break;
 	case HARDWARETEST:
-		info.setFont(xlarge_font);
+		displayRight.setFont(xlarge_font);
 
 		if (InputButtonsInterface::goEngaged()) {
-			drawStrCenter(info, 40, "GO");
+			drawStrCenter(displayRight, 40, "GO");
 		} else if (InputButtonsInterface::dmhEngaged()) {
-			drawStrCenter(info, 40, "DMH");
+			drawStrCenter(displayRight, 40, "DMH");
 		} else if (digitalRead(BACK) == HIGH) {
-			drawStrCenter(info, 40, "BACK");
+			drawStrCenter(displayRight, 40, "BACK");
 		} else if (digitalRead(SELECT) == LOW) {
-			drawStrCenter(info, 40, "SELECT");
+			drawStrCenter(displayRight, 40, "SELECT");
 		} else if (interface.input.currentKey) {
-			drawStrCenter(info, 40, interface.input.currentKey);
+			drawStrCenter(displayRight, 40, interface.input.currentKey);
 		}
-		info.setFont(font);
+		displayRight.setFont(font);
 		break;
 
 	case ESTOP:
-		info.setFont(xlarge_font);
-		drawStrCenter(info, 16, "ESTOP");
-		info.setFont(large_font);
-		drawStrCenter(info, 32, "Reset all Estops");
-		drawStrCenter(info, 48, "to continue");
+		displayRight.setFont(xlarge_font);
+		drawStrCenter(displayRight, 16, "ESTOP");
+		displayRight.setFont(large_font);
+		drawStrCenter(displayRight, 32, "Reset all Estops");
+		drawStrCenter(displayRight, 48, "to continue");
 		break;
 
 	case MAN:
 	case SHOW:
 	case PROGRAM_GOTOCUE:
-		info.setFont(large_font);
-		info.drawStr(0, 10, "Inner");
-		info.setFont(font);
-		info.drawStr(0, 20, "Position: ");
-		info.setPrintPos(info.getStrWidth("Position: "), 20);
-		info.print(inner.displayPos());
-		info.drawStr(0, 28, "Speed: ");
-		info.setPrintPos(info.getStrWidth("Speed: "), 28);
-		info.print(inner.getSpeed());
+		displayRight.setFont(large_font);
+		displayRight.drawStr(0, 10, "Inner");
+		displayRight.setFont(font);
+		displayRight.drawStr(0, 20, "Position: ");
+		displayRight.setPrintPos(displayRight.getStrWidth("Position: "), 20);
+		displayRight.print(inner.displayPos());
+		displayRight.drawStr(0, 28, "Speed: ");
+		displayRight.setPrintPos(displayRight.getStrWidth("Speed: "), 28);
+		displayRight.print(inner.getSpeed());
 
-		info.setFont(large_font);
-		info.drawStr(0, 42, "Outer");
-		info.setFont(font);
-		info.drawStr(0, 52, "Position: ");
-		info.setPrintPos(info.getStrWidth("Position: "), 52);
-		info.print(outer.displayPos());
-		info.drawStr(0, 60, "Speed: ");
-		info.setPrintPos(info.getStrWidth("Speed: "), 60);
-		info.print(outer.getSpeed());
+		displayRight.setFont(large_font);
+		displayRight.drawStr(0, 42, "Outer");
+		displayRight.setFont(font);
+		displayRight.drawStr(0, 52, "Position: ");
+		displayRight.setPrintPos(displayRight.getStrWidth("Position: "), 52);
+		displayRight.print(outer.displayPos());
+		displayRight.drawStr(0, 60, "Speed: ");
+		displayRight.setPrintPos(displayRight.getStrWidth("Speed: "), 60);
+		displayRight.print(outer.getSpeed());
 		break;
 
 	case PROGRAM:
@@ -647,20 +647,20 @@ void Displays::drawInfo() const {
 	case PROGRAM_SAVED:
 		// Add box if screen selected in PROGRAM
 		if (interface.menu_pos == 2 && mode == PROGRAM) {
-			info.setDefaultForegroundColor();
-			info.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-			info.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
-			info.setDefaultForegroundColor();
+			displayRight.setDefaultForegroundColor();
+			displayRight.drawFrame(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+			displayRight.drawFrame(1, 1, SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2);
+			displayRight.setDefaultForegroundColor();
 		}
-		drawCuelistLayout(info, cuestack.currentCue, 1);
+		drawCuelistLayout(displayRight, cuestack.currentCue, 1);
 		break;
 
 	case PROGRAM_CUELIST:
-		drawCuelistLayout(info, interface.menu_pos, 1);
+		drawCuelistLayout(displayRight, interface.menu_pos, 1);
 		break;
 
 	default:
-		info.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
+		displayRight.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
 	}
 }
@@ -762,24 +762,24 @@ void Displays::updateRingLeds() {
 void Displays::updateDisplays(int cue1, int menu1, int info1, int ringLeds1) {
 	if (update) {
 		if (cue1) {
-			cue.firstPage();
+			displayLeft.firstPage();
 			do {
 				drawCue();
-			} while (cue.nextPage());
+			} while (displayLeft.nextPage());
 		}
 
 		if (menu1) {
-			menu.firstPage();
+			displayCenter.firstPage();
 			do {
 				drawMenu();
-			} while (menu.nextPage());
+			} while (displayCenter.nextPage());
 		}
 
 		if (info1) {
-			info.firstPage();
+			displayRight.firstPage();
 			do {
 				drawInfo();
-			} while (info.nextPage());
+			} while (displayRight.nextPage());
 		}
 
 		if (ringLeds1) {
