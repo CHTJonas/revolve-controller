@@ -165,13 +165,7 @@ bool Interface::updateMenu(int menuMax) {
 	auto encvalue = input.getInputEncoder();
 	auto oldMenuPos = menu_pos;
 
-	if (encvalue > 0 && menu_pos < menuMax) {
-		menu_pos = min(menuMax, menu_pos + encvalue);
-	}
-	else if (encvalue < 0 && menu_pos > 0) {
-		menu_pos = max(0, menu_pos + encvalue);
-	}
-
+	menu_pos = clamp(menu_pos + encvalue, 0, menuMax);
 	return !(menu_pos == oldMenuPos);
 }
 
