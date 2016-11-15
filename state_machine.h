@@ -14,7 +14,6 @@ typedef struct DriveData {
 } DriveData;
 
 enum StateEnum {
-	STATE_STARTUP,
 	STATE_MAINMENU,
 	STATE_HOMING_INPROGRESS,
 	STATE_HOMING_COMPLETE,

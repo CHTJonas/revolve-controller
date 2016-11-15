@@ -279,7 +279,6 @@ void Displays::drawLeftDisplay() const {
 	displayLeft.setFont(font);
 
 	switch (state->state) {
-	case STATE_STARTUP:
 	case STATE_HOMING_INPROGRESS:
 		displayLeft.setFont(large_font);
 		drawStrCenter(displayLeft, 15, TITLE);
@@ -332,7 +331,6 @@ void Displays::drawCenterDisplay() const {
 	displayCenter.setFont(font);
 
 	switch (state->state) {
-	case STATE_STARTUP:
 	case STATE_HOMING_INPROGRESS:
 		displayCenter.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, screen_logo);
 		break;
@@ -513,13 +511,6 @@ void Displays::drawRightDisplay() const {
 	displayRight.setFont(font);
 
 	switch (state->state) {
-	case STATE_STARTUP:
-		displayRight.setFont(large_font);
-		drawStrCenter(displayRight, 20, "READY TO HOME");
-		displayRight.setFont(font);
-		drawStrCenter(displayRight, 40, "ENSURE REVOLVE CLEAR");
-		drawStrCenter(displayRight, 50, "Press GO to home");
-		break;
 	case STATE_HOMING_INPROGRESS:
 		displayRight.setFont(xlarge_font);
 		drawStrCenter(displayRight, 20, "HOMING");
@@ -603,7 +594,6 @@ void Displays::drawRightDisplay() const {
 void Displays::updateRingLeds() {
 
 	switch (state->state) {
-	case STATE_STARTUP:
 	case STATE_HOMING_INPROGRESS:
 	case STATE_RESET_CUESTACK:
 		interface.leds.ringLedsColor(255, 0, 0);

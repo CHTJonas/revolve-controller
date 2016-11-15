@@ -54,9 +54,6 @@ void setup() {
 	cuestack.loadCuestack();
 	// cuestack.loadExampleCues();
 	displays.begin();
-	state.state = STATE_MAINMENU;
-	state.data.mainmenu = {};
-	displays.setMode();
 }
 
 void loop() {
@@ -65,24 +62,6 @@ void loop() {
 	// return;
 	// Main switch statement for navigating screens
 	switch (state.state) {
-	// Waits for Pause and GO to be pressed then initiates homing
-	case STATE_STARTUP:
-
-		// Wait for both switches
-		while (!InputButtonsInterface::dmhEngaged() && !InputButtonsInterface::goEngaged()) {
-		}
-
-		// Start homing
-		digitalWrite(GOLED, LOW);
-		stage.gotoHome();
-
-		// Reset LEDs, go to NORMAL mode
-		digitalWrite(GOLED, LOW);
-		state.state = STATE_MAINMENU;
-		state.data.mainmenu = {};
-		displays.setMode();
-		break;
-
 	// During homing everything handled by stage and display classes
 	case STATE_HOMING_INPROGRESS:
 		break;
@@ -454,8 +433,8 @@ void loop() {
 			case 0:
 
 				// Homing Mode
-				state.state = STATE_STARTUP;
-				state.data.startup = {};
+				state.state = STATE_HOMING_INPROGRESS;
+				state.data.homing_inprogress = {};
 				displays.setMode();
 
 				while (true) {
