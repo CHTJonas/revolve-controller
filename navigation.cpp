@@ -15,8 +15,12 @@ void Navigation::setup() {
 void Navigation::loop() {
 	// Main switch statement for navigating screens
 	switch (state->state) {
-	// During homing everything handled by stage and display classes
 	case STATE_HOMING_INPROGRESS:
+		if (Buttons::back.engaged()) {
+			state->state = STATE_SETTINGS;
+			state->data.settings = {};
+			displays->setMode();
+		}
 		break;
 
 	// Main Menu
@@ -142,10 +146,9 @@ void Navigation::loop() {
 
 		break;
 
+	// TODO: Refactor
 	case STATE_PROGRAM_PARAMS:
-		if (interface->updateMenu(5)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(5);
 
 		if (Buttons::select.engaged()) {
 			if (interface->menu_pos < 4) {
@@ -287,9 +290,7 @@ void Navigation::loop() {
 		break;
 
 	case STATE_PROGRAM_CUELIST:
-		if (interface->updateMenu(cuestack->totalCues - 1)) {
-			displays->forceUpdateDisplays(0, 0, 1, 0);
-		}
+		interface->updateMenu(cuestack->totalCues - 1);
 
 		// If select pressed, load appropriate cue
 		if (Buttons::select.engaged()) {
@@ -318,6 +319,8 @@ void Navigation::loop() {
 
 		// Only allow cue position jogging if select pressed
 		if (Buttons::select.engaged()) {
+			// TODO: Refactor
+
 			// Reset input encoder before start of edit
 			interface->input.getInputEncoder();
 			while (true) {
@@ -337,11 +340,6 @@ void Navigation::loop() {
 			displays->forceUpdateDisplays(1, 1, 0, 0);
 		}
 
-		// Goto current cue if Go and Pause pressed
-		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-			stage->runCurrentCue();
-		}
-
 		// Back one level only
 		if (Buttons::back.engaged()) {
 			interface->menu_pos = 2;
@@ -353,10 +351,7 @@ void Navigation::loop() {
 
 	// Change system settings
 	case STATE_SETTINGS:
-		// Update menu position
-		if (interface->updateMenu(8)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(8);
 
 		// Back to main menu if back pressed
 		if (Buttons::back.engaged()) {
@@ -375,25 +370,6 @@ void Navigation::loop() {
 				// Homing Mode
 				state->state = STATE_HOMING_INPROGRESS;
 				state->data.homing_inprogress = {};
-				displays->setMode();
-
-				while (true) {
-					// Exit (1 level only, back to settings) if back pressed, reset LEDs
-					if (Buttons::back.engaged()) {
-						digitalWrite(GOLED, LOW);
-						break;
-					}
-
-					// Run homing sequence if Pause and Go pressed
-					if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
-						stage->gotoHome();
-						break;
-					}
-				}
-
-				// Back to settings mode
-				state->state = STATE_SETTINGS;
-				state->data.settings = {};
 				displays->setMode();
 				break;
 
