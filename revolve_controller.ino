@@ -108,6 +108,7 @@ void goToCurrentCue(int target_mode) {
 	}
 }
 
+// TODO: Make this async
 void updateSetting(void (*settingLimiter)(void), int mode) {
 
 	if (Buttons::select.engaged()) {

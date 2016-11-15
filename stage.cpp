@@ -50,6 +50,11 @@ void Stage::loop() {
 		goToCurrentCue(PROGRAM);
 		break;
 
+	case STATE_PROGRAM_MOVEMENTS:
+		checkEstops();
+		goToCurrentCue(PROGRAM_MOVEMENTS);
+		break;
+
 	default:
 		break;
 	}

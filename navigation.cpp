@@ -140,7 +140,6 @@ void Navigation::loop() {
 			displays->setMode();
 		}
 
-		goToCurrentCue(PROGRAM_MOVEMENTS);
 		break;
 
 	case STATE_PROGRAM_PARAMS:
