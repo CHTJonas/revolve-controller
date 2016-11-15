@@ -19,12 +19,10 @@ void Navigation::loop() {
 
 	// Main Menu
 	case STATE_MAINMENU:
-		// Update menu with encoder
 		interface->updateMenu(3);
 
 		// If select is pressed, move into appropriate mode
 		if (Buttons::select.engaged()) {
-			// Reset menu position
 			int menu_pos = interface->menu_pos;
 			interface->menu_pos = 0;
 
@@ -59,7 +57,6 @@ void Navigation::loop() {
 
 	// Manual control
 	case STATE_MANUAL_READY:
-		// Update selection screen
 		interface->updateMenu(9);
 
 		if (Buttons::back.engaged()) {
@@ -73,28 +70,25 @@ void Navigation::loop() {
 		updateSetting(manualLimiter, MANUAL);
 		break;
 
+	case STATE_PROGRAM_SAVED:
+		if (millis() > state->data.program_saved.time + 1000) {
+			state->state = STATE_MAINMENU;
+			state->data.mainmenu = {};
+			displays->setMode;
+		}
+
 	// Mode to edit cue stack
 	case STATE_PROGRAM_MAIN:
-		// Update menu and displays
-		if (interface->updateMenu(2)) {
-			displays->forceUpdateDisplays(1, 1, 1, 0);
-		}
+		interface->updateMenu(2);
 
 		if (Buttons::back.engaged()) {
 			// Save Cuestack
 			cuestack->saveCuestack();
 
-			// Show saved message (without using delay)
-			state->state = STATE_PROGRAM_SAVED;
-			state->data.program_saved = {};
-			displays->setMode();
-			auto startTime = millis();
-			while (millis() < startTime + 1000) {
-			}
-
 			interface->menu_pos = 0;
-			state->state = STATE_MAINMENU;
-			state->data.mainmenu = {};
+
+			state->state = STATE_PROGRAM_SAVED;
+			state->data.program_saved = {millis()};
 			displays->setMode();
 		}
 
@@ -123,7 +117,6 @@ void Navigation::loop() {
 			}
 		}
 
-		goToCurrentCue(PROGRAM);
 		break;
 
 	case STATE_PROGRAM_MOVEMENTS:

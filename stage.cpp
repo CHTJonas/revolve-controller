@@ -43,6 +43,11 @@ void Stage::loop() {
 		manual_brake();
 		break;
 
+	case STATE_PROGRAM_MAIN:
+		checkEstops();
+		goToCurrentCue(PROGRAM);
+		break;
+
 	default:
 		break;
 	}
