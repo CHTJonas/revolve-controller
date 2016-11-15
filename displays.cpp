@@ -113,7 +113,7 @@ void Displays::drawWheelCueDetails(
 	lcd.setPrintPos(lcd.getStrWidth("Speed: "), yOffset + 29);
 
 	if (cursorEnable && menu_pos == 3) {
-		lcd.drawBox(lcd.getStrWidth("Speed: ") - 1, yOffset + 29, 19, 9);
+		lcd.drawBox(lcd.getStrWidth("Speed: ") - 1, yOffset + 21, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
 	lcd.print(values[3] ? "CCW" : "CW");
