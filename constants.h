@@ -7,30 +7,35 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
-// Pins
+// Main control pins
 #define GO 16
 #define BACK 53
 #define DMH 13
 #define SELECT 14
 
+// Encoder pins
 #define ENCR 51
 #define ENCG 49
 #define ENCB 47
 
+// LED pins
 #define GOLED 17
 #define SELECTLED 15
 #define RINGLEDS 29
 #define PAUSELEDS 31
 #define KEYPADLEDS 33
 
+// Homing switch pins
 #define INNERHOME 39
 #define OUTERHOME 41
 
+// Emergency stop pins
 #define ESTOPNC1 60
 #define ESTOPNC2 57
 #define ESTOPNC3 54
 #define ESTOPNO 55
 
+// who knows what these pins do
 #define INPUTENC1 3
 #define INPUTENC2 2
 #define INNERENC1 20
@@ -38,6 +43,7 @@
 #define OUTERENC1 19
 #define OUTERENC2 18
 
+// Keypad pins
 #define KEY1 38
 #define KEY2 40
 #define KEY3 42

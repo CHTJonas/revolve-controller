@@ -1,6 +1,5 @@
 void setup();
 void loop();
-
 char* encodeCue(Cue cue);
 void updateFlags();
 void goToCurrentCue(int target_mode);

@@ -26,7 +26,7 @@ void Stage::loop() {
 	case STATE_RUN_BRAKE:
 		checkEstops();
 		brake();
-		break;  // but not break the brake. Because that'd be bad. Probably...
+		break;
 
 	default:
 		break;
@@ -150,8 +150,6 @@ void Stage::brake() {
 	outer->setSpeed(outer_speed);
 }
 
-/***** Emergency Stop *****/
-
 bool Stage::checkEstops() {
 	if (Buttons::e_stop.engaged()) {
 		emergencyStop();
@@ -165,15 +163,14 @@ void Stage::emergencyStop() {
 	inner->setSpeed(0);
 	outer->setSpeed(0);
 
-	// hold until we're ready to go again
 	while (Buttons::e_stop.engaged()) {
+        // loop endlessly and do nothing until emergency
+        // stop buttons are all disengaged
 	}
 
 	state->state = STATE_RUN_READY;
 	state->data = {};
 }
-
-/**** Drive functions *****/
 
 void Stage::spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel) {
 	// Update position and compute PID

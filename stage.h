@@ -5,13 +5,7 @@
 class Stage {
 public:
 	// Constructor
-	Stage(
-	    State* state,
-	    Revolve* inner,
-	    Revolve* outer,
-	    Displays* displays,
-	    Interface* interface,
-	    Adafruit_NeoPixel* ringLeds);
+	Stage(State* state,Revolve* inner,Revolve* outer,Displays* displays,Interface* interface,Adafruit_NeoPixel* ringLeds);
 	void loop();
 
 	// Settings updating
@@ -33,18 +27,18 @@ public:
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
-	State* state;
-	Revolve* inner;
-	Revolve* outer;
+
 	int acceleration = 10;  // TODO check for sanity
 
 private:
-	Displays* displays;
+    State* state;
+    Revolve* inner;
+    Revolve* outer;
+    Displays* displays;
 	Interface* interface;
 	Adafruit_NeoPixel* ringLeds;
 
 	void setDriveGoal(int position, int speed, int acceleration, int direction, int revolutions, Revolve* wheel);
-
 	void setStateReady();
 	void setStateDrive();
 	void setStateBrake();
