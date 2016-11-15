@@ -59,10 +59,7 @@ void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text)
 
 void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text) {
 	const char string[] = { text, '\0' };
-	int width = lcd.getStrWidth(string);
-	auto x = (SCREEN_WIDTH - width) / 2;
-	lcd.setPrintPos(x, y);
-	lcd.print(text);
+	drawStrCenter(lcd, y, string);
 }
 
 void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const {
