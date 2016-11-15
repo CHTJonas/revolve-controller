@@ -1,19 +1,6 @@
 #include "menu.h"
 #include "constants.h"
 
-<<<<<<< HEAD
-#include "interface.h"
-#include "revolve.h"
-#include "state.h"
-#include "strings.h"
-#include "menu.h"
-#include <U8glib.h>
-#include "displays.h"
-#include "logo.h"
-#include "state.h"
-#include "pins.h"
-#include "strings.h"
-
 Menu::Menu(const char* menuOptionStrings[], int numberOfOptions, U8GLIB_ST7920_128X64& screen) {
     m_screen = screen;
     m_numberOfOptions = numberOfOptions;
