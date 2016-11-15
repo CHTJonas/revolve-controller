@@ -524,13 +524,19 @@ void Displays::drawRightDisplay() const {
 		snprintf(
 		    buffer,
 		    16,
-		    "%i%i%i%i%i",
+		    "%i%i%i%i%i%i%i%i%i",
 		    Buttons::go.engaged(),
 		    Buttons::dmh.engaged(),
-		    Buttons::e_stop.engaged(),
 		    Buttons::select.engaged(),
-		    Buttons::back.engaged());
+		    Buttons::back.engaged(),
+		    Buttons::e_stop.engaged(),
+		    Buttons::e_stop.nc1_b.engaged(),
+		    Buttons::e_stop.nc2_b.engaged(),
+		    Buttons::e_stop.nc3_b.engaged(),
+		    Buttons::e_stop.no_b.engaged());
 		displayRight.drawStr(0, 20, buffer);
+		snprintf(buffer, 16, "%i", interface.input.currentKey);
+		displayRight.drawStr(0, 30, buffer);
 		break;
 	case STATE_HOMING_INPROGRESS:
 		displayRight.setFont(xlarge_font);
