@@ -6,26 +6,26 @@
 
 // Constructor
 Displays::Displays(
-    State* state,
-    U8GLIB_ST7920_128X64& cue,
-    U8GLIB_ST7920_128X64& menu,
-    U8GLIB_ST7920_128X64& info,
-    Adafruit_NeoPixel& ringLeds,
-    Revolve& inner,
-    Revolve& outer,
-    Keypad& keypad,
-    Interface& interface,
-    Cuestack& cuestack)
-      : state(state),
-        displayLeft(cue),
-        displayCentre(menu),
-        displayRight(info),
-        ringLeds(ringLeds),
-        inner(inner),
-        outer(outer),
-        keypad(keypad),
-        interface(interface),
-        cuestack(cuestack) {
+	State* state,
+	U8GLIB_ST7920_128X64& cue,
+	U8GLIB_ST7920_128X64& menu,
+	U8GLIB_ST7920_128X64& info,
+	Adafruit_NeoPixel& ringLeds,
+	Revolve& inner,
+	Revolve& outer,
+	Keypad& keypad,
+	Interface& interface,
+	Cuestack& cuestack)
+	: state(state),
+	displayLeft(cue),
+	displayCentre(menu),
+	displayRight(info),
+	ringLeds(ringLeds),
+	inner(inner),
+	outer(outer),
+	keypad(keypad),
+	interface(interface),
+	cuestack(cuestack) {
 }
 
 void Displays::setup() {
@@ -65,8 +65,8 @@ void Displays::drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, char text) {
 }
 
 void Displays::drawWheelCueDetails(
-    U8GLIB_ST7920_128X64& lcd, int(values)[5], int cursorEnable, int menu_pos, int yOffset, const char* revolveName)
-    const {
+	U8GLIB_ST7920_128X64& lcd, int(values)[5], int cursorEnable, int menu_pos, int menu_pos_offset, int yOffset, const char* revolveName)
+	const {
 	lcd.drawHLine(0, yOffset, SCREEN_WIDTH);
 
 	// Label
@@ -79,7 +79,7 @@ void Displays::drawWheelCueDetails(
 	lcd.drawStr(lcd.getStrWidth(revolveName) + 6, yOffset + 9, "Position: ");
 	lcd.setPrintPos(lcd.getStrWidth("INNERPosition: ") + 4, yOffset + 9);
 
-	if (cursorEnable && menu_pos == 0) {
+	if (cursorEnable && menu_pos == 0 + menu_pos_offset) {
 		lcd.drawBox(lcd.getStrWidth("INNERPosition: ") + 3, yOffset + 1, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
@@ -90,7 +90,7 @@ void Displays::drawWheelCueDetails(
 	lcd.drawStr(2, yOffset + 19, "Speed: ");
 	lcd.setPrintPos(lcd.getStrWidth("Speed: "), yOffset + 19);
 
-	if (cursorEnable && menu_pos == 1) {
+	if (cursorEnable && menu_pos == 1 + menu_pos_offset) {
 		lcd.drawBox(lcd.getStrWidth("Speed: ") - 1, yOffset + 11, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
@@ -101,7 +101,7 @@ void Displays::drawWheelCueDetails(
 	lcd.drawStr(70, 51, "Acc:  ");
 	lcd.setPrintPos(lcd.getStrWidth("Acc:  ") + 70, yOffset + 19);
 
-	if (cursorEnable && menu_pos == 2) {
+	if (cursorEnable && menu_pos == 2 + menu_pos_offset) {
 		lcd.drawBox(lcd.getStrWidth("Acc:  ") + 69, yOffset + 11, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
@@ -112,7 +112,7 @@ void Displays::drawWheelCueDetails(
 	lcd.drawStr(2, yOffset + 29, "Dir: ");
 	lcd.setPrintPos(lcd.getStrWidth("Speed: "), yOffset + 29);
 
-	if (cursorEnable && menu_pos == 3) {
+	if (cursorEnable && menu_pos == 3 + menu_pos_offset) {
 		lcd.drawBox(lcd.getStrWidth("Speed: ") - 1, yOffset + 21, 19, 9);
 		lcd.setDefaultBackgroundColor();
 	}
@@ -123,7 +123,7 @@ void Displays::drawWheelCueDetails(
 	lcd.drawStr(70, yOffset + 29, "Revs: ");
 	lcd.setPrintPos(lcd.getStrWidth("Acc:  ") + 70, yOffset + 29);
 
-	if (cursorEnable && menu_pos == 4) {
+	if (cursorEnable && menu_pos == 4 + menu_pos_offset) {
 		lcd.drawBox(lcd.getStrWidth("Acc:  ") + 69, yOffset + 21, 13, 9);
 		lcd.setDefaultBackgroundColor();
 	}
@@ -142,12 +142,12 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 
 	// Only draw if enabled
 	if (state->state == STATE_MANUAL_READY || (state->state != MAN && interface.cueParams[1] == 1)) {
-		drawWheelCueDetails(lcd, &(values[0]), cursorEnable, menu_pos_shift, 0, "INNER");
+		drawWheelCueDetails(lcd, &(values[0]), cursorEnable, menu_pos_shift, 0, 0, "INNER");
 	}
 
 	// Only draw if enabled
 	if (state->state == STATE_MANUAL_READY || (state->state != STATE_MANUAL_READY && interface.cueParams[2] == 1)) {
-		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 32, "OUTER");
+		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 5, 32, "OUTER");
 	}
 }
 
@@ -161,7 +161,7 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) con
 	}
 
 	if (interface.cueNumber - floor(interface.cueNumber) ==
-	    0)  // Don't display something like 1.0 (but do display 2.4)
+		0)  // Don't display something like 1.0 (but do display 2.4)
 		displayCentre.print(interface.cueNumber, 0);
 	else
 		displayCentre.print(interface.cueNumber, 1);
@@ -222,7 +222,7 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	for (auto i = (cueListPage * 7); i < (cueListPage + 1) * 7; i++) {
 		if (cuestack.stack[i].active) {
 			auto iPos =
-			    (i - (cueListPage * 7));  // Offset page number from i used to position elements on page
+				(i - (cueListPage * 7));  // Offset page number from i used to position elements on page
 
 			// Draw currentCue box
 			if (cuestack.currentCue == i) {
@@ -408,7 +408,8 @@ void Displays::drawCentreDisplay() const {
 				drawStrCentre(displayCentre, (i * 16) + 12, settings_strings[i]);
 				displayCentre.setDefaultForegroundColor();
 			}
-		} else if (interface.menu_pos < 8) {
+		}
+		else if (interface.menu_pos < 8) {
 			for (int i = 0; i < 4; i++) {
 				if ((i + 4) == interface.menu_pos) {
 					// Position highlight box from top left corner
@@ -523,18 +524,18 @@ void Displays::drawRightDisplay() const {
 		displayRight.drawStr(0, 10, "Right");
 		char buffer[16];
 		snprintf(
-		    buffer,
-		    16,
-		    "%i%i%i%i%i%i%i%i%i",
-		    Buttons::go.engaged(),
-		    Buttons::dmh.engaged(),
-		    Buttons::select.engaged(),
-		    Buttons::back.engaged(),
-		    Buttons::e_stop.engaged(),
-		    Buttons::e_stop.nc1_b.engaged(),
-		    Buttons::e_stop.nc2_b.engaged(),
-		    Buttons::e_stop.nc3_b.engaged(),
-		    Buttons::e_stop.no_b.engaged());
+			buffer,
+			16,
+			"%i%i%i%i%i%i%i%i%i",
+			Buttons::go.engaged(),
+			Buttons::dmh.engaged(),
+			Buttons::select.engaged(),
+			Buttons::back.engaged(),
+			Buttons::e_stop.engaged(),
+			Buttons::e_stop.nc1_b.engaged(),
+			Buttons::e_stop.nc2_b.engaged(),
+			Buttons::e_stop.nc3_b.engaged(),
+			Buttons::e_stop.no_b.engaged());
 		displayRight.drawStr(0, 20, buffer);
 		snprintf(buffer, 16, "%i", interface.input.currentKey);
 		displayRight.drawStr(0, 30, buffer);
@@ -550,13 +551,17 @@ void Displays::drawRightDisplay() const {
 
 		if (Buttons::go.engaged()) {
 			drawStrCentre(displayRight, 40, "GO");
-		} else if (Buttons::dmh.engaged()) {
+		}
+		else if (Buttons::dmh.engaged()) {
 			drawStrCentre(displayRight, 40, "DMH");
-		} else if (digitalRead(BACK) == HIGH) {
+		}
+		else if (digitalRead(BACK) == HIGH) {
 			drawStrCentre(displayRight, 40, "BACK");
-		} else if (digitalRead(SELECT) == LOW) {
+		}
+		else if (digitalRead(SELECT) == LOW) {
 			drawStrCentre(displayRight, 40, "SELECT");
-		} else if (interface.input.currentKey) {
+		}
+		else if (interface.input.currentKey) {
 			drawStrCentre(displayRight, 40, interface.input.currentKey);
 		}
 		displayRight.setFont(font);
@@ -673,10 +678,12 @@ void Displays::updateRingLeds() {
 		if (ledOuter == 0) {
 			ringLeds.setPixelColor(11, 100, 75, 0);
 			ringLeds.setPixelColor(1, 100, 75, 0);
-		} else if (ledOuter == 11) {
+		}
+		else if (ledOuter == 11) {
 			ringLeds.setPixelColor(0, 100, 75, 0);
 			ringLeds.setPixelColor(10, 100, 75, 0);
-		} else {
+		}
+		else {
 			ringLeds.setPixelColor(ledOuter - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledOuter + 1, 100, 75, 0);
 		}
@@ -684,10 +691,12 @@ void Displays::updateRingLeds() {
 		if (ledInner == 12) {
 			ringLeds.setPixelColor(13, 100, 75, 0);
 			ringLeds.setPixelColor(23, 100, 75, 0);
-		} else if (ledInner == 23) {
+		}
+		else if (ledInner == 23) {
 			ringLeds.setPixelColor(12, 100, 75, 0);
 			ringLeds.setPixelColor(22, 100, 75, 0);
-		} else {
+		}
+		else {
 			ringLeds.setPixelColor(ledInner - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledInner + 1, 100, 75, 0);
 		}
