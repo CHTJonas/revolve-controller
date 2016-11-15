@@ -49,6 +49,20 @@ Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
 // define the navigation
 Navigation navigation(&state, &cuestack, &interface, &displays, &stage);
 
+// Please leave these here, they are to work around a bug in arduino-builder
+void setup();
+void loop();
+char* encodeCue(Cue cue);
+void updateFlags();
+void goToCurrentCue(int target_mode);
+void updateSetting(void (*settingLimiter)(void), int mode);
+void brightnessLimiter();
+void encoderLimiter();
+void eepromLimiter();
+void kpLimiter();
+void manualLimiter();
+void movementLimiter();
+
 void setup() {
 	Timer1.initialize(100000);
 	Timer1.attachInterrupt(updateFlags);
