@@ -3,6 +3,7 @@
 #include "revolve.h"
 #include "state.h"
 #include "strings.h"
+#include "menu.h"
 #include <U8glib.h>
 
 class Displays {
@@ -63,7 +64,7 @@ private:
 		                               PID_OPTION_4, PID_OPTION_5, PID_OPTION_6 };
 	const char* program_strings[4] = { PROGRAM_OPTION_1, PROGRAM_OPTION_2, PROGRAM_OPTION_3, PROGRAM_OPTION_4 };
 	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
-	
+
 	// define the actual menus
 	const Menu mainMenu = Menu(menu_strings, 4);
 	const Menu settingsMenu = Menu(settings_strings, 8);
