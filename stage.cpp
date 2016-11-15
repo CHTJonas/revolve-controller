@@ -50,6 +50,25 @@ void Stage::loop() {
 		goToCurrentCue(PROGRAM);
 		break;
 
+	case STATE_PROGRAM_MOVEMENTS:
+		checkEstops();
+		goToCurrentCue(PROGRAM_MOVEMENTS);
+		break;
+
+	case STATE_SHOW:
+		checkEstops();
+		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+			runCurrentCue();
+		}
+		break;
+
+	case STATE_HOMING_INPROGRESS:
+		checkEstops();
+		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
+			gotoHome();
+		}
+		break;
+
 	default:
 		break;
 	}
