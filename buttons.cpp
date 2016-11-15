@@ -1,5 +1,6 @@
 #include "buttons.h"
 #include "constants.h"
+#include "pins.h"
 #include <Arduino.h>
 
 Button Buttons::dmh = Button(DMH, true);

@@ -1,3 +1,4 @@
+#include "pins.h"
 #include "navigation.h"
 #include "revolve_controller.h"
 #include "stage.h"
