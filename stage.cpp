@@ -9,7 +9,7 @@ Stage::Stage(
 	updateKpSettings();
 }
 
-void Stage::step() {
+void Stage::loop() {
 	checkEstops();
 
 	switch (state->state) {

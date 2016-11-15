@@ -28,6 +28,7 @@ class Cuestack {
 public:
 	// Constructor
 	Cuestack();
+	void setup();
 
 	// Cue initialisation
 	void updateDefaultValues();

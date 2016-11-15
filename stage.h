@@ -1,6 +1,6 @@
 #pragma once
 #include "displays.h"
-#include "state_machine.h"
+#include "state.h"
 
 class Stage {
 public:
@@ -12,7 +12,7 @@ public:
 	    Displays* displays,
 	    Interface* interface,
 	    Adafruit_NeoPixel* ringLeds);
-	void step();
+	void loop();
 
 	// Settings updating
 	void updateEncRatios() const;

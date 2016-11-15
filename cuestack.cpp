@@ -4,6 +4,11 @@
 Cuestack::Cuestack() {
 }
 
+void Cuestack::setup() {
+	loadCuestack();
+	// loadExampleCues();
+}
+
 void Cuestack::updateDefaultValues() {
 	int newDefaultValues[10];
 	EEPROM.get(EEDEFAULT_VALUES, newDefaultValues);

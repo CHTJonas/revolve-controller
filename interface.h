@@ -17,6 +17,7 @@ public:
 	    Adafruit_NeoPixel& ringLeds,
 	    Adafruit_NeoPixel& pauseLeds,
 	    Adafruit_NeoPixel& keypadLeds);
+	void setup();
 
 	// Navigation and editing
 	bool updateMenu(int menuMax);

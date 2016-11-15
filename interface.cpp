@@ -37,6 +37,10 @@ Interface::Interface(
 	input.usingKeypad = false;
 }
 
+void Interface::setup() {
+	setupSwitches();
+}
+
 bool Interface::editVars(int mode) {
 	// Check if keypad not in use and if key has been pressed
 	input.updateKeypad();

@@ -6,7 +6,7 @@ OutputLedInterface::OutputLedInterface(
       : ringLeds(ringLeds), pauseLeds(pauseLeds), keypadLeds(keypadLeds) {
 }
 
-void OutputLedInterface::setupLeds() {
+void OutputLedInterface::setup() {
 	pinMode(ENCR, OUTPUT);
 	pinMode(ENCG, OUTPUT);
 	pinMode(ENCB, OUTPUT);

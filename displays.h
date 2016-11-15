@@ -1,13 +1,12 @@
 #pragma once
 #include "interface.h"
 #include "revolve.h"
-#include "state_machine.h"
+#include "state.h"
 #include "strings.h"
 #include <U8glib.h>
 
 class Displays {
 public:
-	// Constructor
 	Displays(
 	    State* state,
 	    U8GLIB_ST7920_128X64& cue,
@@ -19,20 +18,20 @@ public:
 	    Keypad& keypad,
 	    Interface& interface,
 	    Cuestack& cuestack);
-	void step();
+	void setup();
+	void loop();
 
 	// Initialisation
-	void begin();
 	void setMode();
 
 	// Screen Drawing
-	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
-	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text);
+	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
+	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, char text);
 	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int values[], int cursorEnable) const;
 	void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
 	void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
 	void drawLeftDisplay() const;
-	void drawCenterDisplay() const;
+	void drawCentreDisplay() const;
 	void drawRightDisplay() const;
 	void updateRingLeds();
 	void updateDisplays(int cue1, int menu, int info, int ringLeds);
@@ -71,7 +70,7 @@ private:
 	const u8g_fntpgm_uint8_t* small_font = u8g_font_5x7;  // 7px high row
 
 	U8GLIB_ST7920_128X64& displayLeft;
-	U8GLIB_ST7920_128X64& displayCenter;
+	U8GLIB_ST7920_128X64& displayCentre;
 	U8GLIB_ST7920_128X64& displayRight;
 
 	State* state;

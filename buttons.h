@@ -16,6 +16,10 @@ public:
 	EStopButton(int nc1, int nc2, int nc3, int no);
 
 	bool engaged();
+	Button nc1_b;
+	Button nc2_b;
+	Button nc3_b;
+	Button no_b;
 
 private:
 	int nc1;
