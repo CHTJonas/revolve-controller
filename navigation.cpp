@@ -78,6 +78,7 @@ void Navigation::loop() {
 			state->data.mainmenu = {};
 			displays->setMode();
 		}
+		break;
 
 	// Mode to edit cue stack
 	case STATE_PROGRAM_MAIN:
