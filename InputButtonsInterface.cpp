@@ -38,9 +38,9 @@ bool InputButtonsInterface::inputEncoderPressed()
 bool InputButtonsInterface::backPressed()
 {
 	back.update();
-	if(back.read())
+	if (back.read())
 	{
-		while(back.read())
+		while (back.read())
 		{
 			back.update();
 		}
