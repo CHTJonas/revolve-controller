@@ -520,9 +520,9 @@ void Displays::drawRightDisplay() const {
 	case STATE_HARDWARETEST:
 		displayRight.setFont(xlarge_font);
 
-		if (InputButtonsInterface::goEngaged()) {
+		if (Buttons::go.engaged()) {
 			drawStrCenter(displayRight, 40, "GO");
-		} else if (InputButtonsInterface::dmhEngaged()) {
+		} else if (Buttons::dmh.engaged()) {
 			drawStrCenter(displayRight, 40, "DMH");
 		} else if (digitalRead(BACK) == HIGH) {
 			drawStrCenter(displayRight, 40, "BACK");

@@ -1,7 +1,7 @@
 #pragma once
-#include "InputButtonsInterface.h"
 #include "InputInterface.h"
 #include "OutputLedInterface.h"
+#include "buttons.h"
 #include "cuestack.h"
 #include <Adafruit_NeoPixel.h>
 
@@ -34,7 +34,6 @@ public:
 	// Cuestack
 	Cuestack& cuestack;
 
-	InputButtonsInterface buttons;
 	InputInterface input;
 	OutputLedInterface leds;
 

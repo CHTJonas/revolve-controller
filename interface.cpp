@@ -12,9 +12,6 @@ Interface::Interface(
       : cuestack(cuestack),
         input(InputInterface(enc_input, keypad)),
         leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
-
-	buttons = InputButtonsInterface();
-
 	// Initialise settings from EEPROM
 	EEPROM.get(EELED_SETTINGS, leds.ledSettings);
 
@@ -178,11 +175,4 @@ void Interface::setupSwitches() {
 	pinMode(ESTOPNC2, INPUT_PULLUP);
 	pinMode(ESTOPNC3, INPUT_PULLUP);
 	pinMode(ESTOPNO, INPUT_PULLUP);
-
-	// Setup debouncers
-	buttons.back.attach(SELECT);
-	buttons.back.interval(10);
-
-	buttons.inputEncoder.attach(BACK);
-	buttons.inputEncoder.interval(10);
 }
