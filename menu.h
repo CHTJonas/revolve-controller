@@ -1,13 +1,11 @@
-#pragma once
-#include "constants.h"
-
 class Menu {
 public:
-	// Constructor
-	Menu(int size);
-
-	int menu_position;
-	char* elements[];
+	Menu(const char* menuOptionStrings[], int numberOfOptions);
+    ~Menu();
+    // BaseMenu *getNextMenu(int iChoice, bool& iIsQuitOptionSelected);
+    // void draw();
 
 private:
+    char** m_menuOptionStrings;
+    int m_numberOfOptions;
 };
