@@ -29,9 +29,9 @@ public:
 	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const;
 	void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
 	void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
-	void drawCue() const;
-	void drawMenu() const;
-	void drawInfo() const;
+	void drawLeftDisplay() const;
+	void drawCenterDisplay() const;
+	void drawRightDisplay() const;
 	void updateRingLeds();
 	void updateDisplays(int cue1, int menu, int info, int ringLeds);
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
