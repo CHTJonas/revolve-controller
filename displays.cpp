@@ -74,7 +74,7 @@ void Displays::drawWheelCueDetails(U8GLIB_ST7920_128X64& lcd, int(values)[5], in
 
 	// Position
 	lcd.drawStr(lcd.getStrWidth(revolveName) + 6, yOffset + 9, "Position: ");
-	lcd.setPrintPos(lcd.getStrWidth("INNERPosition:") + 4, yOffset + 9);
+	lcd.setPrintPos(lcd.getStrWidth("INNERPosition: ") + 4, yOffset + 9);
 
 	if (cursorEnable && menu_pos == 0) {
 		lcd.drawBox(lcd.getStrWidth("INNERPosition: ") + 3, yOffset + 1, 19, 9);
