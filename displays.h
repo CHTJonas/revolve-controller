@@ -26,7 +26,7 @@ public:
 	// Screen Drawing
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
 	static void drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text);
-	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int (&values)[10], int cursorEnable) const;
+	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int values[], int cursorEnable) const;
 	void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
 	void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
 	void drawLeftDisplay() const;
@@ -35,6 +35,8 @@ public:
 	void updateRingLeds();
 	void updateDisplays(int cue1, int menu, int info, int ringLeds);
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
+
+	void xyz(U8GLIB_ST7920_128X64& lcd, int values[], int cursorEnable, int menu_pos, int yOffset, const char* revolveName) const;
 
 	int update;
 	int mode;
