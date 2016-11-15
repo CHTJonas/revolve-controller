@@ -278,12 +278,6 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 		if (!InputButtonsInterface::dmhEngaged() || InputButtonsInterface::eStopsEngaged()) {
 			emergencyStop();
 
-			// Restart
-			digitalWrite(GOLED, LOW);
-			wheel->setSpeed(HOMESPEED);
-
-			// TODO check this
-			// below code was origianlly only in E-Stops
 			if (InputButtonsInterface::dmhEngaged() && InputButtonsInterface::goEngaged()) {
 				wheel->setSpeed(HOMESPEED);
 			}
