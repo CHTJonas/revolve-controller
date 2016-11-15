@@ -2,14 +2,12 @@
 #include "constants.h"
 
 class Menu {
-    public:
+public:
 	// Constructor
 	Menu(int size);
 
 	int menu_position;
 	char* elements[];
 
-
 private:
-    
 };

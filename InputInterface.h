@@ -2,8 +2,7 @@
 #include <Encoder.h>
 #include <Keypad.h>
 
-class InputInterface
-{
+class InputInterface {
 public:
 	InputInterface(Encoder& encoder, Keypad& keypad);
 
@@ -11,7 +10,7 @@ public:
 
 	void updateKeypad();
 	char getKey();
-	void resetKeypad();	
+	void resetKeypad();
 
 	Encoder& enc_input;
 	Keypad& keypad;
@@ -23,5 +22,3 @@ public:
 
 	bool editing;
 };
-
-

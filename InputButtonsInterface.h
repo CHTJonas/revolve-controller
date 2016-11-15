@@ -1,11 +1,9 @@
 #pragma once
 #include <Bounce2.h>
 
-class InputButtonsInterface
-{
+class InputButtonsInterface {
 
 public:
-
 	static bool dmhEngaged();
 	static bool goEngaged();
 	static bool eStopsEngaged();
@@ -15,4 +13,3 @@ public:
 	static Bounce back;
 	static Bounce inputEncoder;
 };
-

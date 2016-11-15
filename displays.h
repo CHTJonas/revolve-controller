@@ -36,7 +36,13 @@ public:
 	void updateDisplays(int cue1, int menu, int info, int ringLeds);
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
 
-	void drawWheelCueDetails(U8GLIB_ST7920_128X64& lcd, int values[], int cursorEnable, int menu_pos, int yOffset, const char* revolveName) const;
+	void drawWheelCueDetails(
+	    U8GLIB_ST7920_128X64& lcd,
+	    int values[],
+	    int cursorEnable,
+	    int menu_pos,
+	    int yOffset,
+	    const char* revolveName) const;
 
 	int update;
 	int mode;

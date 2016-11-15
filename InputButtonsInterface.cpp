@@ -1,6 +1,6 @@
 #include "InputButtonsInterface.h"
-#include <Arduino.h>
 #include "constants.h"
+#include <Arduino.h>
 
 Bounce InputButtonsInterface::back = Bounce();
 Bounce InputButtonsInterface::inputEncoder = Bounce();
@@ -20,28 +20,21 @@ bool InputButtonsInterface::eStopsEngaged() {
 	return !(digitalRead(ESTOPNC1) == LOW && digitalRead(ESTOPNO) == HIGH);
 }
 
-bool InputButtonsInterface::inputEncoderPressed()
-{
+bool InputButtonsInterface::inputEncoderPressed() {
 	inputEncoder.update();
-	if (inputEncoder.read() == LOW)
-	{
-		while (inputEncoder.read() == LOW)
-		{
+	if (inputEncoder.read() == LOW) {
+		while (inputEncoder.read() == LOW) {
 			inputEncoder.update();
 		}
 		return true;
-
 	}
 	return false;
 }
 
-bool InputButtonsInterface::backPressed()
-{
+bool InputButtonsInterface::backPressed() {
 	back.update();
-	if (back.read())
-	{
-		while (back.read())
-		{
+	if (back.read()) {
+		while (back.read()) {
 			back.update();
 		}
 		return true;

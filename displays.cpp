@@ -4,24 +4,24 @@
 
 // Constructor
 Displays::Displays(
-	U8GLIB_ST7920_128X64& cue,
-	U8GLIB_ST7920_128X64& menu,
-	U8GLIB_ST7920_128X64& info,
-	Adafruit_NeoPixel& ringLeds,
-	Revolve& inner,
-	Revolve& outer,
-	Keypad& keypad,
-	Interface& interface,
-	Cuestack& cuestack)
-	: displayLeft(cue),
-	displayCenter(menu),
-	displayRight(info),
-	ringLeds(ringLeds),
-	inner(inner),
-	outer(outer),
-	keypad(keypad),
-	interface(interface),
-	cuestack(cuestack) {
+    U8GLIB_ST7920_128X64& cue,
+    U8GLIB_ST7920_128X64& menu,
+    U8GLIB_ST7920_128X64& info,
+    Adafruit_NeoPixel& ringLeds,
+    Revolve& inner,
+    Revolve& outer,
+    Keypad& keypad,
+    Interface& interface,
+    Cuestack& cuestack)
+      : displayLeft(cue),
+        displayCenter(menu),
+        displayRight(info),
+        ringLeds(ringLeds),
+        inner(inner),
+        outer(outer),
+        keypad(keypad),
+        interface(interface),
+        cuestack(cuestack) {
 	mode = STARTUP;
 }
 
@@ -62,8 +62,9 @@ void Displays::drawStrCenter(U8GLIB_ST7920_128X64& lcd, int y, char text) {
 	drawStrCenter(lcd, y, string);
 }
 
-void Displays::drawWheelCueDetails(U8GLIB_ST7920_128X64& lcd, int(values)[5], int cursorEnable, int menu_pos, int yOffset, const char* revolveName) const
-{
+void Displays::drawWheelCueDetails(
+    U8GLIB_ST7920_128X64& lcd, int(values)[5], int cursorEnable, int menu_pos, int yOffset, const char* revolveName)
+    const {
 	lcd.drawHLine(0, yOffset, SCREEN_WIDTH);
 
 	// Label
@@ -133,11 +134,11 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 
 	auto menu_pos_shift = interface.menu_pos;
 	if (mode != MAN && interface.cueParams[1] == 0) {
-        // Shift menu_pos by 5 if inner disabled
+		// Shift menu_pos by 5 if inner disabled
 		menu_pos_shift += 5;
 	}
 
-	// Only draw if enabled 
+	// Only draw if enabled
 	if (mode == MAN || (mode != MAN && interface.cueParams[1] == 1)) {
 		drawWheelCueDetails(lcd, &(values[0]), cursorEnable, menu_pos_shift, 0, "INNER");
 	}
@@ -146,7 +147,6 @@ void Displays::drawCueLayout(U8GLIB_ST7920_128X64& lcd, int(values)[10], int cur
 	if (mode == MAN || (mode != MAN && interface.cueParams[2] == 1)) {
 		drawWheelCueDetails(lcd, &(values[5]), cursorEnable, menu_pos_shift, 32, "OUTER");
 	}
-
 }
 
 void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const {
@@ -159,7 +159,7 @@ void Displays::drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) con
 	}
 
 	if (interface.cueNumber - floor(interface.cueNumber) ==
-		0)  // Don't display something like 1.0 (but do display 2.4)
+	    0)  // Don't display something like 1.0 (but do display 2.4)
 		displayCenter.print(interface.cueNumber, 0);
 	else
 		displayCenter.print(interface.cueNumber, 1);
@@ -220,7 +220,7 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	for (auto i = (cueListPage * 7); i < (cueListPage + 1) * 7; i++) {
 		if (cuestack.stack[i].active) {
 			auto iPos =
-				(i - (cueListPage * 7));  // Offset page number from i used to position elements on page
+			    (i - (cueListPage * 7));  // Offset page number from i used to position elements on page
 
 			// Draw currentCue box
 			if (cuestack.currentCue == i) {
@@ -402,8 +402,7 @@ void Displays::drawCenterDisplay() const {
 				drawStrCenter(displayCenter, (i * 16) + 12, settings_strings[i]);
 				displayCenter.setDefaultForegroundColor();
 			}
-		}
-		else if (interface.menu_pos < 8) {
+		} else if (interface.menu_pos < 8) {
 			for (int i = 0; i < 4; i++) {
 				if ((i + 4) == interface.menu_pos) {
 					// Position highlight box from top left corner
@@ -532,17 +531,13 @@ void Displays::drawRightDisplay() const {
 
 		if (InputButtonsInterface::goEngaged()) {
 			drawStrCenter(displayRight, 40, "GO");
-		}
-		else if (InputButtonsInterface::dmhEngaged()) {
+		} else if (InputButtonsInterface::dmhEngaged()) {
 			drawStrCenter(displayRight, 40, "DMH");
-		}
-		else if (digitalRead(BACK) == HIGH) {
+		} else if (digitalRead(BACK) == HIGH) {
 			drawStrCenter(displayRight, 40, "BACK");
-		}
-		else if (digitalRead(SELECT) == LOW) {
+		} else if (digitalRead(SELECT) == LOW) {
 			drawStrCenter(displayRight, 40, "SELECT");
-		}
-		else if (interface.input.currentKey) {
+		} else if (interface.input.currentKey) {
 			drawStrCenter(displayRight, 40, interface.input.currentKey);
 		}
 		displayRight.setFont(font);
@@ -660,12 +655,10 @@ void Displays::updateRingLeds() {
 		if (ledOuter == 0) {
 			ringLeds.setPixelColor(11, 100, 75, 0);
 			ringLeds.setPixelColor(1, 100, 75, 0);
-		}
-		else if (ledOuter == 11) {
+		} else if (ledOuter == 11) {
 			ringLeds.setPixelColor(0, 100, 75, 0);
 			ringLeds.setPixelColor(10, 100, 75, 0);
-		}
-		else {
+		} else {
 			ringLeds.setPixelColor(ledOuter - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledOuter + 1, 100, 75, 0);
 		}
@@ -673,12 +666,10 @@ void Displays::updateRingLeds() {
 		if (ledInner == 12) {
 			ringLeds.setPixelColor(13, 100, 75, 0);
 			ringLeds.setPixelColor(23, 100, 75, 0);
-		}
-		else if (ledInner == 23) {
+		} else if (ledInner == 23) {
 			ringLeds.setPixelColor(12, 100, 75, 0);
 			ringLeds.setPixelColor(22, 100, 75, 0);
-		}
-		else {
+		} else {
 			ringLeds.setPixelColor(ledInner - 1, 100, 75, 0);
 			ringLeds.setPixelColor(ledInner + 1, 100, 75, 0);
 		}

@@ -20,7 +20,7 @@ U8GLIB_ST7920_128X64 cue1(22, 24, 26, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 menu(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 info(32, 34, 36, U8G_PIN_NONE);
 
-State state = State{ .state = STATE_MAINMENU,.data = {} };
+State state = State{.state = STATE_MAINMENU, .data = {} };
 Revolve inner(4, 5, 6, enc_inner);
 Revolve outer(11, 10, 9, enc_outer);
 Cuestack cuestack;
@@ -34,7 +34,7 @@ void loop();
 char* encodeCue(Cue cue);
 void updateFlags();
 void goToCurrentCue(int target_mode);
-void updateSetting(void(*settingLimiter)(void), int mode);
+void updateSetting(void (*settingLimiter)(void), int mode);
 void brightnessLimiter();
 void encoderLimiter();
 void eepromLimiter();
@@ -63,7 +63,7 @@ void loop() {
 	// return;
 	// Main switch statement for navigating screens
 	switch (displays.mode) {
-		// Waits for Pause and GO to be pressed then initiates homing
+	// Waits for Pause and GO to be pressed then initiates homing
 	case STARTUP:
 
 		// Wait for both switches
@@ -79,11 +79,11 @@ void loop() {
 		displays.setMode(NORMAL);
 		break;
 
-		// During homing everything handled by stage and display classes
+	// During homing everything handled by stage and display classes
 	case HOMING:
 		break;
 
-		// Main Menu
+	// Main Menu
 	case NORMAL:
 		// Update menu with encoder
 		if (interface.updateMenu(3)) {
@@ -113,7 +113,7 @@ void loop() {
 		}
 		break;
 
-		// Manual control
+	// Manual control
 	case MAN:
 		// Update selection screen
 		if (interface.updateMenu(9)) {
@@ -135,7 +135,7 @@ void loop() {
 		}
 		break;
 
-		// Mode to edit cue stack
+	// Mode to edit cue stack
 	case PROGRAM:
 		// Update menu and displays
 		if (interface.updateMenu(2)) {
@@ -180,12 +180,11 @@ void loop() {
 
 	case PROGRAM_MOVEMENTS:
 		if (interface.cueParams[1] == 0 ||
-			interface.cueParams[2] == 0) {  // If either half disabled for this cue
+		    interface.cueParams[2] == 0) {  // If either half disabled for this cue
 			if (interface.updateMenu(4)) {
 				displays.forceUpdateDisplays(1, 0, 0, 0);
 			}
-		}
-		else {
+		} else {
 			if (interface.updateMenu(9)) {
 				displays.forceUpdateDisplays(1, 0, 0, 0);
 			}
@@ -218,7 +217,7 @@ void loop() {
 					// Just flip Yes/No variables on select
 					if (interface.menu_pos > 0) {
 						interface.cueParams[interface.menu_pos - 1] =
-							!interface.cueParams[interface.menu_pos - 1];
+						    !interface.cueParams[interface.menu_pos - 1];
 						interface.editing = 0;
 						interface.limitCueParams();
 						displays.forceUpdateDisplays(0, 1, 0, 0);
@@ -251,8 +250,7 @@ void loop() {
 							while (!cuestack.validCueNumber(interface.cueNumber)) {
 								if (interface.cueNumber < 99.9) {
 									interface.cueNumber += 0.1;
-								}
-								else
+								} else
 									interface.cueNumber = 0;
 							}
 						}
@@ -266,7 +264,7 @@ void loop() {
 				cuestack.setParams(interface.cueParams);
 				cuestack.sortCues();
 				cuestack.currentCue =
-					cuestack.getCueIndex(interface.cueNumber);  // If sorting has occured, cue
+				    cuestack.getCueIndex(interface.cueNumber);  // If sorting has occured, cue
 				// highlighter in list is in wrong place
 				// now
 				displays.forceUpdateDisplays(1, 1, 1, 0);
@@ -360,7 +358,7 @@ void loop() {
 		}
 		break;
 
-		// Run mode for during show - cannot edit cues
+	// Run mode for during show - cannot edit cues
 	case SHOW:
 
 		// Only allow cue position jogging if select pressed
@@ -396,7 +394,7 @@ void loop() {
 		}
 		break;
 
-		// Change system settings
+	// Change system settings
 	case SETTINGS:
 		// Update menu position
 		if (interface.updateMenu(7)) {
@@ -436,13 +434,13 @@ void loop() {
 				displays.setMode(SETTINGS);
 				break;
 
-				// Edit PID Constants
+			// Edit PID Constants
 			case 1:
 				interface.menu_pos = 0;
 				displays.setMode(KPSETTINGS);
 				break;
 
-				// Edit default cue values
+			// Edit default cue values
 			case 2:
 				interface.menu_pos = 0;
 				displays.setMode(DEFAULTVALUES);
@@ -453,25 +451,25 @@ void loop() {
 				displays.setMode(CUESTACK_BACKUP);
 				break;
 
-				// Reset cuestack
+			// Reset cuestack
 			case 4:
 				interface.menu_pos = 0;
 				displays.setMode(NORMAL);
 				break;
 
-				// Edit encoder settings
+			// Edit encoder settings
 			case 5:
 				interface.menu_pos = 0;
 				displays.setMode(ENCSETTINGS);
 				break;
 
-				// Edit LED settings
+			// Edit LED settings
 			case 6:
 				interface.menu_pos = 0;
 				displays.setMode(BRIGHTNESS);
 				break;
 
-				// Hardware test mode
+			// Hardware test mode
 			case 7:
 				// All encoder lights on prevents switch from reading properly due to voltage
 				interface.leds.encoderLedColor(false, false, true);
@@ -486,7 +484,7 @@ void loop() {
 		}
 		break;
 
-		// Mode to test all switches and LEDs
+	// Mode to test all switches and LEDs
 	case HARDWARETEST:
 
 		// Read keypad
@@ -550,7 +548,7 @@ void loop() {
 		updateSetting(encoderLimiter, ENCSETTINGS);
 		break;
 
-		// Set default cue values
+	// Set default cue values
 	case DEFAULTVALUES:
 
 		// Update selection screen
@@ -635,7 +633,7 @@ void goToCurrentCue(int target_mode) {
 	}
 }
 
-void updateSetting(void(*settingLimiter)(void), int mode) {
+void updateSetting(void (*settingLimiter)(void), int mode) {
 
 	if (InputButtonsInterface::inputEncoderPressed()) {
 		interface.editing = 1;
@@ -647,10 +645,10 @@ void updateSetting(void(*settingLimiter)(void), int mode) {
 					(*settingLimiter)();
 				}
 				displays.forceUpdateDisplays(
-					0,
-					1,
-					0,
-					1);  // the parameters originally varied but since we're redoing everything...
+				    0,
+				    1,
+				    0,
+				    1);  // the parameters originally varied but since we're redoing everything...
 			}
 
 			// If select pressed to confirm value, exit editing mode
@@ -665,7 +663,7 @@ void updateSetting(void(*settingLimiter)(void), int mode) {
 void brightnessLimiter() {
 	keypadLeds.setBrightness(interface.leds.ledSettings[0]);
 	interface.leds.keypadLedsColor(
-		interface.leds.ledSettings[1], interface.leds.ledSettings[2], interface.leds.ledSettings[3]);
+	    interface.leds.ledSettings[1], interface.leds.ledSettings[2], interface.leds.ledSettings[3]);
 	ringLeds.setBrightness(interface.leds.ledSettings[0]);
 	ringLeds.show();
 	displays.forceUpdateDisplays(0, 1, 0, 1);

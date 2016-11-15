@@ -1,15 +1,17 @@
 #include "interface.h"
-#include "utils.h" 
+#include "utils.h"
 #include <EEPROM.h>
 
 Interface::Interface(
-	Cuestack& cuestack,
-	Encoder& enc_input,
-	Keypad& keypad,
-	Adafruit_NeoPixel& ringLeds,
-	Adafruit_NeoPixel& pauseLeds,
-	Adafruit_NeoPixel& keypadLeds)
-	: cuestack(cuestack), input(InputInterface(enc_input, keypad)), leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
+    Cuestack& cuestack,
+    Encoder& enc_input,
+    Keypad& keypad,
+    Adafruit_NeoPixel& ringLeds,
+    Adafruit_NeoPixel& pauseLeds,
+    Adafruit_NeoPixel& keypadLeds)
+      : cuestack(cuestack),
+        input(InputInterface(enc_input, keypad)),
+        leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
 
 	buttons = InputButtonsInterface();
 
@@ -44,8 +46,7 @@ bool Interface::editVars(int mode) {
 
 	auto delta = false, change = false;
 
-	if (input.usingKeypad)
-	{
+	if (input.usingKeypad) {
 		auto pressedKey = input.getKey();
 		delta = false;
 
@@ -53,25 +54,20 @@ bool Interface::editVars(int mode) {
 			change = true;
 			if (pressedKey == '#' || pressedKey == '*') {
 				input.value = 0;
-			}
-			else if (String(input.value).length() < 4)
-			{
+			} else if (String(input.value).length() < 4) {
 				input.value = input.value * 10 + atoi(&pressedKey);
 			}
 		}
-	}
-	else // using encoder
+	} else  // using encoder
 	{
 		delta = true;
 		input.value = input.getInputEncoder();
-		if (input.value)
-		{
+		if (input.value) {
 			change = true;
 		}
 	}
 
-	if (change)
-	{
+	if (change) {
 		switch (mode) {
 		case MAN:
 			currentMovements[menu_pos] = delta ? currentMovements[menu_pos] + input.value : input.value;
@@ -82,22 +78,22 @@ bool Interface::editVars(int mode) {
 		case ENCSETTINGS:
 			if (menu_pos < 2) {
 				encSettings[menu_pos] = input.value > 0 ? 1 : 0;
-			}
-			else {
-				encSettings[menu_pos] = delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
+			} else {
+				encSettings[menu_pos] =
+				    delta ? (encSettings[menu_pos] + input.value) / 100.0f : input.value / 100.0f;
 			}
 			break;
 		case DEFAULTVALUES:
 			defaultValues[menu_pos] = delta ? defaultValues[menu_pos] + input.value : input.value;
 			break;
 		case KPSETTINGS:
-			kpSettings[menu_pos] = delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
+			kpSettings[menu_pos] =
+			    delta ? (kpSettings[menu_pos] + input.value) / 1000.0f : input.value / 1000.0f;
 			break;
 		case PROGRAM_MOVEMENTS:
 			if (cueParams[1] == 0) {  // If inner disabled
 				cueMovements[menu_pos + 5] = delta ? kpSettings[menu_pos] + input.value : input.value;
-			}
-			else {
+			} else {
 				cueMovements[menu_pos] = delta ? kpSettings[menu_pos] + input.value : input.value;
 			}
 			break;
@@ -113,7 +109,7 @@ bool Interface::editVars(int mode) {
 	return false;
 }
 
-void Interface::limitMovements(int(&movements)[10]) const {
+void Interface::limitMovements(int (&movements)[10]) const {
 	movements[0] = clamp(movements[0], 0, 359);
 	movements[1] = clamp(movements[1], MINSPEED, 100);
 	movements[2] = clamp(movements[2], 1, MAXACCEL);
