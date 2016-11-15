@@ -91,10 +91,7 @@ void loop() {
 		}
 
 		// If select is pressed, move into appropriate mode
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
-			interface.buttons.waitSelectRelease();
-
+		if (InputButtonsInterface::inputEncoderPressed()) {
 			// Reset menu position
 			int menu_pos = interface.menu_pos;
 			interface.menu_pos = 0;
@@ -183,9 +180,8 @@ void loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
-			interface.buttons.waitSelectRelease();
+		if (InputButtonsInterface::inputEncoderPressed()) {
+			
 
 			// Choose based on menu_pos
 			switch (interface.menu_pos) {
@@ -225,9 +221,8 @@ void loop() {
 		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);
 
 		// Back one level only
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		if (InputButtonsInterface::backPressed()) {
+			
 			interface.menu_pos = 0;
 			displays.setMode(PROGRAM);
 		}
@@ -244,9 +239,8 @@ void loop() {
 		}
 
 		// If select pressed, edit appropriate parameter
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
-			interface.buttons.waitSelectRelease();
+		if (InputButtonsInterface::inputEncoderPressed()) {
+			
 
 			if (interface.menu_pos < 4) {
 
@@ -279,9 +273,9 @@ void loop() {
 					}
 
 					// If select pressed to confirm value, exit editing mode
-					interface.buttons.back.update();
-					if (interface.buttons.back.read() == LOW) {
-						interface.buttons.waitSelectRelease();
+					
+					if (InputButtonsInterface::inputEncoderPressed()) {
+						
 
 						// Limit variables from keypad
 						interface.limitCueParams();
@@ -345,9 +339,9 @@ void loop() {
 				while (!decision) {
 
 					// If select pressed, delete cue
-					interface.buttons.back.update();
-					if (interface.buttons.back.read() == LOW) {
-						interface.buttons.waitSelectRelease();
+					
+					if (InputButtonsInterface::inputEncoderPressed()) {
+						
 						// Reset current cue
 						cuestack.resetCue(cuestack.currentCue);
 						// Decrement currentCue so we don't fall off end of active part of array
@@ -366,9 +360,9 @@ void loop() {
 					}
 
 					// If back pressed, don't!
-					interface.buttons.inputEncoder.update();
-					if (interface.buttons.inputEncoder.read() == HIGH) {
-						interface.buttons.waitBackRelease();
+					
+					if (InputButtonsInterface::backPressed()) {
+						
 						// Go back into PROGRAM_PARAMS
 						interface.menu_pos = 5;
 						displays.setMode(PROGRAM_PARAMS);
@@ -379,9 +373,9 @@ void loop() {
 		}
 
 		// Back one level only
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 			interface.menu_pos = 1;
 			displays.setMode(PROGRAM);
 		}
@@ -398,9 +392,9 @@ void loop() {
 		}
 
 		// If select pressed, load appropriate cue
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
-			interface.buttons.waitSelectRelease();
+		
+		if (InputButtonsInterface::inputEncoderPressed()) {
+			
 
 			// Load cue data
 			cuestack.currentCue = interface.menu_pos;
@@ -412,9 +406,9 @@ void loop() {
 		}
 
 		// Back one level only
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 			interface.menu_pos = 2;
 			displays.setMode(PROGRAM);
 		}
@@ -427,21 +421,21 @@ void loop() {
 		digitalWrite(SELECTLED, HIGH);
 
 		// Only allow cue position jogging if select pressed
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
+		
+		if (InputButtonsInterface::inputEncoderPressed()) {
 			// Update LEDs
 			digitalWrite(GOLED, LOW);
 
 			// Reset input encoder before start of edit
 			interface.input.getInputEncoder();
 
-			interface.buttons.waitSelectRelease();
+			
 			while (true) {
-				interface.buttons.back.update();
+				
 
 				// If select presed again, exit jogging mode
-				if (interface.buttons.back.read() == LOW) {
-					interface.buttons.waitSelectRelease();
+				if (InputButtonsInterface::inputEncoderPressed()) {
+					
 					break;
 				}
 
@@ -464,9 +458,9 @@ void loop() {
 		}
 
 		// Back one level only
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 			interface.menu_pos = 2;
 			displays.setMode(NORMAL);
 		}
@@ -487,9 +481,9 @@ void loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		interface.buttons.back.update();
-		if (interface.buttons.back.read() == LOW) {
-			interface.buttons.waitSelectRelease();
+		
+		if (InputButtonsInterface::inputEncoderPressed()) {
+			
 
 			// Choose based on menu_pos
 			switch (interface.menu_pos) {
@@ -500,9 +494,9 @@ void loop() {
 
 				while (true) {
 					// Exit (1 level only, back to settings) if back pressed, reset LEDs
-					interface.buttons.inputEncoder.update();
-					if (interface.buttons.inputEncoder.read()) {
-						interface.buttons.waitBackRelease();
+					
+					if (InputButtonsInterface::backPressed()) {
+						
 						digitalWrite(GOLED, LOW);
 						break;
 					}
@@ -602,9 +596,9 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 
 			// Write new values, update current movements
 			EEPROM.put(EELED_SETTINGS, interface.leds.ledSettings);
@@ -625,9 +619,9 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 
 			// encSettings[0/1] store if direction is reversed
 			EEPROM.put(EEINNER_ENC_RATIO, (interface.encSettings[0] ? -1 : 1) * interface.encSettings[2]);
@@ -675,9 +669,9 @@ void loop() {
 		}
 
 		// Exit back to settings if back pressed
-		interface.buttons.inputEncoder.update();
-		if (interface.buttons.inputEncoder.read()) {
-			interface.buttons.waitBackRelease();
+		
+		if (InputButtonsInterface::backPressed()) {
+			
 
 			// Write new values on exit
 			EEPROM.put(EEKP_SETTINGS, interface.kpSettings);
@@ -740,9 +734,9 @@ void goToCurrentCue(int target_mode) {
 }
 
 void updateSetting(void (*settingLimiter)(void), int mode) {
-	interface.buttons.back.update();
-	if (interface.buttons.back.read() == LOW) {
-		interface.buttons.waitSelectRelease();
+	
+	if (InputButtonsInterface::inputEncoderPressed()) {
+		
 
 		interface.editing = 1;
 		interface.input.resetKeypad();
@@ -760,9 +754,9 @@ void updateSetting(void (*settingLimiter)(void), int mode) {
 			}
 
 			// If select pressed to confirm value, exit editing mode
-			interface.buttons.back.update();
-			if (interface.buttons.back.read() == LOW) {
-				interface.buttons.waitSelectRelease();
+			
+			if (InputButtonsInterface::inputEncoderPressed()) {
+				
 
 				(*settingLimiter)();
 				interface.editing = 0;

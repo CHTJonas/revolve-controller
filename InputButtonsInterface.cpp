@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "constants.h"
 
+Bounce InputButtonsInterface::back = Bounce();
+Bounce InputButtonsInterface::inputEncoder = Bounce();
 
 bool InputButtonsInterface::dmhEngaged() {
 	return !digitalRead(DMH);
@@ -21,23 +23,29 @@ bool InputButtonsInterface::eStopsEngaged() {
 bool InputButtonsInterface::inputEncoderPressed()
 {
 	inputEncoder.update();
-	return inputEncoder.read() == LOW;
+	if (inputEncoder.read() == LOW)
+	{
+		while (inputEncoder.read() == LOW)
+		{
+			inputEncoder.update();
+		}
+		return true;
+
+	}
+	return false;
 }
 
 bool InputButtonsInterface::backPressed()
 {
 	back.update();
-	return back.read();
-}
-
-void InputButtonsInterface::waitSelectRelease() {
-	while (back.read() == LOW) {
-		back.update();
+	if(back.read())
+	{
+		while(back.read())
+		{
+			back.update();
+		}
+		return true;
 	}
-}
 
-void InputButtonsInterface::waitBackRelease() {
-	while (inputEncoder.read()) {
-		inputEncoder.update();
-	}
+	return false;
 }

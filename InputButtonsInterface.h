@@ -9,14 +9,10 @@ public:
 	static bool dmhEngaged();
 	static bool goEngaged();
 	static bool eStopsEngaged();
+	static bool inputEncoderPressed();
+	static bool backPressed();
 
-	bool inputEncoderPressed();
-	bool backPressed();
-
-	Bounce back = Bounce();
-	Bounce inputEncoder = Bounce();
-
-	void waitSelectRelease();
-	void waitBackRelease();
+	static Bounce back;
+	static Bounce inputEncoder;
 };
 
