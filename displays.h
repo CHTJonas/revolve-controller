@@ -1,6 +1,6 @@
 #pragma once
 #include "interface.h"
-#include "menu.h"
+
 #include "revolve.h"
 #include "state.h"
 #include "strings.h"
@@ -39,12 +39,12 @@ public:
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
 
 	void drawWheelCueDetails(
-	    U8GLIB_ST7920_128X64& lcd,
-	    int values[],
-	    int cursorEnable,
-	    int menu_pos,
-	    int yOffset,
-	    const char* revolveName) const;
+		U8GLIB_ST7920_128X64& lcd,
+		int values[],
+		int cursorEnable,
+		int menu_pos,
+		int menu_pos_offset,
+		int yOffset, const char* revolveName) const;
 
 	int update;
 	int ledOuter;
@@ -66,7 +66,7 @@ private:
 	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
 
 	// define the actual menus
-	const Menu mainMenu = Menu(menu_strings, 4, displayCentre);
+	// const Menu mainMenu = Menu(menu_strings, 4, displayCentre);
 	// const Menu settingsMenu = Menu(settings_strings, 8);
 	// const Menu encoderMenu = Menu(enc_settings_strings, 4);
 	// const Menu ledMenu = Menu(led_settings_strings, 4);
@@ -79,11 +79,12 @@ private:
 	const u8g_fntpgm_uint8_t* large_font = u8g_font_profont15;  // 10px high row
 	const u8g_fntpgm_uint8_t* small_font = u8g_font_5x7;  // 7px high row
 
+	State* state;
+
 	U8GLIB_ST7920_128X64& displayLeft;
 	U8GLIB_ST7920_128X64& displayCentre;
 	U8GLIB_ST7920_128X64& displayRight;
 
-	State* state;
 	Adafruit_NeoPixel& ringLeds;
 
 	Revolve& inner;
