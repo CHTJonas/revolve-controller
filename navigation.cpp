@@ -74,7 +74,7 @@ void Navigation::loop() {
 		if (millis() > state->data.program_saved.time + 1000) {
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
-			displays->setMode;
+			displays->setMode();
 		}
 
 	// Mode to edit cue stack
@@ -122,13 +122,9 @@ void Navigation::loop() {
 	case STATE_PROGRAM_MOVEMENTS:
 		if (interface->cueParams[1] == 0 ||
 		    interface->cueParams[2] == 0) {  // If either half disabled for this cue
-			if (interface->updateMenu(4)) {
-				displays->forceUpdateDisplays(1, 0, 0, 0);
-			}
+			interface->updateMenu(4);
 		} else {
-			if (interface->updateMenu(9)) {
-				displays->forceUpdateDisplays(1, 0, 0, 0);
-			}
+			interface->updateMenu(9);
 		}
 
 		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);

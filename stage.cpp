@@ -1,6 +1,7 @@
 #include "stage.h"
 #include "utils.h"
 #include <EEPROM.h>
+#include "revolve_controller.h"
 
 Stage::Stage(
     State* state, Revolve* inner, Revolve* outer, Displays* displays, Interface* interface, Adafruit_NeoPixel* ringLeds)

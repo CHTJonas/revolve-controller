@@ -85,6 +85,7 @@ typedef struct State {
 		struct {
 		} program_gotocue;
 		struct {
+			unsigned long time;
 		} program_saved;
 		struct {
 		} program_params;
