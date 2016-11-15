@@ -4,7 +4,11 @@
 class Menu {
     public:
 	// Constructor
-	Menu();
+	Menu(int size);
+
+	int menu_position;
+	char* elements[];
+
 
 private:
     
