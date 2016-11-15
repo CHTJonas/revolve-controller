@@ -50,6 +50,7 @@ public:
 	int ledInner;
 
 private:
+	// define the menu strings
 	const char* menu_strings[4] = { MENU_OPTION_1, MENU_OPTION_2, MENU_OPTION_3, MENU_OPTION_4 };
 	const char* settings_strings[9] = { SETTINGS_OPTION_1, SETTINGS_OPTION_2, SETTINGS_OPTION_3,
 		                            SETTINGS_OPTION_4, SETTINGS_OPTION_5, SETTINGS_OPTION_6,
@@ -62,6 +63,15 @@ private:
 		                               PID_OPTION_4, PID_OPTION_5, PID_OPTION_6 };
 	const char* program_strings[4] = { PROGRAM_OPTION_1, PROGRAM_OPTION_2, PROGRAM_OPTION_3, PROGRAM_OPTION_4 };
 	const char* param_strings[3] = { PARAM_OPTION_1, PARAM_OPTION_2, PARAM_OPTION_3 };
+	
+	// define the actual menus
+	const Menu mainMenu = Menu(menu_strings, 4);
+	const Menu settingsMenu = Menu(settings_strings, 8);
+	const Menu encoderMenu = Menu(enc_settings_strings, 4);
+	const Menu ledMenu = Menu(led_settings_strings, 4);
+	const Menu pidMenu = Menu(kp_settings_strings, 6);
+	const Menu programMenu = Menu(program_strings, 4);
+	const Menu paramMenu = Menu(param_strings, 3);
 
 	const u8g_fntpgm_uint8_t* font = u8g_font_profont11;  // 8px high row
 	const u8g_fntpgm_uint8_t* xlarge_font = u8g_font_profont22;  // 16px high row

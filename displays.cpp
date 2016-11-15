@@ -53,7 +53,7 @@ void Displays::setMode() {
 
 void Displays::drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, const char* text) {
 	int width = lcd.getStrWidth(text);
-	auto x = (SCREEN_WIDTH - width) / 2;
+	int x = (SCREEN_WIDTH - width) / 2;
 	lcd.setPrintPos(x, y);
 	lcd.print(text);
 }

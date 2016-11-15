@@ -1,9 +1,9 @@
 #pragma once
 
-// The max number of cues in the Cuestack
+// The maximum number of cues in the Cuestack
 #define MAX_CUES 100
 
-// Displays
+// The width and height of the displays
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 
