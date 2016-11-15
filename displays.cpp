@@ -337,7 +337,7 @@ void Displays::drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int curso
 	lcd.setFont(font);
 }
 
-void Displays::drawCue() const {
+void Displays::drawLeftDisplay() const {
 	displayLeft.setFont(font);
 
 	switch (mode) {
@@ -390,7 +390,7 @@ void Displays::drawCue() const {
 	}
 }
 
-void Displays::drawMenu() const {
+void Displays::drawCenterDisplay() const {
 	displayCenter.setFont(font);
 
 	switch (mode) {
@@ -571,7 +571,7 @@ void Displays::drawMenu() const {
 	}
 }
 
-void Displays::drawInfo() const {
+void Displays::drawRightDisplay() const {
 	displayRight.setFont(font);
 
 	switch (mode) {
@@ -761,21 +761,21 @@ void Displays::updateDisplays(int cue1, int menu1, int info1, int ringLeds1) {
 		if (cue1) {
 			displayLeft.firstPage();
 			do {
-				drawCue();
+				drawLeftDisplay();
 			} while (displayLeft.nextPage());
 		}
 
 		if (menu1) {
 			displayCenter.firstPage();
 			do {
-				drawMenu();
+				drawCenterDisplay();
 			} while (displayCenter.nextPage());
 		}
 
 		if (info1) {
 			displayRight.firstPage();
 			do {
-				drawInfo();
+				drawRightDisplay();
 			} while (displayRight.nextPage());
 		}
 
