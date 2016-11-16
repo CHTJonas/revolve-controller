@@ -15,7 +15,7 @@ void Navigation::loop() {
 	// Main switch statement for navigating screens
 	switch (state->state) {
 	case STATE_HOMING_INPROGRESS:
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
 			state->changed();
@@ -27,7 +27,7 @@ void Navigation::loop() {
 		interface->updateMenu(3);
 
 		// If select is pressed, move into appropriate mode
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			int menu_pos = interface->menu_pos;
 			interface->menu_pos = 0;
 
@@ -64,7 +64,7 @@ void Navigation::loop() {
 	case STATE_MANUAL_READY:
 		interface->updateMenu(9);
 
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			// Reset menu_pos and change mode
 			interface->menu_pos = 0;
 			state->state = STATE_MAINMENU;
@@ -87,7 +87,7 @@ void Navigation::loop() {
 	case STATE_PROGRAM_MAIN:
 		interface->updateMenu(2);
 
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			// Save Cuestack
 			cuestack->saveCuestack();
 
@@ -99,7 +99,7 @@ void Navigation::loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			// Choose based on menu_pos
 			switch (interface->menu_pos) {
 			case 0:
@@ -136,7 +136,7 @@ void Navigation::loop() {
 		updateSetting(movementLimiter, PROGRAM_MOVEMENTS);
 
 		// Back one level only
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 0;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
@@ -147,7 +147,7 @@ void Navigation::loop() {
 
 	case STATE_PROGRAM_DELETE:
 		// If select pressed, delete cue
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			// Reset current cue
 			cuestack->resetCue(cuestack->currentCue);
 			// Decrement currentCue so we don't fall off end of active part of array
@@ -168,7 +168,7 @@ void Navigation::loop() {
 		}
 
 		// If back pressed, don't
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 5;
 			state->state = STATE_PROGRAM_PARAMS;
 			state->data.program_params = {};
@@ -179,7 +179,7 @@ void Navigation::loop() {
 	case STATE_PROGRAM_PARAMS:
 		interface->updateMenu(5);
 
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			if (interface->menu_pos < 4) {
 
 				// Go into editing mode, reset keypad
@@ -212,7 +212,7 @@ void Navigation::loop() {
 					}
 
 					// If select pressed to confirm value, exit editing mode
-					if (Buttons::select.engaged()) {
+					if (Buttons::select.risen_since_state_change()) {
 						// Limit variables from keypad
 						interface->limitCueParams();
 
@@ -276,7 +276,7 @@ void Navigation::loop() {
 
 		// Back one level only
 
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 1;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
@@ -290,7 +290,7 @@ void Navigation::loop() {
 		interface->updateMenu(cuestack->totalCues - 1);
 
 		// If select pressed, load appropriate cue
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			// Load cue data
 			cuestack->currentCue = interface->menu_pos;
 			interface->loadCurrentCue();
@@ -303,7 +303,7 @@ void Navigation::loop() {
 		}
 
 		// Back one level only
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 2;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
@@ -315,14 +315,14 @@ void Navigation::loop() {
 	case STATE_SHOW:
 
 		// Only allow cue position jogging if select pressed
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			// TODO: Refactor
 
 			// Reset input encoder before start of edit
 			interface->input.getInputEncoder();
 			while (true) {
 				// If select presed again, exit jogging mode
-				if (Buttons::select.engaged()) {
+				if (Buttons::select.risen_since_state_change()) {
 					break;
 				}
 
@@ -336,7 +336,7 @@ void Navigation::loop() {
 		}
 
 		// Back one level only
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 2;
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
@@ -349,7 +349,7 @@ void Navigation::loop() {
 		interface->updateMenu(8);
 
 		// Back to main menu if back pressed
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			interface->menu_pos = 0;
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
@@ -357,7 +357,7 @@ void Navigation::loop() {
 		}
 
 		// If select pressed move into corresponding setting
-		if (Buttons::select.engaged()) {
+		if (Buttons::select.risen_since_state_change()) {
 			// Choose based on menu_pos
 			switch (interface->menu_pos) {
 			case 0:
@@ -464,7 +464,7 @@ void Navigation::loop() {
 		interface->updateMenu(3);
 
 		// Exit back to settings if back pressed
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			// Write new values, update current movements
 			EEPROM.put(EELED_SETTINGS, interface->leds.ledSettings);
 
@@ -484,7 +484,7 @@ void Navigation::loop() {
 		interface->updateMenu(3);
 
 		// Exit back to settings if back pressed
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 
 			// encSettings[0/1] store if direction is reversed
 			EEPROM.put(EEINNER_ENC_RATIO, (interface->encSettings[0] ? -1 : 1) * interface->encSettings[2]);
@@ -510,7 +510,7 @@ void Navigation::loop() {
 		interface->updateMenu(9);
 
 		// Exit to main menu if back pressed
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			// Store values back into EEPROM
 			EEPROM.put(EEDEFAULT_VALUES, interface->defaultValues);
 			EEPROM.get(EEDEFAULT_VALUES, interface->currentMovements);
@@ -532,7 +532,7 @@ void Navigation::loop() {
 		interface->updateMenu(5);
 
 		// Exit back to settings if back pressed
-		if (Buttons::back.engaged()) {
+		if (Buttons::back.risen_since_state_change()) {
 			// Write new values on exit
 			EEPROM.put(EEKP_SETTINGS, interface->kpSettings);
 

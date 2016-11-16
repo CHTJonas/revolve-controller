@@ -85,6 +85,7 @@ void loop() {
 
 void state_changed() {
 	displays.state_changed();
+	Buttons::state_changed();
 }
 
 void goToCurrentCue(int target_mode) {

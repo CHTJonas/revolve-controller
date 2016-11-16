@@ -3,12 +3,19 @@
 class Button {
 public:
 	Button(int pin, bool toggle);
+	void state_changed();
 
 	bool engaged();
+	bool risen_since_state_change();
 
 private:
 	int pin;
 	bool toggle;
+	enum {
+		BUTTON_STATE_UNKNOWN,
+		BUTTON_STATE_LOW,
+		BUTTON_STATE_HIGH
+	} old_state;
 };
 
 class EStopButton {
@@ -30,6 +37,8 @@ private:
 
 class Buttons {
 public:
+	static void state_changed();
+
 	static Button dmh;
 	static Button go;
 	static EStopButton e_stop;
