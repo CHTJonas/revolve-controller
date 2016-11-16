@@ -146,7 +146,37 @@ void Navigation::loop() {
 
 		break;
 
-	// TODO: Refactor
+	case STATE_PROGRAM_DELETE:
+		// If select pressed, delete cue
+		if (Buttons::select.engaged()) {
+			// Reset current cue
+			cuestack->resetCue(cuestack->currentCue);
+			// Decrement currentCue so we don't fall off end of active part of array
+			// if we delete last one!
+			if (cuestack->currentCue > 0) {
+				cuestack->currentCue--;
+			}
+			// One less cue now
+			cuestack->totalCues--;
+			interface->loadCurrentCue();
+			// Move to cue screen to select next cue to edit
+			interface->menu_pos = cuestack->currentCue;
+			// Sort cues to remove blank line
+			cuestack->sortCues();
+			state->state = STATE_PROGRAM_CUELIST;
+			state->data.program_cuelist = {};
+			displays->setMode();
+		}
+
+		// If back pressed, don't
+		if (Buttons::back.engaged()) {
+			interface->menu_pos = 5;
+			state->state = STATE_PROGRAM_PARAMS;
+			state->data.program_params = {};
+			displays->setMode();
+		}
+		break;
+
 	case STATE_PROGRAM_PARAMS:
 		interface->updateMenu(5);
 
@@ -157,6 +187,7 @@ void Navigation::loop() {
 				interface->editing = 1;
 				interface->input.resetKeypad();
 
+				// TODO: Refactor
 				while (interface->editing) {
 					// Just flip Yes/No variables on select
 					if (interface->menu_pos > 0) {
@@ -241,39 +272,6 @@ void Navigation::loop() {
 				state->state = STATE_PROGRAM_DELETE;
 				state->data.program_delete = {};
 				displays->setMode();
-				auto decision = false;
-
-				while (!decision) {
-					// If select pressed, delete cue
-					if (Buttons::select.engaged()) {
-						// Reset current cue
-						cuestack->resetCue(cuestack->currentCue);
-						// Decrement currentCue so we don't fall off end of active part of array
-						// if we delete last one!
-						if (cuestack->currentCue > 0)
-							cuestack->currentCue--;
-						// One less cue now
-						cuestack->totalCues--;
-						interface->loadCurrentCue();
-						// Move to cue screen to select next cue to edit
-						interface->menu_pos = cuestack->currentCue;
-						// Sort cues to remove blank line
-						cuestack->sortCues();
-						state->state = STATE_PROGRAM_CUELIST;
-						state->data.program_cuelist = {};
-						displays->setMode();
-						decision = true;
-					}
-
-					// If back pressed, don't
-					if (Buttons::back.engaged()) {
-						interface->menu_pos = 5;
-						state->state = STATE_PROGRAM_PARAMS;
-						state->data.program_params = {};
-						displays->setMode();
-						decision = true;
-					}
-				}
 			}
 		}
 
@@ -330,9 +328,7 @@ void Navigation::loop() {
 				}
 
 				// Update selected cue
-				if (interface->updateMenu(cuestack->totalCues - 1)) {
-					displays->forceUpdateDisplays(0, 1, 0, 0);
-				}
+				interface->updateMenu(cuestack->totalCues - 1);
 			}
 
 			// Load cue data for highlighted cue
@@ -451,9 +447,6 @@ void Navigation::loop() {
 		// Read keypad
 		interface->input.updateKeypad();
 
-		// Update end display to show which button being pressed
-		displays->updateDisplays(0, 0, 1, 0);
-
 		// Exit if Go and Pause pressed
 		if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
 			// Reset LEDs to settings state
@@ -469,9 +462,7 @@ void Navigation::loop() {
 	case STATE_BRIGHTNESS:
 
 		// Update menu_pos
-		if (interface->updateMenu(3)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(3);
 
 		// Exit back to settings if back pressed
 		if (Buttons::back.engaged()) {
@@ -491,9 +482,7 @@ void Navigation::loop() {
 	case STATE_ENCSETTINGS:
 
 		// Update menu_pos
-		if (interface->updateMenu(3)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(3);
 
 		// Exit back to settings if back pressed
 		if (Buttons::back.engaged()) {
@@ -519,9 +508,7 @@ void Navigation::loop() {
 	case STATE_DEFAULTVALUES:
 
 		// Update selection screen
-		if (interface->updateMenu(9)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(9);
 
 		// Exit to main menu if back pressed
 		if (Buttons::back.engaged()) {
@@ -543,12 +530,9 @@ void Navigation::loop() {
 	case STATE_KPSETTINGS:
 
 		// Update menu_pos
-		if (interface->updateMenu(5)) {
-			displays->forceUpdateDisplays(0, 1, 0, 0);
-		}
+		interface->updateMenu(5)
 
 		// Exit back to settings if back pressed
-
 		if (Buttons::back.engaged()) {
 			// Write new values on exit
 			EEPROM.put(EEKP_SETTINGS, interface->kpSettings);
