@@ -26,8 +26,8 @@ public:
 	// Initialisation
 private:
 	void setMode();
-public:
 
+public:
 	// Screen Drawing
 	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
 	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, char text);
@@ -42,12 +42,13 @@ public:
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
 
 	void drawWheelCueDetails(
-		U8GLIB_ST7920_128X64& lcd,
-		int values[],
-		int cursorEnable,
-		int menu_pos,
-		int menu_pos_offset,
-		int yOffset, const char* revolveName) const;
+	    U8GLIB_ST7920_128X64& lcd,
+	    int values[],
+	    int cursorEnable,
+	    int menu_pos,
+	    int menu_pos_offset,
+	    int yOffset,
+	    const char* revolveName) const;
 
 	int update;
 	int ledOuter;
