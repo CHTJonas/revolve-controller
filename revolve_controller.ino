@@ -3,7 +3,6 @@
 #include "revolve_controller.h"
 #include "stage.h"
 #include "state.h"
-#include <EEPROM.h>
 #include <TimerOne.h>
 
 // define the keypad

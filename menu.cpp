@@ -15,7 +15,7 @@ Menu::~Menu() {
 	delete[] m_menuOptionStrings;
 }
 
-void Menu::drawStrCentre(int y, const char* text) {
+void Menu::drawStrCentre(int y, const char* text) const {
 	int width = m_screen.getStrWidth(text);
 	int x = (SCREEN_WIDTH - width) / 2;
 	m_screen.setPrintPos(x, y);
@@ -27,7 +27,7 @@ void Menu::drawStrCentre(int y, char text) {
 	drawStrCentre(y, string);
 }
 
-void Menu::draw() {
+void Menu::draw() const {
     m_screen.setFont(large_font);
     // we can display max 4 options on the screen at a time
     int max = m_numberOfOptions < 4 ? m_numberOfOptions : 4;

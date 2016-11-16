@@ -27,7 +27,7 @@ bool Button::risen_since_state_change() {
 }
 
 EStopButton::EStopButton(int nc1, int nc2, int nc3, int no)
-      : nc1(nc1), nc2(nc2), nc3(nc3), no(no), nc1_b(nc1, false), nc2_b(nc2, false), nc3_b(nc3, false), no_b(no, true) {
+      : nc1_b(nc1, false), nc2_b(nc2, false), nc3_b(nc3, false), no_b(no, true), nc1(nc1), nc2(nc2), nc3(nc3), no(no) {
 }
 
 bool EStopButton::engaged() {
