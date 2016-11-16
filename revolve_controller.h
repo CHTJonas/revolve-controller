@@ -1,5 +1,8 @@
+#include "cuestack.h"
+
 void setup();
 void loop();
+void state_changed();
 char* encodeCue(Cue cue);
 void updateFlags();
 void goToCurrentCue(int target_mode);

@@ -21,9 +21,12 @@ public:
 	    Cuestack& cuestack);
 	void setup();
 	void loop();
+	void state_changed();
 
 	// Initialisation
+private:
 	void setMode();
+public:
 
 	// Screen Drawing
 	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, const char* text);

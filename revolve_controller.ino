@@ -52,6 +52,7 @@ Navigation navigation(&state, &cuestack, &interface, &displays, &stage);
 // Please leave these here, they are to work around a bug in arduino-builder
 void setup();
 void loop();
+void state_changed();
 char* encodeCue(Cue cue);
 void updateFlags();
 void goToCurrentCue(int target_mode);
@@ -82,13 +83,17 @@ void loop() {
 	navigation.loop();
 }
 
+void state_changed() {
+	displays.state_changed();
+}
+
 void goToCurrentCue(int target_mode) {
 	// Goto current cue if Go pressed and dead-man's handle is also pressed
 	if (Buttons::dmh.engaged() && Buttons::go.engaged()) {
 		// Update displays to show realtime position
 		state.state = STATE_PROGRAM_GOTOCUE;
 		state.data.program_gotocue = {};
-		displays.setMode();
+		state.changed();
 
 		// Move - both enabled
 		if (interface.cueParams[1] && interface.cueParams[2]) {

@@ -323,7 +323,7 @@ void Stage::runCurrentCue() {
 void Stage::gotoHome() {
 	state->state = STATE_HOMING_INPROGRESS;
 	state->data.homing_inprogress = {};
-	displays->setMode();
+	state->changed();
 
 	home_wheel(inner, INNERHOME);
 	// Set inner ring green
@@ -336,13 +336,13 @@ void Stage::gotoHome() {
 
 	state->state = STATE_HOMING_COMPLETE;
 	state->data.homing_complete = {};
-	displays->setMode();
+	state->changed();
 	// Move back to calibrated home (will have overshot)
 	// gotoPos(); // TODO get parameters from git history
 
 	state->state = STATE_MAINMENU;
 	state->data.mainmenu = {};
-	displays->setMode();
+	state->changed();
 }
 
 void Stage::home_wheel(Revolve* wheel, int wheelPin) {

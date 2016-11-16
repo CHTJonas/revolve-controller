@@ -1,7 +1,6 @@
 #include "navigation.h"
 #include "constants.h"
 #include "pins.h"
-#include "revolve_controller.h"
 #include "state.h"
 #include <EEPROM.h>
 
@@ -19,7 +18,7 @@ void Navigation::loop() {
 		if (Buttons::back.engaged()) {
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -36,26 +35,26 @@ void Navigation::loop() {
 			case 0:
 				state->state = STATE_MANUAL_READY;
 				state->data.manual_ready = {};
-				displays->setMode();
+				state->changed();
 				break;
 			case 1:
 				interface->loadCurrentCue();
 				interface->menu_pos = 2;
 				state->state = STATE_PROGRAM_MAIN;
 				state->data.program_main = {};
-				displays->setMode();
+				state->changed();
 				break;
 			case 2:
 				interface->loadCurrentCue();
 				interface->menu_pos = cuestack->currentCue;
 				state->state = STATE_SHOW;
 				state->data.show = {};
-				displays->setMode();
+				state->changed();
 				break;
 			case 3:
 				state->state = STATE_SETTINGS;
 				state->data.settings = {};
-				displays->setMode();
+				state->changed();
 				break;
 			}
 		}
@@ -70,7 +69,7 @@ void Navigation::loop() {
 			interface->menu_pos = 0;
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		updateSetting(manualLimiter, MANUAL);
@@ -80,7 +79,7 @@ void Navigation::loop() {
 		if (millis() > state->data.program_saved.time + 1000) {
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -96,7 +95,7 @@ void Navigation::loop() {
 
 			state->state = STATE_PROGRAM_SAVED;
 			state->data.program_saved = { millis() };
-			displays->setMode();
+			state->changed();
 		}
 
 		// If select pressed move into corresponding setting
@@ -107,19 +106,19 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_PROGRAM_MOVEMENTS;
 				state->data.program_movements = {};
-				displays->setMode();
+				state->changed();
 				break;
 			case 1:
 				interface->menu_pos = 0;
 				state->state = STATE_PROGRAM_PARAMS;
 				state->data.program_params = {};
-				displays->setMode();
+				state->changed();
 				break;
 			case 2:
 				interface->menu_pos = cuestack->currentCue;
 				state->state = STATE_PROGRAM_CUELIST;
 				state->data.program_cuelist = {};
-				displays->setMode();
+				state->changed();
 				break;
 			}
 		}
@@ -141,7 +140,7 @@ void Navigation::loop() {
 			interface->menu_pos = 0;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		break;
@@ -165,7 +164,7 @@ void Navigation::loop() {
 			cuestack->sortCues();
 			state->state = STATE_PROGRAM_CUELIST;
 			state->data.program_cuelist = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		// If back pressed, don't
@@ -173,7 +172,7 @@ void Navigation::loop() {
 			interface->menu_pos = 5;
 			state->state = STATE_PROGRAM_PARAMS;
 			state->data.program_params = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -263,7 +262,7 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_PROGRAM_MOVEMENTS;
 				state->data.program_movements = {};
-				displays->setMode();
+				state->changed();
 			}
 
 			// Delete cue
@@ -271,7 +270,7 @@ void Navigation::loop() {
 				// Bring up warning dialog
 				state->state = STATE_PROGRAM_DELETE;
 				state->data.program_delete = {};
-				displays->setMode();
+				state->changed();
 			}
 		}
 
@@ -281,7 +280,7 @@ void Navigation::loop() {
 			interface->menu_pos = 1;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		goToCurrentCue(PROGRAM_PARAMS);
@@ -300,7 +299,7 @@ void Navigation::loop() {
 			interface->menu_pos = 0;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		// Back one level only
@@ -308,7 +307,7 @@ void Navigation::loop() {
 			interface->menu_pos = 2;
 			state->state = STATE_PROGRAM_MAIN;
 			state->data.program_main = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -341,7 +340,7 @@ void Navigation::loop() {
 			interface->menu_pos = 2;
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -354,7 +353,7 @@ void Navigation::loop() {
 			interface->menu_pos = 0;
 			state->state = STATE_MAINMENU;
 			state->data.mainmenu = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		// If select pressed move into corresponding setting
@@ -366,7 +365,7 @@ void Navigation::loop() {
 				// Homing Mode
 				state->state = STATE_HOMING_INPROGRESS;
 				state->data.homing_inprogress = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Edit PID Constants
@@ -374,7 +373,7 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_KPSETTINGS;
 				state->data.kpsettings = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Edit default cue values
@@ -382,14 +381,14 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_DEFAULTVALUES;
 				state->data.defaultvalues = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			case 3:
 				interface->menu_pos = 0;
 				state->state = STATE_CUESTACK_BACKUP;
 				state->data.cuestack_backup = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Reset cuestack
@@ -397,7 +396,7 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_MAINMENU;
 				state->data.mainmenu = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Edit encoder settings
@@ -405,7 +404,7 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_ENCSETTINGS;
 				state->data.encsettings = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Edit LED settings
@@ -413,7 +412,7 @@ void Navigation::loop() {
 				interface->menu_pos = 0;
 				state->state = STATE_BRIGHTNESS;
 				state->data.brightness = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			// Hardware test mode
@@ -422,20 +421,20 @@ void Navigation::loop() {
 				interface->leds.encoderLedColor(false, false, true);
 				state->state = STATE_HARDWARETEST;
 				state->data.hardwaretest = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			case 8:
 				state->state = STATE_DEBUG;
 				state->data.debug = {};
-				displays->setMode();
+				state->changed();
 				break;
 
 			default:
 				interface->menu_pos = 0;
 				state->state = STATE_MAINMENU;
 				state->data.mainmenu = {};
-				displays->setMode();
+				state->changed();
 				break;
 			}
 		}
@@ -455,7 +454,7 @@ void Navigation::loop() {
 			// Back to settings
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 		break;
 
@@ -473,7 +472,7 @@ void Navigation::loop() {
 			interface->menu_pos = 5;
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		updateSetting(brightnessLimiter, BRIGHTNESS);
@@ -498,7 +497,7 @@ void Navigation::loop() {
 			interface->menu_pos = 4;
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		updateSetting(encoderLimiter, ENCSETTINGS);
@@ -521,7 +520,7 @@ void Navigation::loop() {
 			interface->menu_pos = 2;
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		updateSetting(eepromLimiter, DEFAULTVALUES);
@@ -544,7 +543,7 @@ void Navigation::loop() {
 			interface->menu_pos = 1;
 			state->state = STATE_SETTINGS;
 			state->data.settings = {};
-			displays->setMode();
+			state->changed();
 		}
 
 		updateSetting(kpLimiter, KPSETTINGS);
@@ -560,7 +559,7 @@ void Navigation::loop() {
 		}
 		state->state = STATE_MAINMENU;
 		state->data.mainmenu = {};
-		displays->setMode();
+		state->changed();
 
 		break;
 	}

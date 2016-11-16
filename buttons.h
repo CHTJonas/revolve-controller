@@ -29,7 +29,6 @@ private:
 };
 
 class Buttons {
-
 public:
 	static bool dmhEngaged();
 	static bool goEngaged();

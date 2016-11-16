@@ -1,5 +1,7 @@
 #pragma once
 #include <stdbool.h>
+#include "revolve_controller.h"
+#include <PID_v1.h>
 
 typedef struct DriveData {
 	double currentPosition;
@@ -42,7 +44,11 @@ enum StateEnum {
 	STATE_DEBUG,
 };
 
-typedef struct State {
+
+class State {
+public:
+	void changed();
+
 	enum StateEnum state;
 
 	union {
@@ -110,4 +116,4 @@ typedef struct State {
 		} debug;
 
 	} data;
-} State;
+};
