@@ -4,6 +4,7 @@ arduino-builder \
 	-tools /usr/local/bin \
 	-libraries ./libraries \
 	-hardware ~/Devel/Arduino/hardware \
+	-prefs=build.extra_flags="-DGIT_VERSION=\"`git describe --always --dirty`\"" \
 	-prefs=runtime.tools.avr-gcc.path=/usr/local \
 	-prefs=runtime.tools.ctags.path=/usr/local/bin \
 	-prefs=tools.ctags.path=/usr/local/bin \

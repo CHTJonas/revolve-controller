@@ -22,6 +22,7 @@
 #define SETTINGS_OPTION_7 "LED Settings"
 #define SETTINGS_OPTION_8 "Hardware Test"
 #define SETTINGS_OPTION_9 "Debug"
+#define SETTINGS_OPTION_10 "About"
 
 // encoder menu strings
 #define ENCODER_OPTION_1 "Inner Dir:"

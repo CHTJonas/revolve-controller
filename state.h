@@ -42,6 +42,7 @@ enum StateEnum {
 	STATE_RESET_CUESTACK,
 	STATE_CUESTACK_BACKUP,
 	STATE_DEBUG,
+	STATE_ABOUT,
 };
 
 class State {

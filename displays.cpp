@@ -345,6 +345,24 @@ void Displays::drawCentreDisplay() const {
 	displayCentre->setFont(font);
 
 	switch (state->state) {
+	case STATE_ABOUT:
+		drawStrCentre(displayCentre, 0, 10, "Panto 2016");
+		drawStrCentre(displayCentre, 0, 20, "Revolve Controller");
+#ifndef GIT_VERSION
+#define GIT_VERSION "Unknown"
+#define GIT_VERSION_UNKNOWN
+#endif
+		char buffer[16];
+		snprintf(
+		    buffer,
+		    sizeof(buffer),
+		    "Version: %s");
+		    GIT_VERSION);
+#ifdef GIT_VERSION_UNKNOWN
+#undef GIT_VERSION
+#undef GIT_VERSION_UNKNOWN
+#endif
+		displayCentre->drawStr(0, 30, buffer);
 	case STATE_DEBUG:
 		displayCentre->drawStr(0, 10, "Centre");
 		break;

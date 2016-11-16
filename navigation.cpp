@@ -342,7 +342,7 @@ void Navigation::loop() {
 
 	// Change system settings
 	case STATE_SETTINGS:
-		interface->updateMenu(8);
+		interface->updateMenu(9);
 
 		// Back to main menu if back pressed
 		if (Buttons::back.risen_since_state_change()) {
@@ -423,6 +423,12 @@ void Navigation::loop() {
 			case 8:
 				state->state = STATE_DEBUG;
 				state->data.debug = {};
+				state->changed();
+				break;
+
+			case 9:
+				state->state = STATE_ABOUT;
+				state->data.about = {}
 				state->changed();
 				break;
 
