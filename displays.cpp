@@ -346,8 +346,8 @@ void Displays::drawCentreDisplay() const {
 
 	switch (state->state) {
 	case STATE_ABOUT:
-		drawStrCentre(displayCentre, 0, 10, "Panto 2016");
-		drawStrCentre(displayCentre, 0, 20, "Revolve Controller");
+		drawStrCentre(displayCentre, 10, "Panto 2016");
+		drawStrCentre(displayCentre, 20, "Revolve Controller");
 #ifndef GIT_VERSION
 #define GIT_VERSION "Unknown"
 #define GIT_VERSION_UNKNOWN
@@ -356,7 +356,7 @@ void Displays::drawCentreDisplay() const {
 		snprintf(
 		    buffer,
 		    sizeof(buffer),
-		    "Version: %s");
+		    "Version: %s",
 		    GIT_VERSION);
 #ifdef GIT_VERSION_UNKNOWN
 #undef GIT_VERSION

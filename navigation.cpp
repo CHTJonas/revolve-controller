@@ -428,7 +428,7 @@ void Navigation::loop() {
 
 			case 9:
 				state->state = STATE_ABOUT;
-				state->data.about = {}
+				state->data.about = {};
 				state->changed();
 				break;
 
