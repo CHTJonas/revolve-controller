@@ -12,6 +12,7 @@ private:
 	int pin;
 	bool toggle;
 	enum { BUTTON_STATE_UNKNOWN, BUTTON_STATE_LOW, BUTTON_STATE_HIGH } old_state;
+	unsigned long last_high_time;
 };
 
 class EStopButton {

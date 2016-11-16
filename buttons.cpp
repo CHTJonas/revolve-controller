@@ -9,7 +9,7 @@ EStopButton Buttons::e_stop = EStopButton(ESTOPNC1, ESTOPNC2, ESTOPNC3, ESTOPNO)
 Button Buttons::back = Button(SELECT, true);
 Button Buttons::select = Button(BACK, false);
 
-Button::Button(int pin, bool toggle) : pin(pin), toggle(toggle), old_state(BUTTON_STATE_UNKNOWN) {
+Button::Button(int pin, bool toggle) : pin(pin), toggle(toggle), old_state(BUTTON_STATE_UNKNOWN), last_high_time(0) {
 }
 
 void Button::state_changed() {
@@ -21,8 +21,12 @@ bool Button::engaged() {
 }
 
 bool Button::risen_since_state_change() {
-	bool result = old_state == BUTTON_STATE_LOW && engaged();
-	old_state = engaged() ? BUTTON_STATE_HIGH : BUTTON_STATE_LOW;
+	bool engaged = this->engaged();
+	const bool result = (old_state == BUTTON_STATE_LOW) && engaged && (last_high_time > millis() + 10);
+	if (engaged) {
+		last_high_time = millis();
+	}
+	old_state = engaged ? BUTTON_STATE_HIGH : BUTTON_STATE_LOW;
 	return result;
 }
 
