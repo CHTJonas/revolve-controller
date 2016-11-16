@@ -10,7 +10,7 @@
 class Revolve {
 public:
 	// Constructor
-	Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc);
+	Revolve(int start_pin, int dir_pin, int speed_pin, Encoder* enc);
 
 	// Internal helper functions
 	void start() const;
@@ -50,7 +50,7 @@ public:
 
 private:
 	// External object references
-	Encoder& enc;
+	Encoder* enc;
 
 	// Pins
 	int start_pin;

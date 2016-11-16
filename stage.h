@@ -37,7 +37,7 @@ public:
 	void spin_revolve(double* currentPosition, double* currentSpeed, double tenths_accel, PID* pid, Revolve* wheel);
 	void runCurrentCue();
 
-	int acceleration = 10;  // TODO check for sanity
+	int acceleration = 10;  // TODO(waiwaing) check for sanity
 
 private:
 	State* state;

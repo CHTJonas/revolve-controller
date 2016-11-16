@@ -4,12 +4,12 @@
 #include <EEPROM.h>
 
 Interface::Interface(
-    Cuestack& cuestack,
-    Encoder& enc_input,
-    Keypad& keypad,
-    Adafruit_NeoPixel& ringLeds,
-    Adafruit_NeoPixel& pauseLeds,
-    Adafruit_NeoPixel& keypadLeds)
+    Cuestack* cuestack,
+    Encoder* enc_input,
+    Keypad* keypad,
+    Adafruit_NeoPixel* ringLeds,
+    Adafruit_NeoPixel* pauseLeds,
+    Adafruit_NeoPixel* keypadLeds)
       : cuestack(cuestack),
         input(InputInterface(enc_input, keypad)),
         leds(OutputLedInterface(ringLeds, pauseLeds, keypadLeds)) {
@@ -18,7 +18,7 @@ Interface::Interface(
 
 	EEPROM.get(EEDEFAULT_VALUES, defaultValues);
 	EEPROM.get(EEDEFAULT_VALUES, currentMovements);
-	cuestack.updateDefaultValues();
+	cuestack->updateDefaultValues();
 
 	EEPROM.get(EEINNER_ENC_RATIO, encSettings[2]);
 	EEPROM.get(EEOUTER_ENC_RATIO, encSettings[3]);
@@ -60,8 +60,7 @@ bool Interface::editVars(int mode) {
 				input.value = input.value * 10 + atoi(&pressedKey);
 			}
 		}
-	} else  // using encoder
-	{
+	} else {  // using encoder
 		delta = true;
 		input.value = input.getInputEncoder();
 		if (input.value) {
@@ -111,17 +110,17 @@ bool Interface::editVars(int mode) {
 	return false;
 }
 
-void Interface::limitMovements(int (&movements)[10]) const {
-	movements[0] = clamp(movements[0], 0, 359);
-	movements[1] = clamp(movements[1], MINSPEED, 100);
-	movements[2] = clamp(movements[2], 1, MAXACCEL);
-	movements[3] = clamp(movements[3], 0, 1);
-	movements[4] = clamp(movements[4], 0, 50);
-	movements[5] = clamp(movements[5], 0, 359);
-	movements[6] = clamp(movements[6], MINSPEED, 100);
-	movements[7] = clamp(movements[7], 1, MAXACCEL);
-	movements[8] = clamp(movements[8], 0, 1);
-	movements[9] = clamp(movements[9], 0, 50);
+void Interface::limitMovements(int (*movements)[10]) const {
+	*movements[0] = clamp(*movements[0], 0, 359);
+	*movements[1] = clamp(*movements[1], MINSPEED, 100);
+	*movements[2] = clamp(*movements[2], 1, MAXACCEL);
+	*movements[3] = clamp(*movements[3], 0, 1);
+	*movements[4] = clamp(*movements[4], 0, 50);
+	*movements[5] = clamp(*movements[5], 0, 359);
+	*movements[6] = clamp(*movements[6], MINSPEED, 100);
+	*movements[7] = clamp(*movements[7], 1, MAXACCEL);
+	*movements[8] = clamp(*movements[8], 0, 1);
+	*movements[9] = clamp(*movements[9], 0, 50);
 }
 
 void Interface::limitEncSettings() {
@@ -145,18 +144,18 @@ void Interface::limitCueParams() {
 }
 
 void Interface::loadCurrentCue() {
-	cuestack.getMovements(cueMovements);
-	cuestack.getNumber(cueNumber);
-	cuestack.getParams(cueParams);
+	cuestack->getMovements(&cueMovements);
+	cuestack->getNumber(&cueNumber);
+	cuestack->getParams(&cueParams);
 }
 
 void Interface::loadCue(int number) {
-	auto currentCue = cuestack.currentCue;
-	cuestack.currentCue = number;
-	cuestack.getMovements(cueMovements);
-	cuestack.getNumber(cueNumber);
-	cuestack.getParams(cueParams);
-	cuestack.currentCue = currentCue;
+	auto currentCue = cuestack->currentCue;
+	cuestack->currentCue = number;
+	cuestack->getMovements(&cueMovements);
+	cuestack->getNumber(&cueNumber);
+	cuestack->getParams(&cueParams);
+	cuestack->currentCue = currentCue;
 }
 
 bool Interface::updateMenu(int menuMax) {

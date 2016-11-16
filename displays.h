@@ -10,15 +10,15 @@ class Displays {
 public:
 	Displays(
 	    State* state,
-	    U8GLIB_ST7920_128X64& cue,
-	    U8GLIB_ST7920_128X64& menu,
-	    U8GLIB_ST7920_128X64& info,
-	    Adafruit_NeoPixel& ringLeds,
-	    Revolve& inner,
-	    Revolve& outer,
-	    Keypad& keypad,
-	    Interface& interface,
-	    Cuestack& cuestack);
+	    U8GLIB_ST7920_128X64* cue,
+	    U8GLIB_ST7920_128X64* menu,
+	    U8GLIB_ST7920_128X64* info,
+	    Adafruit_NeoPixel* ringLeds,
+	    Revolve* inner,
+	    Revolve* outer,
+	    Keypad* keypad,
+	    Interface* interface,
+	    Cuestack* cuestack);
 	void setup();
 	void loop();
 	void state_changed();
@@ -29,11 +29,11 @@ private:
 
 public:
 	// Screen Drawing
-	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, const char* text);
-	static void drawStrCentre(U8GLIB_ST7920_128X64& lcd, int y, char text);
-	void drawCueLayout(U8GLIB_ST7920_128X64& lcd, int values[], int cursorEnable) const;
-	void drawParamsLayout(U8GLIB_ST7920_128X64& lcd, int cursorEnable) const;
-	void drawCuelistLayout(U8GLIB_ST7920_128X64& lcd, int index, int cursorEnable) const;
+	static void drawStrCentre(U8GLIB_ST7920_128X64* lcd, int y, const char* text);
+	static void drawStrCentre(U8GLIB_ST7920_128X64* lcd, int y, char text);
+	void drawCueLayout(U8GLIB_ST7920_128X64* lcd, int values[], int cursorEnable) const;
+	void drawParamsLayout(U8GLIB_ST7920_128X64* lcd, int cursorEnable) const;
+	void drawCuelistLayout(U8GLIB_ST7920_128X64* lcd, int index, int cursorEnable) const;
 	void drawLeftDisplay() const;
 	void drawCentreDisplay() const;
 	void drawRightDisplay() const;
@@ -42,7 +42,7 @@ public:
 	void forceUpdateDisplays(int cue1, int menu, int info, int ringLeds);
 
 	void drawWheelCueDetails(
-	    U8GLIB_ST7920_128X64& lcd,
+	    U8GLIB_ST7920_128X64* lcd,
 	    int values[],
 	    int cursorEnable,
 	    int menu_pos,
@@ -85,18 +85,18 @@ private:
 
 	State* state;
 
-	U8GLIB_ST7920_128X64& displayLeft;
-	U8GLIB_ST7920_128X64& displayCentre;
-	U8GLIB_ST7920_128X64& displayRight;
+	U8GLIB_ST7920_128X64* displayLeft;
+	U8GLIB_ST7920_128X64* displayCentre;
+	U8GLIB_ST7920_128X64* displayRight;
 
-	Adafruit_NeoPixel& ringLeds;
+	Adafruit_NeoPixel* ringLeds;
 
-	Revolve& inner;
-	Revolve& outer;
+	Revolve* inner;
+	Revolve* outer;
 
-	Keypad& keypad;
+	Keypad* keypad;
 
-	Interface& interface;
+	Interface* interface;
 
-	Cuestack& cuestack;
+	Cuestack* cuestack;
 };

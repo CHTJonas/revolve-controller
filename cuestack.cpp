@@ -75,29 +75,29 @@ void Cuestack::saveCuestack() const {
 	}
 }
 
-void Cuestack::getMovements(int (&outputValues)[10]) {
+void Cuestack::getMovements(int (*outputValues)[10]) {
 	auto cue = stack[currentCue];
-	outputValues[0] = cue.pos_i;
-	outputValues[1] = cue.speed_i;
-	outputValues[2] = cue.acc_i;
-	outputValues[3] = cue.dir_i;
-	outputValues[4] = cue.revs_i;
-	outputValues[5] = cue.pos_o;
-	outputValues[6] = cue.speed_o;
-	outputValues[7] = cue.acc_o;
-	outputValues[8] = cue.dir_o;
-	outputValues[9] = cue.revs_o;
+	*outputValues[0] = cue.pos_i;
+	*outputValues[1] = cue.speed_i;
+	*outputValues[2] = cue.acc_i;
+	*outputValues[3] = cue.dir_i;
+	*outputValues[4] = cue.revs_i;
+	*outputValues[5] = cue.pos_o;
+	*outputValues[6] = cue.speed_o;
+	*outputValues[7] = cue.acc_o;
+	*outputValues[8] = cue.dir_o;
+	*outputValues[9] = cue.revs_o;
 }
 
-void Cuestack::getNumber(int& outputNumber) const {
-	outputNumber = stack[currentCue].num;
+void Cuestack::getNumber(int* outputNumber) const {
+	*outputNumber = stack[currentCue].num;
 }
 
-void Cuestack::getParams(int (&outputParams)[3]) {
+void Cuestack::getParams(int (*outputParams)[3]) {
 	auto cue = stack[currentCue];
-	outputParams[0] = cue.auto_follow;
-	outputParams[1] = cue.en_i;
-	outputParams[2] = cue.en_o;
+	*outputParams[0] = cue.auto_follow;
+	*outputParams[1] = cue.en_i;
+	*outputParams[2] = cue.en_o;
 }
 
 void Cuestack::setMovements(int inputValues[10]) {
@@ -130,8 +130,9 @@ int Cuestack::getCueIndex(int number) const {
 		}
 	}
 
-	return MAX_CUES;  // TODO: check whether this is actually necessary (it
+	// TODO(devel@dtwood.uk): check whether this is actually necessary (it
 	// fixes a warning though)
+	return MAX_CUES;
 }
 
 // Checks to see if number already exists in stack
@@ -159,7 +160,7 @@ int Cuestack::activeCues() const {
 // Sorts cuestack (e.g. after changing number, deleting cues etc.)
 void Cuestack::sortCues() {
 	qsort(&stack[0], MAX_CUES, sizeof(stack[0]), *[](const void* cue1, const void* cue2) {
-		return ((Cue*)cue1)->num - ((Cue*)cue2)->num;
+		return reinterpret_cast<const Cue*>(cue1)->num - reinterpret_cast<const Cue*>(cue2)->num;
 	});
 }
 

@@ -181,12 +181,11 @@ void Navigation::loop() {
 
 		if (Buttons::select.risen_since_state_change()) {
 			if (interface->menu_pos < 4) {
-
 				// Go into editing mode, reset keypad
 				interface->editing = 1;
 				interface->input.resetKeypad();
 
-				// TODO: Refactor
+				// TODO(devel@dtwood.uk): Refactor
 				while (interface->editing) {
 					// Just flip Yes/No variables on select
 					if (interface->menu_pos > 0) {
@@ -195,10 +194,7 @@ void Navigation::loop() {
 						interface->editing = 0;
 						interface->limitCueParams();
 						displays->forceUpdateDisplays(0, 1, 0, 0);
-					}
-
-					// Else edit number
-					else {
+					} else {
 						// Turn of GO and Pause LEDS
 						digitalWrite(GOLED, LOW);
 
@@ -224,8 +220,9 @@ void Navigation::loop() {
 							while (!cuestack->validCueNumber(interface->cueNumber)) {
 								if (interface->cueNumber < 99.9) {
 									interface->cueNumber += 0.1;
-								} else
+								} else {
 									interface->cueNumber = 0;
+								}
 							}
 						}
 						// Exit editing
@@ -316,8 +313,7 @@ void Navigation::loop() {
 
 		// Only allow cue position jogging if select pressed
 		if (Buttons::select.risen_since_state_change()) {
-			// TODO: Refactor
-
+			// TODO(devel@dtwood.uk): Refactor
 			// Reset input encoder before start of edit
 			interface->input.getInputEncoder();
 			while (true) {
@@ -485,7 +481,6 @@ void Navigation::loop() {
 
 		// Exit back to settings if back pressed
 		if (Buttons::back.risen_since_state_change()) {
-
 			// encSettings[0/1] store if direction is reversed
 			EEPROM.put(EEINNER_ENC_RATIO, (interface->encSettings[0] ? -1 : 1) * interface->encSettings[2]);
 			EEPROM.put(EEOUTER_ENC_RATIO, (interface->encSettings[1] ? -1 : 1) * interface->encSettings[3]);

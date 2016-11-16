@@ -1,3 +1,4 @@
+#pragma once
 #include "cuestack.h"
 
 void setup();

@@ -12,9 +12,7 @@ Stage::Stage(
 }
 
 void Stage::loop() {
-
 	switch (state->state) {
-
 	case STATE_RUN_READY:
 		checkEstops();
 		run_ready();
@@ -103,7 +101,7 @@ void Stage::setStateRunReady() {
 }
 
 void Stage::setStateRunDrive() {
-	auto cue = interface->cuestack.stack[interface->cuestack.currentCue];
+	auto cue = interface->cuestack->stack[interface->cuestack->currentCue];
 	state->state = STATE_RUN_DRIVE;
 	state->data.run_drive = {.innerData = { 0, 0, 0, 0, 0, nullptr }, .outerData = { 0, 0, 0, 0, 0, nullptr } };
 	setupDrive(cue.pos_i, cue.speed_i, cue.acc_i, cue.dir_i, cue.revs_i, &state->data.run_drive.innerData, inner);
@@ -284,22 +282,20 @@ void Stage::runCurrentCue() {
 	// Flag to recursively call function if required
 	int auto_follow = interface->cueParams[0];
 
-	// Move - both enabled
 	if (interface->cueParams[1] && interface->cueParams[2]) {
+		// Move - both enabled
 		// gotoPos();
-	}
-	// Move - inner disabled
-	else if (interface->cueParams[1] == 0 && interface->cueParams[2]) {
+	} else if (interface->cueParams[1] == 0 && interface->cueParams[2]) {
+		// Move - inner disabled
 		// gotoPos(); // TODO pull parameters from git history
-	}
-	// Move - outer disabled
-	else if (interface->cueParams[1] && interface->cueParams[2] == 0) {
+	} else if (interface->cueParams[1] && interface->cueParams[2] == 0) {
+		// Move - outer disabled
 		// gotoPos();
 	}
 
 	// Increment cue to currently selected cue with menu_pos, and increase menu_pos to automatically select next one
-	interface->cuestack.currentCue = interface->menu_pos;
-	if (interface->menu_pos < (interface->cuestack.totalCues - 1))
+	interface->cuestack->currentCue = interface->menu_pos;
+	if (interface->menu_pos < (interface->cuestack->totalCues - 1))
 		interface->menu_pos++;
 
 	// Load next cue data
@@ -310,7 +306,7 @@ void Stage::runCurrentCue() {
 
 	// Recursively call runCurrentCue whilst previous cue had autofollow enabled, unless we are at last cue (where
 	// menu_pos = currentCue as it won't have been incremented)
-	if (auto_follow && interface->cuestack.currentCue != interface->menu_pos)
+	if (auto_follow && interface->cuestack->currentCue != interface->menu_pos)
 		runCurrentCue();
 
 	// Turn on switch leds
@@ -352,7 +348,6 @@ void Stage::home_wheel(Revolve* wheel, int wheelPin) {
 
 	// Wait for inner home switch
 	while (digitalRead(wheelPin)) {
-
 		// Check for emergency stop
 		if (!Buttons::dmh.engaged() || Buttons::e_stop.engaged()) {
 			emergencyStop();

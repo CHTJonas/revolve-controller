@@ -3,8 +3,7 @@
 #include "pins.h"
 
 // Constructor
-Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder& enc) : enc(enc) {
-
+Revolve::Revolve(int start_pin, int dir_pin, int speed_pin, Encoder* enc) : enc(enc) {
 	// Set physical pins
 	start_pin = start_pin;
 	dir_pin = dir_pin;
@@ -68,7 +67,7 @@ int Revolve::getDir() const {
 
 // Getter for current absolute position from encoder - updates cur_pos
 long Revolve::getPos() {
-	auto pos = (enc.read() / 4L);  // Encoder has 4 steps per degree
+	auto pos = (enc->read() / 4L);  // Encoder has 4 steps per degree
 	pos = pos / enc_ratio;  // Divide by encoder degrees per revolve degree
 	cur_pos = pos;
 	return pos;
@@ -76,7 +75,6 @@ long Revolve::getPos() {
 
 // Set speed - will accelerate according to limits set on controller (i.e. max acceleration)
 void Revolve::setSpeed(float speed) {
-
 	// Nothing below MINSPEED
 	if (speed < MINSPEED && speed != 0) {
 		speed = MINSPEED;
@@ -134,7 +132,7 @@ int Revolve::displayPos() {
 
 // Reset position to 0
 void Revolve::resetPos() const {
-	enc.write(0);
+	enc->write(0);
 }
 
 // Set debug flag to allow serial printing by functions

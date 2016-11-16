@@ -113,6 +113,5 @@ public:
 		} cuestack_backup;
 		struct {
 		} debug;
-
 	} data;
 };

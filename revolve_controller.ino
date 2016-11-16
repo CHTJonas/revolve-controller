@@ -26,26 +26,13 @@ U8GLIB_ST7920_128X64 leftscreen(22, 24, 26, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 middlescreen(23, 25, 27, U8G_PIN_NONE);
 U8GLIB_ST7920_128X64 rightscreen(32, 34, 36, U8G_PIN_NONE);
 
-// define the operational state of the machine
 State state = State{.state = STATE_MAINMENU, .data = {.mainmenu = {} } };
-
-// define the revolves
-Revolve inner(4, 5, 6, enc_inner);
-Revolve outer(11, 10, 9, enc_outer);
-
-// define the cuestack
+Revolve inner(4, 5, 6, &enc_inner);
+Revolve outer(11, 10, 9, &enc_outer);
 Cuestack cuestack;
-
-// define the control interface
-Interface interface(cuestack, enc_input, keypad, ringLeds, pauseLeds, keypadLeds);
-
-// define the displays
-Displays displays(&state, leftscreen, middlescreen, rightscreen, ringLeds, inner, outer, keypad, interface, cuestack);
-
-// define the stage
+Interface interface(&cuestack, &enc_input, &keypad, &ringLeds, &pauseLeds, &keypadLeds);
+Displays displays(&state, &leftscreen, &middlescreen, &rightscreen, &ringLeds, &inner, &outer, &keypad, &interface, &cuestack);
 Stage stage(&state, &inner, &outer, &displays, &interface, &ringLeds);
-
-// define the navigation
 Navigation navigation(&state, &cuestack, &interface, &displays, &stage);
 
 // Please leave these here, they are to work around a bug in arduino-builder
@@ -95,16 +82,14 @@ void goToCurrentCue(int target_mode) {
 		state.data.program_gotocue = {};
 		state.changed();
 
-		// Move - both enabled
 		if (interface.cueParams[1] && interface.cueParams[2]) {
+			// Move - both enabled
 			// stage.gotoPos();
-		}
-		// Move - inner disabled
-		else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
+		} else if (interface.cueParams[1] == 0 && interface.cueParams[2]) {
+			// Move - inner disabled
 			// stage.gotoPos();
-		}
-		// Move - outer disabled
-		else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
+		} else if (interface.cueParams[1] && interface.cueParams[2] == 0) {
+			// Move - outer disabled
 			// stage.gotoPos();
 		}
 
@@ -113,9 +98,8 @@ void goToCurrentCue(int target_mode) {
 	}
 }
 
-// TODO: Make this async
+// TODO(devel@dtwood.uk): Make this async
 void updateSetting(void (*settingLimiter)(void), int mode) {
-
 	if (Buttons::select.engaged()) {
 		interface.editing = 1;
 		interface.input.resetKeypad();
@@ -156,7 +140,7 @@ void encoderLimiter() {
 }
 
 void eepromLimiter() {
-	interface.limitMovements(interface.defaultValues);
+	interface.limitMovements(&interface.defaultValues);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
@@ -166,12 +150,12 @@ void kpLimiter() {
 }
 
 void manualLimiter() {
-	interface.limitMovements(interface.currentMovements);
+	interface.limitMovements(&interface.currentMovements);
 	displays.forceUpdateDisplays(0, 1, 0, 0);
 }
 
 void movementLimiter() {
-	interface.limitMovements(interface.cueMovements);
+	interface.limitMovements(&interface.cueMovements);
 	cuestack.setMovements(interface.cueMovements);
 	displays.forceUpdateDisplays(1, 0, 1, 0);
 }

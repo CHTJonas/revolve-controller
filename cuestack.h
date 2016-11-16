@@ -41,9 +41,9 @@ public:
 	void saveCuestack() const;
 
 	// Getters for current cue data
-	void getMovements(int (&outputValues)[10]);
-	void getNumber(int& outputNumber) const;
-	void getParams(int (&outputParams)[3]);
+	void getMovements(int (*outputValues)[10]);
+	void getNumber(int* outputNumber) const;
+	void getParams(int (*outputParams)[3]);
 	void setMovements(int inputValues[10]);
 	void setNumber(int inputNumber);
 	void setParams(int inputParams[3]);
