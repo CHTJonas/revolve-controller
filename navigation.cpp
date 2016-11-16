@@ -185,7 +185,7 @@ void Navigation::loop() {
 				interface->editing = 1;
 				interface->input.resetKeypad();
 
-				// TODO(devel@dtwood.uk): Refactor
+				// TODO(devel@dtwood.uk, #16): Refactor
 				while (interface->editing) {
 					// Just flip Yes/No variables on select
 					if (interface->menu_pos > 0) {
@@ -313,7 +313,7 @@ void Navigation::loop() {
 
 		// Only allow cue position jogging if select pressed
 		if (Buttons::select.risen_since_state_change()) {
-			// TODO(devel@dtwood.uk): Refactor
+			// TODO(devel@dtwood.uk, #17): Refactor
 			// Reset input encoder before start of edit
 			interface->input.getInputEncoder();
 			while (true) {

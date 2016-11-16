@@ -130,7 +130,7 @@ int Cuestack::getCueIndex(int number) const {
 		}
 	}
 
-	// TODO(devel@dtwood.uk): check whether this is actually necessary (it
+	// TODO(devel@dtwood.uk, #15): check whether this is actually necessary (it
 	// fixes a warning though)
 	return MAX_CUES;
 }

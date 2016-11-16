@@ -98,7 +98,7 @@ void goToCurrentCue(int target_mode) {
 	}
 }
 
-// TODO(devel@dtwood.uk): Make this async
+// TODO(devel@dtwood.uk, #18): Make this async
 void updateSetting(void (*settingLimiter)(void), int mode) {
 	if (Buttons::select.engaged()) {
 		interface.editing = 1;
