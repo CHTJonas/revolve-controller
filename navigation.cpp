@@ -530,7 +530,7 @@ void Navigation::loop() {
 	case STATE_KPSETTINGS:
 
 		// Update menu_pos
-		interface->updateMenu(5)
+		interface->updateMenu(5);
 
 		// Exit back to settings if back pressed
 		if (Buttons::back.engaged()) {
