@@ -30,12 +30,6 @@ private:
 
 class Buttons {
 public:
-	static bool dmhEngaged();
-	static bool goEngaged();
-	static bool eStopsEngaged();
-	static bool inputEncoderPressed();
-	static bool backPressed();
-
 	static Button dmh;
 	static Button go;
 	static EStopButton e_stop;
